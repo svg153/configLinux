@@ -1,0 +1,24 @@
+alias lsla="ls -la"
+alias install="sudo apt install"
+alias ln="ln -s"
+alias cd..="cd .."
+alias ..="cd .."
+alias ...="cd .. && cd .."
+alias ....="cd .. && cd .. && cd .."
+alias .....="cd .. && cd .. && cd .. && cd .."
+alias start_ETSIINFBot="/home/svg153/REPOSITORIOS/ETSIINFbot/yii start/updates"
+alias stop_ETSIINFBot="/home/svg153/REPOSITORIOS/ETSIINFbot/yii start/stop-hook"
+
+
+alias up_run1="cd ~/vagrant/androtest && vagrant up run1 && cd"
+alias down_run1="cd ~/vagrant/androtest && vagrant halt run1 && cd"
+alias ssh_run1="ssh vagrant@127.0.0.1 -p 2222"
+alias start_run1="up_run1 && ssh_run1"
+
+alias up_run2="cd ~/vagrant/androtest && vagrant up run2 && cd"
+alias down_run2="cd ~/vagrant/androtest && vagrant halt run2 && cd"
+alias ssh_run2="ssh vagrant@127.0.0.1 -p 2200"
+alias start_run2="up_run2 && ssh_run2"
+
+alias tail_ls='chshell() { chsh -s $(which "$1") ;}; chshell'
+alias ls_tail='ls_tail() { ls -l "$1" | tail ;}; ls_tail'
