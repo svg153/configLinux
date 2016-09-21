@@ -1,5 +1,6 @@
 ln -s ./.aliases ~/.aliases
 ln -s ./.bashrc ~/.bashrc
+ln -s ./.z.sh ~/.z.sh
 ln -s ./SCRIPTS ~/SCRIPTS
 
 
