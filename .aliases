@@ -22,3 +22,5 @@ alias start_run2="up_run2 && ssh_run2"
 
 alias tail_ls='chshell() { chsh -s $(which "$1") ;}; chshell'
 alias ls_tail='ls_tail() { ls -l "$1" | tail ;}; ls_tail'
+
+alias folder_size='folder_size() { du -sh "$1" ;}; folder_size'
