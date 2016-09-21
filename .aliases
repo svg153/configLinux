@@ -22,5 +22,8 @@ alias start_run2="up_run2 && ssh_run2"
 
 alias tail_ls='chshell() { chsh -s $(which "$1") ;}; chshell'
 alias ls_tail='ls_tail() { ls -l "$1" | tail ;}; ls_tail'
-
 alias folder_size='folder_size() { du -sh "$1" ;}; folder_size'
+
+new-repo() { fullRepoPath="$1"; repoNameGit=$(basename "$fullRepoPath"); repoName="${repoNameGit%.*}"; mkdir -p ~/REPOSITORIOS/$repoName};
+alias git-clone='git-clone() { fullRepoPath="$1"; repoNameGit=$(basename "$fullRepoPath"); repoName="${repoNameGit%.*}"; mkdir -p ~/REPOSITORIOS/$repoName; git clone "$1"}; git-clone'
+alias git-new='git-new() { fullRepoPath="$1"; repoNameGit=$(basename "$fullRepoPath"); repoName="${repoNameGit%.*}"; mkdir -p ~/REPOSITORIOS/$repoName; echo "# $repoName" >> README.md; git init; git add README.md; git commit -m "first commit"; git remote add origin $1; git push -u origin master}; git-new'
