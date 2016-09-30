@@ -60,6 +60,9 @@ HIST_STAMPS="dd/mm/yyyy"
 # Add wisely, as too many plugins slow down shell startup.
 plugins=(git bundler node npm bower brew osx rake cloudapp ruby autojump colored-man colorize extract zsh-syntax-highlighting z)
 
+#syntax highlighters for the zsh-syntax-highlighting plugin
+ZSH_HIGHLIGHT_HIGHLIGHTERS=(main brackets pattern root)
+
 source $ZSH/oh-my-zsh.sh
 
 
