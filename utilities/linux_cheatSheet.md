@@ -49,6 +49,24 @@ create_tmp_file() {
 }
 ```
 
+Find a word in a directory
+```shell
+# print the filename and the line
+grep -r "word" /path/*.sh
+# print only the filename
+grep -r -l "word" /path/*.sh
+```
+
+Sorting files according to size recursively
+http://unix.stackexchange.com/questions/88065/sorting-files-according-to-size-recursively
+```shell
+# Show me the directory.
+du -ah /path | sort -rh
+# Don't show me the directory, just the 6 biggest files
+du -ah /path | grep -v "/$" | sort -rh | head -6
+```
+
+
 # Special commands
 ```shell
 # https://github.com/kperusko/cheatsheet/blob/master/linux.txt
