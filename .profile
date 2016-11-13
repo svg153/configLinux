@@ -19,6 +19,19 @@ fi
 # set PATH so it includes user's private bin directories
 PATH="$HOME/bin:$HOME/.local/bin:$PATH"
 
+# set PATH for Android Studio
+ANDROID_STUDIO="/usr/local/android-studio/bin"
+if [ -d "$ANDROID_STUDIO" ] ; then
+  PATH="$PATH:$ANDROID_STUDIO"
+fi
+
+# set PATH for Android SDK
+ANDROID_SDK="~/Android/Sdk/tools"
+if [ -d $ANDROID_SDK ] ; then
+  PATH="$PATH:$ANDROID_SDK"
+fi
+
+
 #export VAGRANT_HOME="/home/svg153/.vagrant.d/"
 #export VAGRANT_CWD="/home/svg153/vagrant/androtest"
 #export VAGRANT_VAGRANTFILE="/home/svg153/vagrant/androtest"
