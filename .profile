@@ -35,3 +35,13 @@ fi
 #export VAGRANT_HOME="/home/svg153/.vagrant.d/"
 #export VAGRANT_CWD="/home/svg153/vagrant/androtest"
 #export VAGRANT_VAGRANTFILE="/home/svg153/vagrant/androtest"
+
+# set PATH so it includes user's private bin if it exists
+if [ -d "$HOME/bin" ] ; then
+    PATH="$HOME/bin:$PATH"
+fi
+
+export PATH="$PATH:$HOME/.rvm/bin" # Add RVM to PATH for scripting
+
+[[ -s "$HOME/.rvm/scripts/rvm" ]] && source "$HOME/.rvm/scripts/rvm" $
+[[ -s "$HOME/.rvm/scripts/rvm" ]] && . "$HOME/.rvm/scripts/rvm"
