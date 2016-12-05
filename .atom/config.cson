@@ -1,0 +1,45 @@
+"*":
+  "config-import-export":
+    defaultPath:
+      darwin: ""
+      freebsd: ""
+      linux: "/home/svg153/AtomBackups"
+      sunos: ""
+      win32: ""
+  core:
+    telemetryConsent: "limited"
+    themes: [
+      "atom-dark-ui"
+      "one-dark-syntax"
+    ]
+  editor:
+    fontSize: 12
+  "exception-reporting":
+    userId: "edebd8bf-41d2-1c57-b033-7a1e54ba742a"
+  "keyboard-localization":
+    useKeyboardLayout: "es_ES"
+  minimap:
+    absoluteMode: true
+    plugins:
+      bookmarks: true
+      bookmarksDecorationsZIndex: 0
+      cursorline: true
+      cursorlineDecorationsZIndex: 0
+      "find-and-replace": true
+      "find-and-replaceDecorationsZIndex": 0
+      "git-diff": true
+      "git-diffDecorationsZIndex": 0
+      "highlight-selected": true
+      "highlight-selectedDecorationsZIndex": 0
+      pigments: true
+      pigmentsDecorationsZIndex: 0
+      selection: true
+      selectionDecorationsZIndex: 0
+  "sync-settings":
+    _analyticsUserId: "7cfe8bca-ddd7-4a13-926c-16921eaf48b0"
+    _lastBackupHash: "0dea8c3114978eba6fa0b8082aa72abff159eb1c"
+    analytics: false
+    gistId: "5683f87f54571605339f0de6be3f31b3"
+    personalAccessToken: "d0c704f8e5867464a970c1fc1df48c65242c86cb"
+  welcome:
+    showOnStartup: false
