@@ -1,0 +1,22 @@
+# gtk-color-scheme	= "bg_color:#d9dadb\nselected_bg_color:#1e9cc8\nbase_color:#fcfcfc" # Background, base.
+style "pager" = "default"
+{
+#    xthickness = 0
+#    ythickness = 0
+
+#    bg[SELECTED]      = shade(0.8, @selected_bg_color)
+#    fg[SELECTED]      = @base_color
+
+#    engine "xfce"
+#    {
+#        smooth_edge = true
+#    }
+
+#    fg[NORMAL]        = "#888888"   # border color of other windows
+#    fg[SELECTED]      = "#666666"   # selected workspace window borders
+    bg[NORMAL]        = "#000000"	# background colour
+    bg[PRELIGHT]      = "#0000ff"	# foreground colour on hover
+    bg[SELECTED]      = "#f0ff00"	# foreground colour
+}
+widget_class "*Pager*"             style "pager"
+class "*Pager*"                    style "pager"
