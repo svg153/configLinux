@@ -32,9 +32,9 @@ if [ -d $ANDROID_SDK ] ; then
 fi
 
 
-#export VAGRANT_HOME="/home/svg153/.vagrant.d/"
-#export VAGRANT_CWD="/home/svg153/vagrant/androtest"
-#export VAGRANT_VAGRANTFILE="/home/svg153/vagrant/androtest"
+#export VAGRANT_HOME="$HOME/.vagrant.d/"
+#export VAGRANT_CWD="$HOME/vagrant/androtest"
+#export VAGRANT_VAGRANTFILE="$HOME/vagrant/androtest"
 
 # set PATH so it includes user's private bin if it exists
 if [ -d "$HOME/bin" ] ; then
@@ -42,6 +42,3 @@ if [ -d "$HOME/bin" ] ; then
 fi
 
 export PATH="$PATH:$HOME/.rvm/bin" # Add RVM to PATH for scripting
-
-[[ -s "$HOME/.rvm/scripts/rvm" ]] && source "$HOME/.rvm/scripts/rvm" $
-[[ -s "$HOME/.rvm/scripts/rvm" ]] && . "$HOME/.rvm/scripts/rvm"

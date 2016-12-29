@@ -107,3 +107,4 @@ fi
 alias zshconfig="gedit ~/.zshrc"
 # alias ohmyzsh="mate ~/.oh-my-zsh"
 
+[[ -s "$HOME/.rvm/scripts/rvm" ]] && source "$HOME/.rvm/scripts/rvm" # Load RVM into a shell session *as a function*

@@ -1,4 +1,4 @@
-alias lsla="ls -la"
+alias lsla="ls -lha"
 alias install="sudo apt install"
 alias ln="ln -s"
 alias cd..="cd .."
@@ -6,9 +6,11 @@ alias ..="cd .."
 alias ...="cd .. && cd .."
 alias ....="cd .. && cd .. && cd .."
 alias .....="cd .. && cd .. && cd .. && cd .."
-alias start_ETSIINFBot="/home/svg153/REPOSITORIOS/ETSIINFbot/yii start/updates"
-alias stop_ETSIINFBot="/home/svg153/REPOSITORIOS/ETSIINFbot/yii start/stop-hook"
 
+alias start_ETSIINFBot="~/REPOSITORIOS/ETSIINFbot/yii start/updates"
+alias stop_ETSIINFBot="~/REPOSITORIOS/ETSIINFbot/yii start/stop-hook"
+
+alias ic="~/REPOSITORIOS/imdea-controls/blinds.rb $@"
 
 alias up_run1="cd ~/vagrant/androtest && vagrant up run1 && cd"
 alias down_run1="cd ~/vagrant/androtest && vagrant halt run1 && cd"
