@@ -30,11 +30,17 @@ mkdir ~/PROGRAMAS
 
 # Install telegram
 wget https://telegram.org/dl/desktop/linux ~/PROGRAMAS
-extraer tsetup*
+cd ~/PROGRAMAS
+extract -r tsetup*
+sudo ln -s ~/PROGRAMAS/Telegram/Telegram /bin/telegram
+cd
 
 # Install smartgit
+cd ~/PROGRAMAS
 wget http://www.syntevo.com/smartgit/download?file=smartgit/smartgit-linux-8_0_3.tar.gz ~/PROGRAMAS
-extraer smartgit-linux*
+extract -r smartgit-linux*
+sudo ln -s ~/PROGRAMAS/smartgit/bin/smartgit.sh /bin/smartgit
+cd
 
 # Install atom
 wget https://atom.io/download/deb ~/PROGRAMAS
