@@ -1,20 +1,48 @@
+alias edit_aliases="nano ~/.aliases && source "~/.aliases""
+
+
+# system aliases
 alias lsla="ls -lha"
 alias lsl="ls -l"
+alias lsline='ls $@ | tr "\n" " "'
+alias ln="ln -s"
+alias cd..="cd .."
+alias cd...="..."
+
+alias tail_ls='chshell() { chsh -s $(which "$1") ;}; chshell'
+alias ls_tail='ls_tail() { ls -l "$1" | tail ;}; ls_tail'
+alias folder_size='folder_size() { du -sh "$1" ;}; folder_size'
+
+alias crontablog="sudo grep CRON /var/log/syslog"
+
 alias install="sudo apt install"
 alias update="sudo apt update"
 alias upgrade="update && sudo apt upgrade"
 alias upgradable="apt list --upgradable"
-alias ln="ln -s"
-alias cd..="cd .."
-alias ..="cd .."
-alias ...="cd .. && cd .."
-alias ....="cd .. && cd .. && cd .."
-alias .....="cd .. && cd .. && cd .. && cd .."
 
+
+# Programs aliases
+alias docker_list_containers_all='docker container ls -a -q | tr "\n" " "'
+alias docker_stop_all='docker stop $(docker ps -a -q | tr "\n" " ")'     # stop all containers
+alias docker_rm_cont_all='docker rm $(docker ps -a -q | tr "\n" " ")'       # remove all containers
+alias docker_list_images_all='docker images -q | tr "\n" " "' # list all docker images
+alias docker_rm_images_all='docker rmi -f $(docker_list_images_all)'  # remove all docker images
+alias docker_list_volumes_all='docker volume ls -q | tr "\n" " "' # list all volumes images
+alias docker_rm_volumes_all='docker volumes rm $(docker_list_volumes_all)'  # remove all docker volume
+alias docker_clean_all="docker_stop_all; docker_rm_cont_all; docker_rm_images_all"
+
+
+# my git aliases
+new-repo() { fullRepoPath="$1"; repoNameGit=$(basename "$fullRepoPath"); repoName="${repoNameGit%.*}"; mkdir -p ~/REPOSITORIOS/$repoName};
+alias git-clone='git-clone() { fullRepoPath="$1"; repoNameGit=$(basename "$fullRepoPath"); repoName="${repoNameGit%.*}"; mkdir -p ~/REPOSITORIOS/$repoName; git clone "$1"}; git-clone'
+alias git-new='git-new() { fullRepoPath="$1"; repoNameGit=$(basename "$fullRepoPath"); repoName="${repoNameGit%.*}"; mkdir -p ~/REPOSITORIOS/$repoName; echo "# $repoName" >> README.md; git init; git add README.md; git commit -m "first commit"; git remote add origin $1; git push -u origin master}; git-new'
+
+
+# my repos aliases
 alias start_ETSIINFBot="~/REPOSITORIOS/ETSIINFbot/yii start/updates"
 alias stop_ETSIINFBot="~/REPOSITORIOS/ETSIINFbot/yii start/stop-hook"
 
-alias ic="~/REPOSITORIOS/imdea-controls/blinds.rb $@"
+alias ic="~/REPOSITORIOS/imdea-controls-cli/control.py"
 
 alias up_run1="cd ~/vagrant/androtest && vagrant up run1 && cd"
 alias down_run1="cd ~/vagrant/androtest && vagrant halt run1 && cd"
@@ -26,13 +54,8 @@ alias down_run2="cd ~/vagrant/androtest && vagrant halt run2 && cd"
 alias ssh_run2="ssh vagrant@127.0.0.1 -p 2200"
 alias start_run2="up_run2 && ssh_run2"
 
-alias tail_ls='chshell() { chsh -s $(which "$1") ;}; chshell'
-alias ls_tail='ls_tail() { ls -l "$1" | tail ;}; ls_tail'
-alias folder_size='folder_size() { du -sh "$1" ;}; folder_size'
-
-new-repo() { fullRepoPath="$1"; repoNameGit=$(basename "$fullRepoPath"); repoName="${repoNameGit%.*}"; mkdir -p ~/REPOSITORIOS/$repoName};
-alias git-clone='git-clone() { fullRepoPath="$1"; repoNameGit=$(basename "$fullRepoPath"); repoName="${repoNameGit%.*}"; mkdir -p ~/REPOSITORIOS/$repoName; git clone "$1"}; git-clone'
-alias git-new='git-new() { fullRepoPath="$1"; repoNameGit=$(basename "$fullRepoPath"); repoName="${repoNameGit%.*}"; mkdir -p ~/REPOSITORIOS/$repoName; echo "# $repoName" >> README.md; git init; git add README.md; git commit -m "first commit"; git remote add origin $1; git push -u origin master}; git-new'
+alias adc="docker build --tag androtest-docker ."
+alias ade="docker run --interactive --rm --tty androtest-docker bash"
 
 alias filesBySize="du -ah $1 | grep -v "/$" | sort -rh"
 alias filesBySizeLimited="du -ah $1 | grep -v "/$" | sort -rh | head -10"
