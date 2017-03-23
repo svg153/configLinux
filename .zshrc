@@ -58,7 +58,15 @@ HIST_STAMPS="dd/mm/yyyy"
 # Custom plugins may be added to ~/.oh-my-zsh/custom/plugins/
 # Example format: plugins=(rails git textmate ruby lighthouse)
 # Add wisely, as too many plugins slow down shell startup.
-plugins=(git bundler node npm bower brew osx rake cloudapp ruby autojump colored-man colorize extract zsh-syntax-highlighting z)
+plugins=(textmate lighthouse)
+plugins+=(git git-extras gitfast git-flow git-flow-avh github git-hubflow gitignore git-prompt git-remote-branch)
+plugins+=(django node ruby perl python spring)
+plugins+=(rake rails jsontools)
+plugins+=(bundler pip npm bower brew cloudapp)
+plugins+=(docker boot2docker docker-compose)
+plugins+=(autojump colored-man-pages colorize extract z)
+plugins+=(zsh-autosuggestions zsh-syntax-highlighting zsh-completions zsh-output-highlighting)
+autoload -U compinit && compinit
 
 #syntax highlighters for the zsh-syntax-highlighting plugin
 ZSH_HIGHLIGHT_HIGHLIGHTERS=(main brackets pattern root)
@@ -69,6 +77,8 @@ source $ZSH/oh-my-zsh.sh
 
 # User configuration
 
+# personal configs for plugins
+export ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE='fg=white'
 
 if [ -f ~/.aliases ]; then
     . ~/.aliases
@@ -107,4 +117,7 @@ fi
 alias zshconfig="gedit ~/.zshrc"
 # alias ohmyzsh="mate ~/.oh-my-zsh"
 
+# rvm env
 [[ -s "$HOME/.rvm/scripts/rvm" ]] && source "$HOME/.rvm/scripts/rvm" # Load RVM into a shell session *as a function*
+
+[[ -e "$HOME/.rvm/bin" ]] && export PATH="$PATH:$HOME/.rvm/bin" # Add RVM to PATH for scripting
