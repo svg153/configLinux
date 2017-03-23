@@ -13,6 +13,8 @@ alias tail_ls='chshell() { chsh -s $(which "$1") ;}; chshell'
 alias ls_tail='ls_tail() { ls -l "$1" | tail ;}; ls_tail'
 alias folder_size='folder_size() { du -sh "$1" ;}; folder_size'
 
+alias test=' && echo yes || echo no'
+
 alias crontablog="sudo grep CRON /var/log/syslog"
 
 alias install="sudo apt install"
