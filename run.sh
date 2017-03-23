@@ -1,5 +1,4 @@
-
-
+#!/bin/bash
 
 # install git, unrar, zsh
 sudo apt-get install git zsh unrar
@@ -8,7 +7,7 @@ sudo apt-get install git zsh unrar
 mkdir ~/REPOSITORIOS
 
 # clone the configLinux repo
-git clone https://github.com/svg153/configLinux.git
+# git clone https://github.com/svg153/configLinux.git
 
 # create the symlinks
 rm ~/.aliases; ln -s ~/REPOSITORIOS/configLinux/.aliases ~/.aliases
@@ -23,8 +22,19 @@ sh -c "$(wget https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/to
 rm ~/.zshrc; ln -s ~/REPOSITORIOS/configLinux/.zshrc ~/.zshrc
 rm ~/.oh-my-zsh; ln -s ~/REPOSITORIOS/configLinux/.oh-my-zsh ~/.oh-my-zsh
 
+# install zsh plugins
+OMZsh_C_P="~/.oh-my-zsh/custom/plugins/"
+git clone https://github.com/zsh-users/zsh-autosuggestions $OMZsh_C_P
+git clone https://github.com/zsh-users/zsh-completions $OMZsh_C_P
+git clone https://github.com/zsh-users/zsh-navigation-tools $OMZsh_C_P
+git clone https://github.com/zsh-users/zsh-output-highlighting $OMZsh_C_P
+git clone https://github.com/zsh-users/zsh-syntax-highlighting $OMZsh_C_P
+
 # install php
 sudo apt-get install php5-common libapache2-mod-php5 php5-cli
+
+# TODO: install php7
+
 
 mkdir ~/PROGRAMAS
 
