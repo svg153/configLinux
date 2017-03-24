@@ -24,6 +24,7 @@ alias upgradable="apt list --upgradable"
 
 
 # Programs aliases
+docker_enter() { docker run -i "$1" /bin/bash }
 alias docker_list_containers_all='docker container ls -a -q | tr "\n" " "'
 alias docker_stop_all='docker stop $(docker ps -a -q | tr "\n" " ")'     # stop all containers
 alias docker_rm_cont_all='docker rm $(docker ps -a -q | tr "\n" " ")'       # remove all containers
