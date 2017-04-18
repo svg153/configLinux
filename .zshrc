@@ -117,7 +117,17 @@ fi
 alias zshconfig="gedit ~/.zshrc"
 # alias ohmyzsh="mate ~/.oh-my-zsh"
 
+
 # rvm env
 [[ -s "$HOME/.rvm/scripts/rvm" ]] && source "$HOME/.rvm/scripts/rvm" # Load RVM into a shell session *as a function*
-
 [[ -e "$HOME/.rvm/bin" ]] && export PATH="$PATH:$HOME/.rvm/bin" # Add RVM to PATH for scripting
+
+# set PATH if texlive exists
+TEXLIVE_PATH=/usr/local/texlive/2016/
+if [ -d $TEXLIVE_PATH ] ; then
+    PATH=$PATH:$TEXLIVE_PATH/bin/x86_64-linux
+    INFOPATH=$INFOPATH:$TEXLIVE_PATH/texmf-dist/doc/info
+    MANPATH=$MANPATH:$TEXLIVE_PATH/texmf-dist/doc/man
+    TEXLIVE_LOG=$TEXLIVE_PATH/install-tl.log
+fi
+
