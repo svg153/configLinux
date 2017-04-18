@@ -123,6 +123,7 @@ alias zshconfig="gedit ~/.zshrc"
 [[ -e "$HOME/.rvm/bin" ]] && export PATH="$PATH:$HOME/.rvm/bin" # Add RVM to PATH for scripting
 
 # set PATH if texlive exists
+## https://en.wikibooks.org/wiki/LaTeX/Installation#.2ABSD_and_GNU.2FLinux
 TEXLIVE_PATH=/usr/local/texlive/2016/
 if [ -d $TEXLIVE_PATH ] ; then
     PATH=$PATH:$TEXLIVE_PATH/bin/x86_64-linux
