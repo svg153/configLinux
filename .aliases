@@ -20,8 +20,11 @@ alias crontablog="sudo grep CRON /var/log/syslog"
 alias install="sudo apt install"
 alias installdeb="sudo dpkg -i"
 alias update="sudo apt update"
-alias upgrade="update && sudo apt upgrade"
+alias upgrade="sudo apt upgrade"
 alias upgradable="apt list --upgradable"
+
+alias nomachine="sudo /etc/NX/nxserver"
+alias nomachine_restart="nomachine --restart"
 
 
 # Programs aliases
@@ -36,7 +39,7 @@ alias docker_rm_images_all='docker rmi -f $(docker_list_images_all)'  # remove a
 alias docker_list_volumes_all='docker volume ls -q | tr "\n" " "' # list all volumes images
 alias docker_rm_volumes_all='docker volumes rm $(docker_list_volumes_all)'  # remove all docker volume
 alias docker_clean_all="docker_stop_all; docker_rm_cont_all; docker_rm_images_all"
-
+alias dockerGUI="p=9000 && docker container run -d -p ${p}:${p} -v /var/run/docker.sock:/var/run/docker.sock portainer/portainer && firefox 0.0.0.0:${p}"
 
 # my git aliases
 new-repo() { fullRepoPath="$1"; repoNameGit=$(basename "$fullRepoPath"); repoName="${repoNameGit%.*}"; mkdir -p ~/REPOSITORIOS/$repoName};
@@ -70,7 +73,7 @@ get_androtest_container_id() { androtest_container_id=$(docker ps -a | grep andr
 docker_stop_androtest() {
   # get_androtest_container_id()
   androtest_container_id=$(docker ps -a | grep androtest | awk '{print $1}')
-  if [[ ${androtest_container_id} == "" ]] ; then 
+  if [[ ${androtest_container_id} == "" ]] ; then
     echo "Any androtest container running"
   else
     docker stop ${androtest_container_id}
