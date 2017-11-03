@@ -4,10 +4,11 @@
 
 WHOIAMI=$(whoami)
 
-default_pathDir1="/home/svg153/REPOSITORIOS/androtest/scripts"
-default_pathDir2="/home/svg153/vagrant/androtest/scripts"
-default_pathNamefileDiff="/home/svg153/diffDirs_output.txt"
-tempfile="/home/svg153/temp.txt"
+default_pathDir1="/home/svg153/REPOSITORIOS/android-emulator/tools/SwiftHand/src"
+default_pathDir2="/home/svg153/REPOSITORIOS/android-emulator/tools/SwiftHand_OLD/src"
+# @TODO: default_pathNamefileDiff by common paths of dirs --> https://www.rosettacode.org/wiki/Find_common_directory_path#UNIX_Shell
+default_pathNamefileDiff="/home/svg153/REPOSITORIOS/android-emulator/tools/SwiftHand_diff.txt"
+tempfile="/home/svg153/.temp.txt"
 
 dir1=""
 dir2=""
@@ -28,9 +29,9 @@ warn_color="\e[33m"
 reset_color="\e[0m"
 
 
-# 
+#
 # -> FUNCTIONS
-# 
+#
 
 msg(){
     color=$reset_color
@@ -45,13 +46,13 @@ msg(){
 
 print_usage() {
     echo "USAGE: $0 dir1 dir2 [fileToDiffStdout]"
-    echo 
+    echo
     echo "OPTIONS:"
     echo " -h,--help                print this message and exit"
     echo
     echo "EXAMPLE:"
     echo "  · $ $0 /path/dir1 /path/dir2 /path/fileToDiffStdout"
-    echo 
+    echo
     echo "TIPS:"
     echo "  · $ export diffDirsPathDir1=\"/path/dir1\""
     echo "  · $ export diffDirsPathDir2=\"/path/dir2\""
@@ -60,9 +61,9 @@ print_usage() {
 
 # Check if actual user is root
 check_root_user() {
-    
+
     TOBE="root"
-        
+
     if [ "$WHOIAMI" != "$TOBE" ] ; then
         echo "You are '$WHOIAMI', but you should be '$TOBE'."
         echo "Please, switch to '$TOBE' user and relauch the script."
@@ -113,18 +114,18 @@ check_args() {
     # Check if dirs1 exist
     if [ ! -d "$dir1" ] ; then
         echo "dir1: $dir1 not exist. Please check it and relaunch."
-        exit 1 
-    fi 
+        exit 1
+    fi
     # Check if dirs2 exist
     if [ ! -d "$dir2" ] ; then
         echo "dir2: $dir2 not exist. Please check it and relaunch."
-        exit 1 
-    fi 
+        exit 1
+    fi
 
     # Check if file exist
     if [ -f "$file" ] ; then
         mv $file "${file}_OLD"
-    fi 
+    fi
     touch $file
 
 }
@@ -140,24 +141,30 @@ change_perms() {
 
      # Check if file exist
     if [ "$user_TOBE" != "$user_file" ] ; then
-        chown $user_TOBE $file 
-    fi 
+        chown $user_TOBE $file
+    fi
 
     if [ "$group_TOBE" != "$group_file" ] ; then
         chgrp $group_TOBE $file
-    fi 
+    fi
 
     if [ "$perm_TOBE" -ne "$perm_file" ] ; then
         chmod $perm_TOBE $file
-    fi 
+    fi
 
 }
 
 make_export() {
 
-    export diffDirsPathDir1="$default_pathDir1"
-    export diffDirsPathDir2="$default_pathDir2"
-    export diffDirsPathFile="$default_pathNamefileDiff"
+    if [[ $# -eq 0 ]] ; then
+        export diffDirsPathDir1="$default_pathDir1"
+        export diffDirsPathDir2="$default_pathDir2"
+        export diffDirsPathFile="$default_pathNamefileDiff"
+    else
+        export diffDirsPathDir1="$1"
+        export diffDirsPathDir2="$2"
+        export diffDirsPathFile="$3"
+    fi
 
 }
 
@@ -168,13 +175,13 @@ make_diff() {
 
     check_args "$@"
 
-    # diff -qr /home/hifly_admin/installation /home/trsevg/trsevg_ws_smccm.main/installation > $file
     diff -qr $dir1 $dir2 > $file
-    
-    
-    #change_perms
 
-    msg "i" "See '$file' to check the diffs between '$dir1' and '$dir2'."
+    #change_perms
+    msg "i" "See '$file' to check the diffs between '$dir1' and '$dir2'.": echo; echo
+
+    touch $tempfile
+    chmod 777 $tempfile
 
 }
 
@@ -182,50 +189,40 @@ make_diff() {
 
 concat_parterns() {
 
-    for i in $@
-    do
+    for i in $@ ; do
         paterns_args="$paterns_args $i"
     done
 }
 
 # filter diff
-
 filter_diff_output() {
 
-    
-    concat_parterns ".svn" "~" ".tgz" ".tar.gz" ".rpm"
-    concat_parterns ".pyc"
-    concat_parterns "installation/packages/" "installation/roles/installcots/files/"
-    concat_parterns "wheelhouse" "bootstrap.sh" "inventory-allinabox.ini"
-    
 
-#   declare -a paterns=(".svn" "~" ".tgz" ".tar.gz" ".rpm" "installation/packages/" "installation/roles/installcots/files/" "/installation: wheelhouse" "/installation: bootstrap.sh" ".pyc" )
+    concat_parterns "~" ".git" ".svn" ".tgz" ".tar.gz" ".rpm"
+    concat_parterns ".o" ".bin" ".class" ".jar" ".pyc"
+
     paterns=($paterns_args)
 
-    for i in "${paterns[@]}"
-    do
-        # grep -v "*.svn" /home/hifly_admin/diffDirs_output.txt > "/home/hifly_admin/temp.txt" && mv "/home/hifly_admin/temp.txt" /home/hifly_admin/diffDirs_output.txt
+    for i in "${paterns[@]}" ; do
         grep -v "$i" $file > $tempfile && mv $tempfile $file
     done
 }
 
 make_diff_file() {
 
-    touch $tempfile
-    
     # for para cada linea que mache con File al comienzo coger la columna 2 y 4 y hacer el diff
-    while read line; do
+    while read line ; do
         # print the title of file to diff
         printf "%s\n%s\n" "$line" $(printf "%s\n" "$line" | sed "s/./>/g") >> $tempfile
-        
+
         # Check if there ara diff or is only in one of them
         if [[ $line == *"File"* ]] ; then
             # sacar las columnas
             mine="$(echo $line | awk '{print $2}')"
     #        mine="$(echo "uno dos tres cuatro" | awk '{print $2}')" && repo="$(echo "uno dos tres cuatro" | awk '{print $4}')" && echo "$mine" && echo "$repo"
             repo="$(echo $line | awk '{print $4}')"
-    
-            # escribir las diffs 
+
+            # escribir las diffs
             diff -y --suppress-common-lines $mine $repo >> $tempfile
         fi
 
@@ -233,24 +230,35 @@ make_diff_file() {
         printf "%s\n\n\n" $(printf "%s\n" "$line" | sed "s/./</g") >> $tempfile
 
     done < $file
-    
-    
+
+
     # copiar todo el fichero temporal al fichero de salida
     mv $tempfile $file
 
 }
 
+main_normal() {
+    make_export $2 $3 $4
+    make_diff
+    exit 0
+}
+
 main() {
 
-    TEMP=$(getopt -o ehn --long export,help,normal -- "$@")
-    if [ $? != 0 ] ; then
-        return
+    if [[ $# -gt 2 ]] ; then
+        print_usage
+        exit 1
+    fi
+
+    TEMP=$(getopt -o hen --long help,export,normal -- "$@")
+    if [[ $? -ne 0 ]] ; then
+        exit 2
     fi
     eval set -- "$TEMP"
     while true ; do
         echo $1
         case $1 in
-            -e|--export) 
+            -e|--export)
                 make_export
                 make_diff
                 filter_diff_output
@@ -259,9 +267,9 @@ main() {
                 msg "i" "See '$file' to check the diffs between '$dir1' and '$dir2'."
                 change_perms
                 break ;;
-            -n|--normal ) make_diff ; exit 0 ;;
-            -h|--help ) print_usage ; exit 0 ;;
-            --) ;;
+            -n|--normal ) main_normal $2 $3 $4; exit 0 ;;
+            -h|--help ) print_usage; exit 0 ;;
+            --) main_normal $2 $3 $4; exit 0 ;;
             *) print_usage;  exit 1 ;;
 
         esac
@@ -272,8 +280,8 @@ main() {
 
 
 
-# 
+#
 # <- FUNCTIONS
-# 
+#
 
 main "$@"
