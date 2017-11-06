@@ -73,6 +73,8 @@ sudo apt-get -qq -y install pavucontrol
 # Drivers
 #
 
+sudo apt-get -qq -y install curl
+
 
 # package manager
 sudo apt-get -qq -y install synaptic apt-xapian-index gdebi gksu
