@@ -13,11 +13,12 @@ alias tail_ls='chshell() { chsh -s $(which "$1") ;}; chshell'
 alias ls_tail='ls_tail() { ls -l "$1" | tail ;}; ls_tail'
 alias folder_size='folder_size() { du -sh "$1" ;}; folder_size'
 
-alias test=' && echo yes || echo no'
+alias t=' && echo yes || echo no'
 alias openvpn="sudo service openvpn start"
 alias crontablog="sudo grep CRON /var/log/syslog"
 
 alias install="sudo apt install"
+alias installdeb="sudo dpkg -i"
 alias update="sudo apt update"
 alias upgrade="sudo apt upgrade"
 alias upgradable="apt list --upgradable"
@@ -25,9 +26,14 @@ alias remove="sudo apt remove"
 alias autoremove="sudo apt-get autoremove"
 alias sources="sudo nano /etc/apt/sources.list"
 
+alias nomachine="sudo /etc/NX/nxserver"
+alias nomachine_restart="nomachine --restart"
+
 
 # Programs aliases
+upgrade_oh_my_zsh="cd "$ZSH" && git stash && upgrade_oh_my_zsh"
 docker_enter() { docker run -i "$1" /bin/bash }
+alias di="docker images"
 alias docker_list_containers_all='docker container ls -a -q | tr "\n" " "'
 alias docker_stop_all='docker stop $(docker ps -a -q | tr "\n" " ")'     # stop all containers
 alias docker_rm_cont_all='docker rm $(docker ps -a -q | tr "\n" " ")'       # remove all containers
@@ -36,7 +42,7 @@ alias docker_rm_images_all='docker rmi -f $(docker_list_images_all)'  # remove a
 alias docker_list_volumes_all='docker volume ls -q | tr "\n" " "' # list all volumes images
 alias docker_rm_volumes_all='docker volumes rm $(docker_list_volumes_all)'  # remove all docker volume
 alias docker_clean_all="docker_stop_all; docker_rm_cont_all; docker_rm_images_all"
-
+alias dockerGUI="p=9000 && docker container run -d -p ${p}:${p} -v /var/run/docker.sock:/var/run/docker.sock portainer/portainer && firefox 0.0.0.0:${p}"
 
 # my git aliases
 new-repo() { fullRepoPath="$1"; repoNameGit=$(basename "$fullRepoPath"); repoName="${repoNameGit%.*}"; mkdir -p ~/REPOSITORIOS/$repoName};
@@ -63,5 +69,36 @@ alias start_run2="up_run2 && ssh_run2"
 alias adc="docker build --tag androtest-docker ."
 alias ade="docker run --interactive --rm --tty androtest-docker bash"
 
+
+# androtest
+get_androtest_container_id() { androtest_container_id=$(docker ps -a | grep androtest | awk '{print $1}');};
+
+docker_stop_androtest() {
+  # get_androtest_container_id()
+  androtest_container_id=$(docker ps -a | grep androtest | awk '{print $1}')
+  if [[ ${androtest_container_id} == "" ]] ; then
+    echo "Any androtest container running"
+  else
+    docker stop ${androtest_container_id}
+  fi
+};
+
+docker_enter_androtest-test() {
+  TOOL=$1
+  C=androtest-test-${TOOL:-puma}
+  AP=~/REPOSITORIOS/androtest-test
+  [[ ! -d $AP ]] && echo "dir: $AP - not exist" && exit 1
+  cd $AP
+  docker run --publish-all --privileged \
+    -v $(pwd)/lib:/home/vagrant/lib:rw \
+    -v $(pwd)/results:/home/vagrant/results:rw \
+    -v $(pwd)/subjects:/home/vagrant/subjects:rw \
+    -v $(pwd)/scripts:/home/vagrant/scripts:rw \
+    -v $(pwd)/tools:/home/vagrant/tools:rw \
+    -i $C /bin/bash
+};
+
+
+# others
 alias filesBySize="du -ah $1 | grep -v "/$" | sort -rh"
 alias filesBySizeLimited="du -ah $1 | grep -v "/$" | sort -rh | head -10"
