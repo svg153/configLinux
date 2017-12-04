@@ -1,1 +1,17 @@
-[R1] - "Alan Turing." Wikipedia. Wikimedia Foundation, n.d. Web. 10 Feb. 2017.
+[R1] - A. (2016, December 26). Desarrollar Aplicaciones de Geolocalización con Big Data. Retrieved March 06, 2017, from http://www.blog-geographica.com/es/2016/11/29/geolocation-apps-big-data/
+[R2] - Almacén de datos. (2017, February 18). Retrieved March 06, 2017, from https://es.wikipedia.org/wiki/Almacén_de_datos#Almac.C3.A9n_de_datos_espacial
+[R3] - Análisis de datos no estructurados en tiempo real. (n.d.). Retrieved March 06, 2017, from https://sg.com.mx/revista/46/analisis-datos-no-estructurados-tiempo-real#.WLqaXjs1-U
+[R4] - A. (n.d.). Base de Datos No Estructurados. Retrieved March 06, 2017, from http://www.ids-ac.com/index.php?option=com_content&view=article&id=21&Itemid=53
+[R5] - Business Intelligence. (n.d.). Retrieved March 06, 2017, from http://www.dataprix.com/blog-it/big-data/big-data-gestion-datos-no-estructurados
+[R6] - Diego López-de-Ipiña González-de-Artaza, Associate Professor at University of Deusto, Faculty of Engineering / Principal Researcher at DeustoTech-INTERNET Seguir. (n.d.). NoSQL: La siguiente generación de Base de Datos. Retrieved March 06, 2017, from https://es.slideshare.net/dipina/nosql-la-siguiente-generacin-de-base-de-datos
+[R7] - Edlich, P. D. (n.d.). List Of NoSQL Databases [currently 225]. Retrieved March 06, 2017, from http://nosql-database.org/
+[R8] - El Mes del Big Data en Outsourceando: #5 Tipos de Datos que Encontramos en el Big Data. (n.d.). Retrieved March 06, 2017, from http://outsourceando.blogspot.com.es/2013/05/tipos.datos.big.data.html
+[R9] - Hijarrubia, L. (n.d.). Geolocalización: Saber la posición física del usuario de tu web. Retrieved March 06, 2017, from http://www.blog.tictacsoluciones.com/2012/02/geolocalizacion-saber-la-posicion.html
+[R10] - How to manage unstructured data for business benefit. (n.d.). Retrieved March 06, 2017, from http://www.computerweekly.com/feature/How-to-manage-unstructured-data-for-business-benefit
+[R11] - L. (n.d.). Información no estructurada: Lo que nos enseñan los datos. Retrieved March 06, 2017, from https://blog.es.logicalis.com/analytics/informacion-no-estructurada-lo-que-nos-ensenan-los-datos
+[R12] - NoSQL. (2017, February 27). Retrieved March 06, 2017, from https://es.wikipedia.org/wiki/NoSQL
+[R13] - ¿Qué es NoSQL (No Solo SQL)? - Definición en WhatIs.com. (n.d.). Retrieved March 06, 2017, from http://searchdatacenter.techtarget.com/es/definicion/NoSQL-No-Solo-SQL
+[R14] - Sistema de información geográfica. (2017, February 28). Retrieved March 06, 2017, from https://es.wikipedia.org/wiki/Sistema_de_información_geográfica
+[R15] - Structured and Unstructured Data: What is It? (2013, August 26). Retrieved March 06, 2017, from http://sherpasoftware.com/blog/structured-and-unstructured-data-what-is-it/
+[R16] - Unstructured Data in a Big Data Environment. (n.d.). Retrieved March 06, 2017, from http://www.dummies.com/programming/big-data/engineering/unstructured-data-in-a-big-data-environment/
+[R17] - Unstructured Data In Big Data. (n.d.). Retrieved March 06, 2017, from https://www.mongodb.com/scale/unstructured-data-in-big-data

@@ -19,8 +19,11 @@ alias crontablog="sudo grep CRON /var/log/syslog"
 
 alias install="sudo apt install"
 alias update="sudo apt update"
-alias upgrade="update && sudo apt upgrade"
+alias upgrade="sudo apt upgrade"
 alias upgradable="apt list --upgradable"
+alias remove="sudo apt remove"
+alias autoremove="sudo apt-get autoremove"
+alias sources="sudo nano /etc/apt/sources.list"
 
 
 # Programs aliases

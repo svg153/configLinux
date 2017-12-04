@@ -1,7 +1,8 @@
 #!/bin/bash
 
-# install git, unrar, zsh
-sudo apt-get install git zsh unrar
+# install
+sudo apt-get -qq -y update
+sudo apt-get -qq -y install git zsh zip unrar arandr
 
 # mkdir REPOSITORIOS
 mkdir ~/REPOSITORIOS
@@ -20,7 +21,6 @@ sh -c "$(wget https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/to
 
 # configure zsh
 rm ~/.zshrc; ln -s ~/REPOSITORIOS/configLinux/.zshrc ~/.zshrc
-rm ~/.oh-my-zsh; ln -s ~/REPOSITORIOS/configLinux/.oh-my-zsh ~/.oh-my-zsh
 
 # install zsh plugins
 OMZsh_C_P="~/.oh-my-zsh/custom/plugins/"
@@ -31,7 +31,7 @@ git clone https://github.com/zsh-users/zsh-output-highlighting $OMZsh_C_P
 git clone https://github.com/zsh-users/zsh-syntax-highlighting $OMZsh_C_P
 
 # install php
-sudo apt-get install php5-common libapache2-mod-php5 php5-cli
+# sudo apt-get install php5-common libapache2-mod-php5 php5-cli
 
 # TODO: install php7
 
@@ -46,15 +46,14 @@ sudo ln -s ~/PROGRAMAS/Telegram/Telegram /bin/telegram
 cd
 
 # Install smartgit
-cd ~/PROGRAMAS
-wget http://www.syntevo.com/smartgit/download?file=smartgit/smartgit-linux-8_0_3.tar.gz ~/PROGRAMAS
-extract -r smartgit-linux*
-sudo ln -s ~/PROGRAMAS/smartgit/bin/smartgit.sh /bin/smartgit
-cd
+wget http://www.syntevo.com/smartgit/download?file=smartgit/smartgit-17_1_2.deb ~/PROGRAMAS
+sudo dpkg -i ~/PROGRAMAS/smartgit-17_1_2.deb
+rm ~/PROGRAMAS/smartgit-17_1_2.deb
 
 # Install atom
 wget https://atom.io/download/deb ~/PROGRAMAS
 sudo dpkg -i ~/PROGRAMAS/atom-amd64.deb
+rm ~/PROGRAMAS/atom-amd64.deb
 
 # config keyboard
 # sudo rm /etc/default/keyboard
