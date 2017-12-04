@@ -51,7 +51,7 @@ c=`sudo lshw | grep UNCLAIMED | wc -l`
 #[[ ${c} -ne 0 ]] && exit 1
 
 sudo lspci | grep UNCLAIMED
-c=`sudo lspci | grep UNCLAIMED | wc -l` 
+c=`sudo lspci | grep UNCLAIMED | wc -l`
 #[[ ${c} -ne 0 ]] && exit 1
 
 sudo lshw | grep UNCLAIMED
@@ -79,16 +79,17 @@ sudo apt-get -qq -y install curl
 # package manager
 sudo apt-get -qq -y install synaptic apt-xapian-index gdebi gksu
 
+# other packages
+sudo apt-get -qq -y unrar unzip
 
 # make tree folders
 mkdir ~/PROGRAMAS
 mkdir ~/.fonts
 mkdir ~/.icons
 
-
 # install zsh
-sudo apt-get -qq -y install zsh \
-    unrar unzip
+sudo apt-get -qq -y install zsh
+
 
 
 
@@ -108,11 +109,11 @@ if [[ ${SHELL} != *"zsh"* ]]; then
 
     # install zsh plugins
     OMZsh_C_P="~/.oh-my-zsh/custom/plugins/"
-    git clone https://github.com/zsh-users/zsh-autosuggestions $OMZsh_C_P
-    git clone https://github.com/zsh-users/zsh-completions $OMZsh_C_P
-    git clone https://github.com/zsh-users/zsh-navigation-tools $OMZsh_C_P
-    git clone https://github.com/zsh-users/zsh-output-highlighting $OMZsh_C_P
-    git clone https://github.com/zsh-users/zsh-syntax-highlighting $OMZsh_C_P
+    git clone https://github.com/zsh-users/zsh-autosuggestions ${OMZsh_C_P}
+    git clone https://github.com/zsh-users/zsh-completions ${OMZsh_C_P}
+    git clone https://github.com/zsh-users/zsh-navigation-tools ${OMZsh_C_P}
+    git clone https://github.com/zsh-users/zsh-output-highlighting ${OMZsh_C_P}
+    git clone https://github.com/zsh-users/zsh-syntax-highlighting ${OMZsh_C_P}
 fi
 
 # install openvpn
@@ -120,8 +121,10 @@ sudo apt-get -qq -y install openvpm resolvconf network-manager-openvpn-gnome
 
 
 # install google-chrome
+deb_filename="google-chrome-stable_current_amd64.deb"
+deb_filepath_dw="~/PROGRAMAS/${deb_filename}"
 wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb ~/PROGRAMAS
-sudo dpkg -i ~/PROGRAMAS/google-chrome-stable_current_amd64.deb
+sudo dpkg -i ${deb_filepath_dw}
 sudo apt-get --fix-broken-install
 
 
@@ -140,27 +143,35 @@ rm -rf tsetup.tar.xz
 cd
 
 # Install smartgit
+deb_filename="smartgit-17_1_2.deb"
+deb_filepath_dw="~/PROGRAMAS/${deb_filename}"
 wget http://www.syntevo.com/smartgit/download?file=smartgit/smartgit-17_1_2.deb ~/PROGRAMAS
-sudo dpkg -i ~/PROGRAMAS/smartgit-17_1_2.deb
-rm ~/PROGRAMAS/smartgit-17_1_2.deb
+sudo dpkg -i ${deb_filepath_dw}
+rm ${deb_filepath_dw}
 
 # Install atom
-wget -O ~/PROGRAMAS/atom-amd64.deb https://atom.io/download/deb
-sudo dpkg -i ~/PROGRAMAS/atom-amd64.deb
-rm ~/PROGRAMAS/atom-amd64.deb
+deb_filename="atom-amd64.deb"
+deb_filepath_dw="~/PROGRAMAS/${deb_filename}"
+wget -O ${deb_filepath_dw} https://atom.io/download/deb
+sudo dpkg -i ${deb_filepath_dw}
+rm ${deb_filepath_dw}
 
 # config keyboard
-sudo cp /etc/default/keyboard /etc/default/keyboard.OLD
-sudo rm /etc/default/keyboard
-sudo ln -s ~/REPOSITORIOS/configLinux/keyboard /etc/default/keyboard
-if [[ $? -ne 0 ]]; then 
-    sudo cp ~/REPOSITORIOS/configLinux/keyboard /etc/default/keyboard
+keyboard_filepath_ori="/etc/default/keyboard"
+keyboard_filepath_mine="~/REPOSITORIOS/configLinux/keyboard"
+sudo cp ${keyboard_filepath_ori} ${keyboard_filepath_ori}.OLD
+sudo rm ${keyboard_filepath_ori}
+if [[ -e "${keyboard_filepath_mine}" ]]; then
+  sudo ln -s ${keyboard_filepath_mine} ${keyboard_filepath_ori}
+  if [[ $? -ne 0 ]]; then
+      sudo cp ${keyboard_filepath_mine} ${keyboard_filepath_ori}
+  fi
 fi
 
 
 #
 # PROGRAMS
-# 
+#
 
 
 
@@ -206,7 +217,7 @@ sudo apt-get -qq -y install xfce4-whiskermenu-plugin menulibre xfce4-clipman xfc
 touch /usr/share/lightdm/lightdm.conf.d/01_my.conf
 cat >/usr/share/lightdm/lightdm.conf.d/01_my.conf <<EOL
 [SeatDefaults]
-greeter-hide-users=false 
+greeter-hide-users=false
 EOL
 
 
