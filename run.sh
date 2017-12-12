@@ -7,6 +7,8 @@
 # 2º) sudo apt-get install git && mkdir ~/REPOSITORIOS && git clone https://github.com/svg153/configLinux.git ~/REPOSITORIOS/configLinux/
 
 # configure the /etc/apt/sources.list
+# sudo mv /etc/apt/sources.list /etc/apt/sources.list.OLD
+# sudo cp ./sources.list /etc/apt/
 # sudo sed -i 's/main/main contrib non-free/g' /etc/apt/sources.list
 
 
@@ -73,20 +75,23 @@ sudo apt-get -qq -y install pavucontrol
 # Drivers
 #
 
+sudo apt-get -qq -y install curl
+
 
 # package manager
 sudo apt-get -qq -y install synaptic apt-xapian-index gdebi gksu
 
+# other packages
+sudo apt-get -qq -y unrar unzip
 
 # make tree folders
 mkdir ~/PROGRAMAS
 mkdir ~/.fonts
 mkdir ~/.icons
 
-
 # install zsh
-sudo apt-get -qq -y install zsh \
-    unrar unzip
+sudo apt-get -qq -y install zsh
+
 
 
 
@@ -106,11 +111,11 @@ if [[ ${SHELL} != *"zsh"* ]]; then
 
     # install zsh plugins
     OMZsh_C_P="~/.oh-my-zsh/custom/plugins/"
-    git clone https://github.com/zsh-users/zsh-autosuggestions $OMZsh_C_P
-    git clone https://github.com/zsh-users/zsh-completions $OMZsh_C_P
-    git clone https://github.com/zsh-users/zsh-navigation-tools $OMZsh_C_P
-    git clone https://github.com/zsh-users/zsh-output-highlighting $OMZsh_C_P
-    git clone https://github.com/zsh-users/zsh-syntax-highlighting $OMZsh_C_P
+    git clone https://github.com/zsh-users/zsh-autosuggestions ${OMZsh_C_P}
+    git clone https://github.com/zsh-users/zsh-completions ${OMZsh_C_P}
+    git clone https://github.com/zsh-users/zsh-navigation-tools ${OMZsh_C_P}
+    git clone https://github.com/zsh-users/zsh-output-highlighting ${OMZsh_C_P}
+    git clone https://github.com/zsh-users/zsh-syntax-highlighting ${OMZsh_C_P}
 fi
 
 # install openvpn
@@ -118,11 +123,12 @@ sudo apt-get -qq -y install openvpm resolvconf network-manager-openvpn-gnome
 
 
 # install google-chrome
-wget -O ~/PROGRAMAS/google-chrome-stable_current_amd64.deb https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
-sudo dpkg -i ~/PROGRAMAS/google-chrome-stable_current_amd64.deb
+deb_filename="google-chrome-stable_current_amd64.deb"
+deb_filepath_dw="~/PROGRAMAS/${deb_filename}"
+wget -O ${deb_filepath_dw} https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb ~/PROGRAMAS
+sudo dpkg -i ${deb_filepath_dw}
 # fix chrome installation
-sudo apt-get --fix-broken-install && sudo apt-get update && sudo apt-get -qq -y install
-
+sudo apt-get --fix-broken-install && sudo apt-get update && sudo apt-get -qq -y install && rm ${deb_filepath_dw}
 
 
 # install php
@@ -140,23 +146,29 @@ rm -rf tsetup.tar.xz
 cd
 
 # Install smartgit
-cd ~/PROGRAMAS
-wget -O ~/PROGRAMAS/smartgit.tar.gz "http://www.syntevo.com/static/smart/download/smartgit/smartgit-linux-17_0_4.tar.gz"
-tar xvf smartgit.tar.gz
-sudo ln -s ~/PROGRAMAS/smartgit/bin/smartgit.sh /bin/smartgit
-rm -rf smartgit.tar.gz
-cd
+deb_filename="smartgit-17_1_2.deb"
+deb_filepath_dw="~/PROGRAMAS/${deb_filename}"
+wget -O ${deb_filepath_dw} http://www.syntevo.com/smartgit/download?file=smartgit/smartgit-17_1_2.deb
+sudo dpkg -i ${deb_filepath_dw}
+rm ${deb_filepath_dw}
 
 # Install atom
-wget -O ~/PROGRAMAS/atom-amd64.deb https://atom.io/download/deb
-sudo dpkg -i ~/PROGRAMAS/atom-amd64.deb
+deb_filename="atom-amd64.deb"
+deb_filepath_dw="~/PROGRAMAS/${deb_filename}"
+wget -O ${deb_filepath_dw} https://atom.io/download/deb
+sudo dpkg -i ${deb_filepath_dw}
+rm ${deb_filepath_dw}
 
 # config keyboard
-sudo cp /etc/default/keyboard /etc/default/keyboard.OLD
-sudo rm /etc/default/keyboard
-sudo ln -s ~/REPOSITORIOS/configLinux/keyboard /etc/default/keyboard
-if [[ $? -ne 0 ]]; then
-    sudo cp ~/REPOSITORIOS/configLinux/keyboard /etc/default/keyboard
+keyboard_filepath_ori="/etc/default/keyboard"
+keyboard_filepath_mine="~/REPOSITORIOS/configLinux/keyboard"
+sudo cp ${keyboard_filepath_ori} ${keyboard_filepath_ori}.OLD
+sudo rm ${keyboard_filepath_ori}
+if [[ -e "${keyboard_filepath_mine}" ]]; then
+  sudo ln -s ${keyboard_filepath_mine} ${keyboard_filepath_ori}
+  if [[ $? -ne 0 ]]; then
+      sudo cp ${keyboard_filepath_mine} ${keyboard_filepath_ori}
+  fi
 fi
 
 
