@@ -7,7 +7,7 @@
 # 2º) sudo apt-get install git && mkdir ~/REPOSITORIOS && git clone https://github.com/svg153/configLinux.git ~/REPOSITORIOS/configLinux/
 
 # configure the /etc/apt/sources.list
-sudo sed -i 's/main/main contrib non-free/g' /etc/apt/sources.list
+# sudo sed -i 's/main/main contrib non-free/g' /etc/apt/sources.list
 
 
 sudo apt-get update && sudo apt-get upgrade && sudo apt-get dist-upgrade && sudo apt-get autoremove
@@ -51,7 +51,7 @@ c=`sudo lshw | grep UNCLAIMED | wc -l`
 #[[ ${c} -ne 0 ]] && exit 1
 
 sudo lspci | grep UNCLAIMED
-c=`sudo lspci | grep UNCLAIMED | wc -l` 
+c=`sudo lspci | grep UNCLAIMED | wc -l`
 #[[ ${c} -ne 0 ]] && exit 1
 
 sudo lshw | grep UNCLAIMED
@@ -118,9 +118,11 @@ sudo apt-get -qq -y install openvpm resolvconf network-manager-openvpn-gnome
 
 
 # install google-chrome
-wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb ~/PROGRAMAS
+wget -O ~/PROGRAMAS/google-chrome-stable_current_amd64.deb https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
 sudo dpkg -i ~/PROGRAMAS/google-chrome-stable_current_amd64.deb
-sudo apt-get --fix-broken-install
+# fix chrome installation
+sudo apt-get --fix-broken-install && sudo apt-get update && sudo apt-get -qq -y install
+
 
 
 # install php
@@ -153,14 +155,14 @@ sudo dpkg -i ~/PROGRAMAS/atom-amd64.deb
 sudo cp /etc/default/keyboard /etc/default/keyboard.OLD
 sudo rm /etc/default/keyboard
 sudo ln -s ~/REPOSITORIOS/configLinux/keyboard /etc/default/keyboard
-if [[ $? -ne 0 ]]; then 
+if [[ $? -ne 0 ]]; then
     sudo cp ~/REPOSITORIOS/configLinux/keyboard /etc/default/keyboard
 fi
 
 
 #
 # PROGRAMS
-# 
+#
 
 
 
@@ -206,7 +208,7 @@ sudo apt-get -qq -y install xfce4-whiskermenu-plugin menulibre xfce4-clipman xfc
 touch /usr/share/lightdm/lightdm.conf.d/01_my.conf
 cat >/usr/share/lightdm/lightdm.conf.d/01_my.conf <<EOL
 [SeatDefaults]
-greeter-hide-users=false 
+greeter-hide-users=false
 EOL
 
 
@@ -217,6 +219,9 @@ sudo apt-get -qq -y install fonts-dejavu fonts-dejavu-extra fonts-droid-fallback
 # themes
 # Numix: https://github.com/numixproject/numix-gtk-theme
 sudo apt-get -qq -y install numix-gtk-theme numix-icon-theme-circle numix-icon-theme-shine
+
+# Xfce-dust-svg153
+sudo cp -r ./themes/* /usr/share/themes/
 
 #
 # CUSTOMIZATION
