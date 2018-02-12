@@ -82,7 +82,11 @@ sudo apt-get -qq -y install curl
 sudo apt-get -qq -y install synaptic apt-xapian-index gdebi gksu
 
 # other packages
-sudo apt-get -qq -y unrar unzip
+sudo apt-get -qq -y \
+    zip unzip unrar \
+    xclip \
+    shutter \
+    wmctrl
 
 # make tree folders
 mkdir ~/PROGRAMAS
@@ -170,7 +174,7 @@ if [[ -e "${keyboard_filepath_mine}" ]]; then
       sudo cp ${keyboard_filepath_mine} ${keyboard_filepath_ori}
   fi
 fi
-
+sudo dpkg-reconfigure -phigh console-setup
 
 #
 # PROGRAMS
