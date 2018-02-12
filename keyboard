@@ -6,5 +6,6 @@ XKBMODEL="pc105"
 XKBLAYOUT="es"
 XKBVARIANT="winkeys"
 XKBOPTIONS="ctrl:nocaps"
+#XKBOPTIONS="ctrl:swapcaps"		# Some people prefer "ctrl:nocaps"
 
 BACKSPACE="guess"
