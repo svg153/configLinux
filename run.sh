@@ -102,6 +102,7 @@ sudo apt-get -qq -y install zsh
 # create the symlinks
 rm ~/.aliases; ln -s ~/REPOSITORIOS/configLinux/.aliases ~/.aliases
 rm ~/.bashrc; ln -s ~/REPOSITORIOS/configLinux/.bashrc ~/.bashrc
+rm ~/.bash_profile; ln -s ~/REPOSITORIOS/configLinux/.bash_profile ~/.bash_profile
 rm ~/SCRIPTS; ln -s ~/REPOSITORIOS/configLinux/SCRIPTS ~/SCRIPTS
 
 
