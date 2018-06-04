@@ -32,7 +32,6 @@ alias filesBySize="du -ah $1 | grep -v "/$" | sort -rh"
 alias filesBySizeLimited="du -ah $1 | grep -v "/$" | sort -rh | head -10"
 
 
-
 #
 # Programs aliases
 #
@@ -62,6 +61,7 @@ alias docker_rm_volumes_all='docker volumes rm $(docker_list_volumes_all)'  # re
 alias docker_clean_all="docker_stop_all; docker_rm_cont_all; docker_rm_images_all"
 
 # portainer
+# https://github.com/portainer/portainer
 get_portainer_container_id() { get_container_id_by_name "portainer" && portainer_container_id=${get_container_id} ;};
 dockerGUI_func() {
   get_portainer_container_id
@@ -78,6 +78,17 @@ dockerGUI_func() {
 };
 alias dockerGUI="dockerGUI_func &"
 alias portainer="dockerGUI"
+
+# ctop
+# https://github.com/bcicen/ctop
+ctop_docker() {
+  docker run --rm -ti \
+    --name=ctop \
+    -v /var/run/docker.sock:/var/run/docker.sock \
+    quay.io/vektorlab/ctop:latest
+}
+alias ctop_docker="ctop_docker"
+alias ctop="ctop_docker"
 
 
 ######
@@ -142,4 +153,10 @@ alias start_run2="up_run2 && ssh_run2"
 
 
 # others
-alias ic='/home/svg153/REPOSITORIOS/imdea-controls-cli/control.py'
+ic_docker() {
+  opts=$@
+  cd ~/REPOSITORIOS/imdea-controls-cli_gitlab/
+  make OPTS="$opts"
+  cd -
+}
+alias ic="ic_docker"
