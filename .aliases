@@ -73,8 +73,9 @@ dockerGUI_func() {
     docker rm -v -f ${portainer_container_id} &> /dev/null
     docker rmi -f ${portainer_container_id} &> /dev/null
   fi
-  docker container run --rm -d -p 9000:9000 -v /var/run/docker.sock:/var/run/docker.sock --name portainer portainer/portainer &> /dev/null && \
-    firefox "http://0.0.0.0:9000/#/init/admin" &> /dev/null && \
+  docker volume create portainer_data && \
+    docker run -d -p 9000:9000 --name portainer --restart always -v /var/run/docker.sock:/var/run/docker.sock -v portainer_data:/data portainer/portainer --no-auth &> /dev/null && \
+    firefox "http://0.0.0.0:9000/#/dashboard" &> /dev/null && \
     wmctrl -r "Portainer" -t 8
 };
 alias dockerGUI="dockerGUI_func &"
