@@ -1,0 +1,16 @@
+{
+    "files.associations": {
+        "[D|d]ockerfile-*": "dockerfile",
+        "[M|m]akefile-*": "makefile",
+        ".aliases": "shellscript",
+    },
+    "search.exclude": {
+        "**/.git/objects/**": true,
+        "**/.git/subtree-cache/**": true,
+    },
+    "files.watcherExclude": {
+        "**/.git/objects/**": true,
+        "**/.git/subtree-cache/**": true,
+    },
+    "python.formatting.provider": "autopep8"
+}

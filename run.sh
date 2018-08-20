@@ -14,6 +14,19 @@
 
 sudo apt-get update && sudo apt-get upgrade && sudo apt-get dist-upgrade && sudo apt-get autoremove
 
+
+#
+# VARS
+#
+
+PROGRAMAS_PATH="~/PROGRAMAS/"
+
+#
+# VARS
+#
+
+
+
 #
 # DRIVERS
 #
@@ -82,14 +95,14 @@ sudo apt-get -qq -y install curl
 sudo apt-get -qq -y install synaptic apt-xapian-index gdebi gksu
 
 # other packages
-sudo apt-get -qq -y \
+sudo apt-get -qq -y install \
     zip unzip unrar \
     xclip \
     shutter \
     wmctrl
 
 # make tree folders
-mkdir ~/PROGRAMAS
+mkdir "${PROGRAMAS_PATH}"
 mkdir ~/.fonts
 mkdir ~/.icons
 
@@ -129,8 +142,8 @@ sudo apt-get -qq -y install openvpm resolvconf network-manager-openvpn-gnome
 
 # install google-chrome
 deb_filename="google-chrome-stable_current_amd64.deb"
-deb_filepath_dw="~/PROGRAMAS/${deb_filename}"
-wget -O ${deb_filepath_dw} https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb ~/PROGRAMAS
+deb_filepath_dw="${PROGRAMAS_PATH}/${deb_filename}"
+wget -O ${deb_filepath_dw} https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb ${PROGRAMAS_PATH}
 sudo dpkg -i ${deb_filepath_dw}
 # fix chrome installation
 sudo apt-get --fix-broken-install && sudo apt-get update && sudo apt-get -qq -y install && rm ${deb_filepath_dw}
@@ -143,24 +156,38 @@ sudo apt-get --fix-broken-install && sudo apt-get update && sudo apt-get -qq -y 
 
 
 # Install telegram
-wget -O ~/PROGRAMAS/tsetup.tar.xz https://telegram.org/dl/desktop/linux
-cd ~/PROGRAMAS
+wget -O ${PROGRAMAS_PATH}/tsetup.tar.xz https://telegram.org/dl/desktop/linux
+cd ${PROGRAMAS_PATH}
 tar xvf tsetup.tar.xz
-sudo ln -s ~/PROGRAMAS/Telegram/Telegram /bin/telegram
+sudo ln -s ${PROGRAMAS_PATH}/Telegram/Telegram /bin/telegram
 rm -rf tsetup.tar.xz
 cd
 
 # Install smartgit
 deb_filename="smartgit-17_1_2.deb"
-deb_filepath_dw="~/PROGRAMAS/${deb_filename}"
+deb_filepath_dw="${PROGRAMAS_PATH}/${deb_filename}"
 wget -O ${deb_filepath_dw} http://www.syntevo.com/smartgit/download?file=smartgit/smartgit-17_1_2.deb
 sudo dpkg -i ${deb_filepath_dw}
 rm ${deb_filepath_dw}
 
 # Install atom
-deb_filename="atom-amd64.deb"
-deb_filepath_dw="~/PROGRAMAS/${deb_filename}"
-wget -O ${deb_filepath_dw} https://atom.io/download/deb
+# deb_filename="atom-amd64.deb"
+# deb_filepath_dw="${PROGRAMAS_PATH}/${deb_filename}"
+# wget -O ${deb_filepath_dw} https://atom.io/download/deb
+# sudo dpkg -i ${deb_filepath_dw}
+# rm ${deb_filepath_dw}
+
+# @TODO: Install VSCODE
+curl https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor > microsoft.gpg
+sudo mv microsoft.gpg /etc/apt/trusted.gpg.d/microsoft.gpg
+sudo sh -c 'echo "deb [arch=amd64] https://packages.microsoft.com/repos/vscode stable main" > /etc/apt/sources.list.d/vscode.list'
+sudo apt-get update
+sudo apt-get install -qq -y code
+
+# Install Lightworks
+deb_filename="lwks-14.0.0-amd64.deb"
+deb_filepath_dw="${PROGRAMAS_PATH}/${deb_filename}"
+wget -O ${deb_filepath_dw} https://downloads.lwks.com/v14/${deb_filename}
 sudo dpkg -i ${deb_filepath_dw}
 rm ${deb_filepath_dw}
 
