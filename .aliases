@@ -61,6 +61,8 @@ alias docker_list_volumes_all='docker volume ls -q | tr "\n" " "' # list all vol
 alias docker_rm_volumes_all='docker volumes rm $(docker_list_volumes_all)'  # remove all docker volume
 alias docker_clean_all="docker_stop_all; docker_rm_cont_all; docker_rm_images_all"
 
+htpasswd_docker() { docker run --rm httpd:2.4-alpine htpasswd -nbB ${1} ${2} ;};
+
 # portainer
 # https://github.com/portainer/portainer
 get_portainer_container_id() { get_container_id_by_name "portainer" && portainer_container_id=${get_container_id} ;};
@@ -73,10 +75,15 @@ dockerGUI_func() {
     docker rm -v -f ${portainer_container_id} &> /dev/null
     docker rmi -f ${portainer_container_id} &> /dev/null
   fi
-  docker volume create portainer_data &> /dev/null && \
-    docker run -d -p 9000:9000 --name portainer --restart always -v /var/run/docker.sock:/var/run/docker.sock -v portainer_data:/data portainer/portainer --no-auth &> /dev/null && \
-    firefox "http://0.0.0.0:9000/#/dashboard" &> /dev/null && \
-    wmctrl -r "Portainer" -t 8
+  docker run -d -p 9000:9000 --name portainer \
+    --restart always \
+    -v /var/run/docker.sock:/var/run/docker.sock \
+    portainer/portainer \
+    -H unix:///var/run/docker.sock \
+    --no-auth \
+    &> /dev/null && \
+  firefox "http://0.0.0.0:9000/#/dashboard" &> /dev/null && \
+  wmctrl -r "Portainer" -t 8
 };
 alias dockerGUI="dockerGUI_func &"
 alias portainer="dockerGUI"
