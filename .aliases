@@ -23,7 +23,12 @@ alias installdeb="sudo dpkg -i"
 alias update="sudo apt update"
 alias upgrade="sudo apt upgrade"
 alias upgradable="apt list --upgradable"
-alias upgradable-list="upgradable | tail -n +2 | awk -F'/' '{print $1}' | tr '\n' ' '"
+upgradable-list_func() {
+  upgradable | tail -n +2 | awk -F'/' '{print $1}' | tr '\n' ' '
+}
+alias upgradable-list="upgradable-list_func"
+alias upgradable-list-new="upgradable | tail -n +2 | awk '{split($0,a,"/"); print a[1]}' | tr '\n' ' '"
+
 alias remove="sudo apt remove"
 alias autoremove="sudo apt-get autoremove"
 alias dist-upgrade="sudo apt-get dist-upgrade"
