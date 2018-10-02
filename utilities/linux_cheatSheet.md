@@ -1,6 +1,12 @@
 linux_cheatSheet.md
 ===================
 
+Useful links:
+* http://wiki.bash-hackers.org/
+* 
+
+
+
 The current path
 ```shell
 here="$(dirname "$(readlink -f "$0")")"
@@ -138,6 +144,15 @@ Find all symlinks in a directory tree and subfolders
 ls -lR ~/ | grep ^l
 ```
 
+Call other script and exit
+```shell
+exec ./p.sh
+```
+o
+```shell
+nohup ./p.sh &
+disown
+```
 
 
 
