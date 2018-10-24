@@ -27,7 +27,7 @@ ZSH_THEME="robbyrussell"
 # DISABLE_AUTO_UPDATE="true"
 
 # Uncomment the following line to change how often to auto-update (in days).
-export UPDATE_ZSH_DAYS=13
+export UPDATE_ZSH_DAYS=7
 
 # Uncomment the following line to disable colors in ls.
 # DISABLE_LS_COLORS="true"
@@ -58,20 +58,32 @@ HIST_STAMPS="dd/mm/yyyy"
 # Custom plugins may be added to ~/.oh-my-zsh/custom/plugins/
 # Example format: plugins=(rails git textmate ruby lighthouse)
 # Add wisely, as too many plugins slow down shell startup.
-plugins=(textmate lighthouse)
-plugins+=(git git-extras gitfast git-flow git-flow-avh github git-hubflow gitignore git-prompt git-remote-branch)
+plugins=(gnu-utils history)
+plugins+=(textmate lighthouse)
+plugins+=(git git-auto-fetch git-extras gitfast git-flow git-flow-avh git-hubflow gitignore git-prompt git-remote-branch github)
 plugins+=(django node ruby perl python spring)
 plugins+=(rake rails jsontools)
 plugins+=(bundler pip npm bower brew cloudapp)
 plugins+=(docker boot2docker docker-compose)
 plugins+=(autojump colored-man-pages colorize extract z)
-plugins+=(zsh-autosuggestions zsh-syntax-highlighting zsh-completions zsh-output-highlighting)
+
+# zsh-users
+# git clone https://github.com/zsh-users/zsh-autosuggestions ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-autosuggestions
+plugins+=(zsh-autosuggestions)
+# git clone https://github.com/zsh-users/zsh-syntax-highlighting ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-syntax-highlighting
+plugins+=(zsh-syntax-highlighting)
+# git clone https://github.com/zsh-users/zsh-completions ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-completions
+plugins+=(zsh-completions)
+# git clone https://github.com/ricardrobin/zsh-output-highlighting ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-output-highlighting
+plugins+=(zsh-output-highlighting)
+# git clone https://github.com/djui/alias-tips.git ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/alias-tips
+plugins+=(alias-tips)
 autoload -U compinit && compinit
 
 #syntax highlighters for the zsh-syntax-highlighting plugin
 ZSH_HIGHLIGHT_HIGHLIGHTERS=(main brackets pattern root)
 
-source $ZSH/oh-my-zsh.sh
+source "${ZSH}/oh-my-zsh.sh"
 
 
 
@@ -114,13 +126,12 @@ fi
 # For a full list of active aliases, run `alias`.
 #
 # Example aliases
-alias zshconfig="gedit ~/.zshrc"
-# alias ohmyzsh="mate ~/.oh-my-zsh"
+alias zshconfig="vi ~/.zshrc"
 
 
-# rvm env
-[[ -s "$HOME/.rvm/scripts/rvm" ]] && source "$HOME/.rvm/scripts/rvm" # Load RVM into a shell session *as a function*
-[[ -e "$HOME/.rvm/bin" ]] && export PATH="$PATH:$HOME/.rvm/bin" # Add RVM to PATH for scripting
+# # rvm env
+# [[ -s "$HOME/.rvm/scripts/rvm" ]] && source "$HOME/.rvm/scripts/rvm" # Load RVM into a shell session *as a function*
+# [[ -e "$HOME/.rvm/bin" ]] && export PATH="$PATH:$HOME/.rvm/bin" # Add RVM to PATH for scripting
 
 # set PATH if texlive exists
 ## https://en.wikibooks.org/wiki/LaTeX/Installation#.2ABSD_and_GNU.2FLinux
