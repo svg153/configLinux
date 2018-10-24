@@ -125,15 +125,15 @@ if [[ ${SHELL} != *"zsh"* ]]; then
 
     # configure zsh
     rm ~/.zshrc; ln -s ~/REPOSITORIOS/configLinux/.zshrc ~/.zshrc
-    rm ~/.oh-my-zsh; ln -s ~/REPOSITORIOS/configLinux/.oh-my-zsh ~/.oh-my-zsh
 
     # install zsh plugins
-    OMZsh_C_P="~/.oh-my-zsh/custom/plugins/"
+    OMZsh_C_P="${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/"
     git clone https://github.com/zsh-users/zsh-autosuggestions ${OMZsh_C_P}
     git clone https://github.com/zsh-users/zsh-completions ${OMZsh_C_P}
     git clone https://github.com/zsh-users/zsh-navigation-tools ${OMZsh_C_P}
-    git clone https://github.com/zsh-users/zsh-output-highlighting ${OMZsh_C_P}
     git clone https://github.com/zsh-users/zsh-syntax-highlighting ${OMZsh_C_P}
+    git clone https://github.com/ricardrobin/zsh-output-highlighting ${OMZsh_C_P}
+    git clone https://github.com/djui/alias-tips.git ${OMZsh_C_P}
 fi
 
 # install openvpn
