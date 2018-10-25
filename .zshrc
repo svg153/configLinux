@@ -54,6 +54,12 @@ HIST_STAMPS="dd/mm/yyyy"
 # Would you like to use another custom folder than $ZSH/custom?
 # ZSH_CUSTOM=/path/to/new-custom-folder
 
+
+#
+# --> PLUGINS
+#
+
+
 # Which plugins would you like to load? (plugins can be found in ~/.oh-my-zsh/plugins/*)
 # Custom plugins may be added to ~/.oh-my-zsh/custom/plugins/
 # Example format: plugins=(rails git textmate ruby lighthouse)
@@ -63,43 +69,50 @@ plugins+=(textmate lighthouse)
 plugins+=(git git-auto-fetch git-extras gitfast git-flow git-flow-avh git-hubflow gitignore git-prompt git-remote-branch github)
 plugins+=(django node ruby perl python spring)
 plugins+=(rake rails jsontools)
-plugins+=(bundler pip npm bower brew cloudapp)
+plugins+=(bundler pip npm bower cloudapp)
 plugins+=(docker boot2docker docker-compose)
-plugins+=(autojump colored-man-pages colorize extract z)
+plugins+=(autojump colored-man-pages colorize extract)
 
-# zsh-users
-# git clone https://github.com/zsh-users/zsh-autosuggestions ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-autosuggestions
-plugins+=(zsh-autosuggestions)
+# include Z
+plugins+=(z)
+if [ -f ${ZSH}/plugins/z/z.sh ]; then
+    . ${ZSH}/plugins/z/z.sh
+fi
+
+# # git clone https://github.com/zsh-users/zsh-autosuggestions ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-autosuggestions
+# plugins+=(zsh-autosuggestions)
+# # https://github.com/zsh-users/zsh-autosuggestions#configuration
+# export ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE='fg=white'
+
 # git clone https://github.com/zsh-users/zsh-syntax-highlighting ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-syntax-highlighting
 plugins+=(zsh-syntax-highlighting)
+#syntax highlighters for the zsh-syntax-highlighting plugin
+ZSH_HIGHLIGHT_HIGHLIGHTERS=(main brackets pattern root)
+
+# git clone https://github.com/zsh-users/zsh-history-substring-search ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-history-substring-search
+plugins+=(zsh-history-substring-search)
 # git clone https://github.com/zsh-users/zsh-completions ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-completions
 plugins+=(zsh-completions)
 # git clone https://github.com/ricardrobin/zsh-output-highlighting ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-output-highlighting
 plugins+=(zsh-output-highlighting)
 # git clone https://github.com/djui/alias-tips.git ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/alias-tips
 plugins+=(alias-tips)
+# git clone https://github.com/chrissicool/zsh-256color ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-256color
+plugins+=(zsh-256color)
+
 autoload -U compinit && compinit
 
-#syntax highlighters for the zsh-syntax-highlighting plugin
-ZSH_HIGHLIGHT_HIGHLIGHTERS=(main brackets pattern root)
-
 source "${ZSH}/oh-my-zsh.sh"
+
+#
+# <-- PLUGINS
+#
 
 
 
 # User configuration
-
-# personal configs for plugins
-export ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE='fg=white'
-
 if [ -f ~/.aliases ]; then
     . ~/.aliases
-fi
-
-
-# include Z, yo
-if [ -f ~/.z.sh ]; then
-    . ~/.z.sh
 fi
 
 # export MANPATH="/usr/local/man:$MANPATH"
