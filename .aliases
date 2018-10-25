@@ -4,6 +4,7 @@ alias edit_aliases="nano ~/.aliases && source "~/.aliases""
 #
 # system aliases
 #
+
 alias lsla="ls -lha"
 alias lsl="ls -l"
 alias lsline='ls $@ | tr "\n" " "'
@@ -37,11 +38,11 @@ alias sources="sudo nano /etc/apt/sources.list"
 alias filesBySize="du -ah $1 | grep -v "/$" | sort -rh"
 alias filesBySizeLimited="du -ah $1 | grep -v "/$" | sort -rh | head -10"
 
+alias s="source"
 
 #
 # Programs aliases
 #
-upgrade_oh_my_zsh="cd "$ZSH" && git stash && upgrade_oh_my_zsh"
 
 alias openvpn="sudo service openvpn"
 alias openvpn_start="openvpn start"
@@ -117,6 +118,7 @@ alias ctop="ctop_docker"
 new-repo() { fullRepoPath="$1"; repoNameGit=$(basename "$fullRepoPath"); repoName="${repoNameGit%.*}"; mkdir -p ~/REPOSITORIOS/$repoName};
 alias git-clone='git-clone() { fullRepoPath="$1"; repoNameGit=$(basename "$fullRepoPath"); repoName="${repoNameGit%.*}"; mkdir -p ~/REPOSITORIOS/$repoName; git clone "$1"}; git-clone'
 alias git-new='git-new() { fullRepoPath="$1"; repoNameGit=$(basename "$fullRepoPath"); repoName="${repoNameGit%.*}"; mkdir -p ~/REPOSITORIOS/$repoName; echo "# $repoName" >> README.md; git init; git add README.md; git commit -m "first commit"; git remote add origin $1; git push -u origin master}; git-new'
+alias git-update-branch-from-dev="git pull origin develop"
 
 
 # my repos aliases
