@@ -134,6 +134,11 @@ if [[ ${SHELL} != *"zsh"* ]]; then
     git clone https://github.com/zsh-users/zsh-syntax-highlighting ${OMZsh_C_P}
     git clone https://github.com/ricardrobin/zsh-output-highlighting ${OMZsh_C_P}
     git clone https://github.com/djui/alias-tips.git ${OMZsh_C_P}
+
+    OMZsh_C_T="${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/themes/"
+    [[ -d ${${OMZsh_C_P}} ]] && rm -rf ${OMZsh_C_P}
+    ln -s ~/REPOSITORIOS/configLinux/SCRIPTS/.oh-my-zsh/custom/themes/ ${OMZsh_C_P}
+
 fi
 
 # install openvpn
