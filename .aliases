@@ -115,6 +115,10 @@ dive() {
     wagoodman/dive:latest
 };
 
+# dockviz
+# https://github.com/justone/dockviz
+alias dockviz="docker run -it --rm -v /var/run/docker.sock:/var/run/docker.sock nate/dockviz"
+
 
 ######
 # Personal aliases
