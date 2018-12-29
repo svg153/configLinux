@@ -103,9 +103,17 @@ ctop_docker() {
     --name=ctop \
     -v /var/run/docker.sock:/var/run/docker.sock \
     quay.io/vektorlab/ctop:latest
-}
+};
 alias ctop_docker="ctop_docker"
 alias ctop="ctop_docker"
+
+# dive
+# https://github.com/wagoodman/dive
+dive() {
+  docker run --rm -it \
+    -v /var/run/docker.sock:/var/run/docker.sock \
+    wagoodman/dive:latest
+};
 
 
 ######
