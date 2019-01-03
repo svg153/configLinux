@@ -96,6 +96,8 @@ dockerGUI_func() {
 alias dockerGUI="dockerGUI_func &"
 alias portainer="dockerGUI"
 
+alias htop-docker="docker run --rm -it --pid host frapsoft/htop"
+
 # ctop
 # https://github.com/bcicen/ctop
 ctop_docker() {
