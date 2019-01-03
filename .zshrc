@@ -79,14 +79,14 @@ if [ -f ${ZSH}/plugins/z/z.sh ]; then
     . ${ZSH}/plugins/z/z.sh
 fi
 
-# # git clone https://github.com/zsh-users/zsh-autosuggestions ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-autosuggestions
-# plugins+=(zsh-autosuggestions)
-# # https://github.com/zsh-users/zsh-autosuggestions#configuration
-# export ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE='fg=white'
+# git clone https://github.com/zsh-users/zsh-autosuggestions ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-autosuggestions
+plugins+=(zsh-autosuggestions)
+# https://github.com/zsh-users/zsh-autosuggestions#configuration
+export ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE='fg=white'
 
 # git clone https://github.com/zsh-users/zsh-syntax-highlighting ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-syntax-highlighting
 plugins+=(zsh-syntax-highlighting)
-#syntax highlighters for the zsh-syntax-highlighting plugin
+# syntax highlighters for the zsh-syntax-highlighting plugin
 ZSH_HIGHLIGHT_HIGHLIGHTERS=(main brackets pattern root)
 
 # git clone https://github.com/zsh-users/zsh-history-substring-search ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-history-substring-search
@@ -155,4 +155,3 @@ if [ -d $TEXLIVE_PATH ] ; then
     MANPATH=$MANPATH:$TEXLIVE_PATH/texmf-dist/doc/man
     TEXLIVE_LOG=$TEXLIVE_PATH/install-tl.log
 fi
-
