@@ -112,6 +112,11 @@ sudo apt-get -qq -y install zsh
 
 
 
+rm ~/.aliases; ln -s ~/REPOS/configLinux/.aliases ~/.aliases
+rm ~/.bashrc; ln -s ~/REPOS/configLinux/.bashrc ~/.bashrc
+rm ~/.bash_profile; ln -s ~/REPOS/configLinux/.bash_profile ~/.bash_profile
+rm ~/SCRIPTS; ln -s ~/REPOS/configLinux/SCRIPTS ~/SCRIPTS
+
 # create the symlinks
 rm ~/.aliases; ln -s ~/REPOSITORIOS/configLinux/.aliases ~/.aliases
 rm ~/.bashrc; ln -s ~/REPOSITORIOS/configLinux/.bashrc ~/.bashrc
@@ -128,6 +133,7 @@ if [[ ${SHELL} != *"zsh"* ]]; then
 
     # install zsh plugins
     OMZsh_C_P="${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/"
+
     git clone https://github.com/zsh-users/zsh-autosuggestions ${OMZsh_C_P}
     git clone https://github.com/zsh-users/zsh-completions ${OMZsh_C_P}
     git clone https://github.com/zsh-users/zsh-navigation-tools ${OMZsh_C_P}
@@ -139,6 +145,25 @@ if [[ ${SHELL} != *"zsh"* ]]; then
     [[ -d ${${OMZsh_C_P}} ]] && rm -rf ${OMZsh_C_P}
     ln -s ~/REPOSITORIOS/configLinux/SCRIPTS/.oh-my-zsh/custom/themes/ ${OMZsh_C_P}
 
+    # clone
+    git clone https://github.com/powerline/fonts.git --depth=1
+    # install
+    cd fonts
+    ./install.sh
+    # clean-up a bit
+    cd ..
+    rm -rf fonts
+
+
+    git clone https://github.com/gabrielelana/awesome-terminal-fonts
+    mkdir -p ~/.fonts
+    cp awesome-terminal-fonts/build/* ~/.fonts
+    fc-cache -fv ~/.fonts
+    mkdir -p ~/.config/fontconfig/conf.d
+    cp awesome-terminal-fonts/config/10-symbols.conf ~/.config/fontconfig/conf.d
+    # echo "Do this 'echo "source ~/.fonts/*.sh" >> ~/.zshrc'"/
+
+    cd -
 fi
 
 # install openvpn
