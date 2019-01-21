@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<channel name="xfce4-mixer" version="1.0">
+  <property name="sound-card" type="string" value="HDAIntelPCHAlsamixer"/>
+  <property name="volume-step-size" type="uint" value="5"/>
+  <property name="sound-cards" type="empty">
+    <property name="HDAIntelPCHAlsamixer" type="array">
+      <value type="string" value="Master"/>
+      <value type="string" value="Headphone"/>
+      <value type="string" value="PCM"/>
+      <value type="string" value="Front"/>
+      <value type="string" value="Front Mic"/>
+      <value type="string" value="Front Mic Boost"/>
+      <value type="string" value="Surround"/>
+      <value type="string" value="Center"/>
+      <value type="string" value="LFE"/>
+      <value type="string" value="Line-in"/>
+      <value type="string" value="Line Boost"/>
+      <value type="string" value="IEC958"/>
+      <value type="string" value="IEC958 1 (1)"/>
+      <value type="string" value="IEC958 2 (2)"/>
+      <value type="string" value="Capture"/>
+      <value type="string" value="Capture 1 (1)"/>
+      <value type="string" value="Auto-Mute Mode"/>
+      <value type="string" value="Channel Mode"/>
+      <value type="string" value="Input Source"/>
+      <value type="string" value="Input Source (1)"/>
+      <value type="string" value="Loopback Mixing"/>
+      <value type="string" value="Rear Mic"/>
+      <value type="string" value="Rear Mic Boost"/>
+    </property>
+    <property name="PlaybackBuiltinAudioAnalogStereoPulseAudioMixer" type="array">
+      <value type="string" value="Master"/>
+    </property>
+    <property name="CaptureMonitorofBuiltinAudioAnalogStereoPulseAudioMixer" type="array">
+      <value type="string" value="Master"/>
+    </property>
+    <property name="CaptureBuiltinAudioAnalogStereoPulseAudioMixer" type="array">
+      <value type="string" value="Master"/>
+    </property>
+    <property name="WirelessAudioAlsamixer" type="array">
+      <value type="string" value="Microphone"/>
+      <value type="string" value="PCM"/>
+    </property>
+    <property name="PlaybackWirelessAudioAnalogStereoPulseAudioMixer" type="array">
+      <value type="string" value="Master"/>
+    </property>
+    <property name="CaptureWirelessAudioAnalogMonoPulseAudioMixer" type="array">
+      <value type="string" value="Master"/>
+    </property>
+    <property name="CaptureMonitorofWirelessAudioAnalogStereoPulseAudioMixer" type="array">
+      <value type="string" value="Master"/>
+    </property>
+    <property name="PlaybackSB2WirelessPulseAudioMixer" type="array">
+      <value type="string" value="Master"/>
+    </property>
+    <property name="CaptureMonitorofSB2WirelessPulseAudioMixer" type="array">
+      <value type="string" value="Master"/>
+    </property>
+  </property>
+  <property name="window-height" type="int" value="498"/>
+  <property name="window-width" type="int" value="810"/>
+</channel>
