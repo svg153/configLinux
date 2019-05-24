@@ -4,7 +4,8 @@
 #     * https://www.cyberciti.biz/tips/howto-linux-unix-bash-shell-setup-prompt.html
 #     * https://coderwall.com/p/fasnya/add-git-branch-name-to-bash-prompt
 #     * https://github.com/PeterCrozier/dot-files/blob/master/.bash_profile
-#     *
+#     * https://github.com/ryanoasis/public-bash-scripts/blob/master/unix-color-codes.sh
+#     * https://unix.stackexchange.com/questions/269077/tput-setaf-color-table-how-to-determine-color-codes
 
 # Return the current git branch, if any
 # Must be exported as it is used in PS1.
@@ -18,6 +19,8 @@ export -f GetGitBranch
 
 # console escape sequences must be included in \[ and \] to avoid moving the cursor
 RED="\[$(tput setaf 1)\]"
+BRED="\[$(tput setaf 9)\]"
+LRED="\[\033[01;31m\]"
 GRN="\[$(tput setaf 2)\]"
 LGRN="\[\033[01;32m\]"
 BLU="\[$(tput setaf 4)\]"
