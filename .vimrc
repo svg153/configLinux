@@ -1,3 +1,6 @@
+" Used to avoid side effects with plugins
+set nocompatible
+
 " ~/.vimrc (configuration file for vim only)
 " skeletons
 function! SKEL_spec()
@@ -29,6 +32,8 @@ autocmd BufNewFile	*.spec	call SKEL_spec()
 
 :set hlsearch
 
+let mapleader="\º"
+
 " set UTF-8 encoding
 set enc=utf-8
 set fenc=utf-8
@@ -51,7 +56,17 @@ set textwidth=120
 " turn syntax highlighting on
 set t_Co=256
 set background=dark
+execute pathogen#infect()
 syntax on
+filetype plugin indent on
+
+" Add spaces after comment delimiters by default
+let g:NERDSpaceDelims = 1
+
+" Add your own custom formats or override the defaults
+let g:NERDCustomDelimiters = { 'c': { 'left': '/**','right': '*/' } }
+
+map <C-n> :NERDTreeToggle<CR>
 
 " colorscheme wombat256
 " turn line numbers on
@@ -61,6 +76,26 @@ set showmatch
 " intelligent comments
 set comments=sl:/*,mb:\ *,elx:\ */
 
+" Close current window
+map <leader>qq :q<CR>
+" Close all windows without savings
+map <leader>qa :qa!<CR>
+
+" Movement through buffers
+map <F5> :bp<CR>
+map <F6> :w<CR>
+map <F7> :bd<CR>
+map <F8> :bn<CR>
+
+:set splitright
+" Movement through windows
+map <C-m> :split
+map <S-m> :vsplit
+map <C-left> <C-w>h
+map <C-down> <C-w>j
+map <C-up> <C-w>k
+map <C-right> <C-w>l
+
 " Install DoxygenToolkit from http://www.vim.org/scripts/script.php?script_id=987
 let g:DoxygenToolkit_authorName="John Doe <john@doe.com>"
 
@@ -69,15 +104,18 @@ let g:DoxygenToolkit_authorName="John Doe <john@doe.com>"
 "
 " 
 " create doxygen comment
-map <F6> :Dox<CR>
+map <F10> :Dox<CR>
 " build using makeprg with <F7>
-map <F7> :make<CR>
+set makeprg=/home/sevg/sevg_ws_hifly/buildscosii/buildscript/make_script_all
+map <F12> :make <Bar> copen<CR>
 " build using makeprg with <S-F7>
-"map <S-F7> :make clean all<CR>
-map <S-F7> :make clean_all<CR>
+map <S-F12> :make clean_all<CR>
+
+" Save file
+map <F4> :w<CR>
 
 ":set paste
-"set pastetoggle=<F2>
+set pastetoggle=<F2>
 
 ":syntax enable
 ":set background=light

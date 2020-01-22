@@ -1,3 +1,8 @@
-for bcfile in ~/.bash_completion.d/* ; do
-  [ -f "$bcfile" ] && . $bcfile
-done
+#!/usr/bin/env bash
+
+include_d  ~/.bash_completion
+
+
+# for bcfile in ~/.bash_completion.d*/* ; do
+#   [ -f "$bcfile" ] && . $bcfile
+# done
