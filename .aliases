@@ -1,4 +1,4 @@
-alias edit_aliases="nano ~/.aliases && source "~/.aliases""
+alias edit_aliases="nano ~/.aliases && source ~/.aliases"
 
 
 #

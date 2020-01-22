@@ -8,6 +8,30 @@ case $- in
       *) return;;
 esac
 
+#
+# -> functions
+#
+
+# THANKS: https://github.com/devonjones/bash_magic/
+function include_d {
+    local dir=$1
+    for f in ${dir}.d*/* ; do
+        [ -f "${f}" ] && . ${f}
+    done
+    # if [ -d $HOME/.$dir.d -a -r $HOME/.$dir.d -a -x $HOME/.$dir.d ]; then
+    # 	for i in $HOME/.$dir.d/*.sh; do
+    # 		 . $i
+    # 	done
+    # fi
+}
+export -f include_d
+
+
+
+#
+# <- functions
+#
+
 # don't put duplicate lines or lines starting with space in the history.
 # See bash(1) for more options
 HISTCONTROL=ignoreboth
@@ -16,8 +40,8 @@ HISTCONTROL=ignoreboth
 shopt -s histappend
 
 # for setting history length see HISTSIZE and HISTFILESIZE in bash(1)
-HISTSIZE=1000
-HISTFILESIZE=2000
+HISTSIZE=1000000
+HISTFILESIZE=500000
 
 # check the window size after each command and, if necessary,
 # update the values of LINES and COLUMNS.
@@ -72,29 +96,8 @@ xterm*|rxvt*)
     ;;
 esac
 
-# enable color support of ls and also add handy aliases
-if [ -x /usr/bin/dircolors ]; then
-    test -r ~/.dircolors && eval "$(dircolors -b ~/.dircolors)" || eval "$(dircolors -b)"
-    alias ls='ls --color=auto'
-    #alias dir='dir --color=auto'
-    #alias vdir='vdir --color=auto'
-
-    alias grep='grep --color=auto'
-    alias fgrep='fgrep --color=auto'
-    alias egrep='egrep --color=auto'
-fi
-
 # colored GCC warnings and errors
-#export GCC_COLORS='error=01;31:warning=01;35:note=01;36:caret=01;32:locus=01:quote=01'
-
-# some more ls aliases
-alias ll='ls -alF'
-alias la='ls -A'
-alias l='ls -CF'
-
-# Add an "alert" alias for long running commands.  Use like so:
-#   sleep 10; alert
-alias alert='notify-send --urgency=low -i "$([ $? = 0 ] && echo terminal || echo error)" "$(history|tail -n1|sed -e '\''s/^\s*[0-9]\+\s*//;s/[;&|]\s*alert$//'\'')"'
+export GCC_COLORS='error=01;31:warning=01;35:note=01;36:caret=01;32:locus=01:quote=01'
 
 # Alias definitions.
 # You may want to put all your additions into a separate file like
@@ -123,120 +126,11 @@ if [ -f ~/.bash_profile ]; then
     . ~/.bash_profile
 fi
 
-#
-# -> functions
-#
 
-# extraer () {
-#     if [ $# -gt 0 ] ; then
-#         if [ -f $1 ] ; then
-#             case $1 in
-#                 *.tar.bz2)   tar xvf $1        ;;
-#                 *.tar.gz)    tar xvf $1     ;;
-#                 *.tar.xz)    tar xvf $1     ;;
-#                 *.tar.lzma)  tar xvf $1     ;;
-#                 *.xz)        xz -d $1     ;;
-#                 *.ar)        tar xvf $1     ;;
-#                 *.lzma)      tar xvf $1     ;;
-#                 *.tar.7z)    tar xvf $1     ;;
-#                 *.cbz)       tar xvf $1     ;;
-#                 *.bz2)       bunzip2 $1       ;;
-#                 *.rar)       unar $1     ;;
-#                 *.gz)        gunzip $1     ;;
-#                 *.tar)       tar xvf $1        ;;
-#                 *.tbz2)      tar xvf $1      ;;
-#                 *.tgz)       tar xvf $1       ;;
-#                 *.zip)       unzip $1     ;;
-#                 *.Z)         uncompress $1  ;;
-#                 *.7z)        7z x $1    ;;
-#                 *)           echo "No se como descrimir este formato de fichero '$1'..." ;;
-#             esac
-#         else
-#             echo "'$1' no es un fichero valido"
-#         fi
-#    else
-#         echo "se necesita un fichero para estraer: extraer /home/ficheoComprimido.ext | ext = {extension fichero comprimido}"
-#    fi
-# }
-
-extract () {
-	local remove_archive
-	local success
-	local extract_dir
-	if (( $# == 0 )) || [[ "$1" = "-h" ]] || [[ "$1" = "--help" ]]
-	then
-		cat <<'EOF' >&2
-Usage: extract [-option] [file ...]
-
-Extension:
-    *.tar.bz2|*.tbz|*.tbz2|*.tar.xz|*.txz|*.tar.zma|*.tlz|*.tar|*.gz|*.bz2|*.xz|*.lzma|*.Z|*.zip|*.war|*.jar|*.sublime-package|*.ipsw|*.xpi|*.apk|*.rar|*.7z|*.deb
-
-Options:
-    -h, --help      Print this.
-    -r, --remove    Remove archive.
-EOF
-	fi
-	remove_archive=1
-	if [[ "$1" = "-r" ]] || [[ "$1" = "--remove" ]]
-	then
-		remove_archive=0
-		shift
-	fi
-	while (( $# > 0 ))
-	do
-		if [[ ! -f "$1" ]]
-		then
-			echo "extract: '$1' is not a valid file" >&2
-			shift
-			continue
-		fi
-		success=0
-		extract_dir="${1:t:r}"
-		case "$1" in
-			(*.tar.gz|*.tgz) (( $+commands[pigz] )) && {
-					pigz -dc "$1" | tar xv
-				} || tar zxvf "$1" ;;
-			(*.tar.bz2|*.tbz|*.tbz2) tar xvjf "$1" ;;
-			(*.tar.xz|*.txz) tar --xz --help &> /dev/null && tar --xz -xvf "$1" || xzcat "$1" | tar xvf - ;;
-			(*.tar.zma|*.tlz) tar --lzma --help &> /dev/null && tar --lzma -xvf "$1" || lzcat "$1" | tar xvf - ;;
-			(*.tar) tar xvf "$1" ;;
-			(*.gz) (( $+commands[pigz] )) && pigz -d "$1" || gunzip "$1" ;;
-			(*.bz2) bunzip2 "$1" ;;
-			(*.xz) unxz "$1" ;;
-			(*.lzma) unlzma "$1" ;;
-			(*.Z) uncompress "$1" ;;
-			(*.zip|*.war|*.jar|*.sublime-package|*.ipsw|*.xpi|*.apk) unzip "$1" -d $extract_dir ;;
-			(*.rar) unrar x -ad "$1" ;;
-			(*.7z) 7za x "$1" ;;
-			(*.deb) mkdir -p "$extract_dir/control"
-				mkdir -p "$extract_dir/data"
-				cd "$extract_dir"
-				ar vx "../${1}" > /dev/null
-				cd control
-				tar xzvf ../control.tar.gz
-				cd ../data
-				extract ../data.tar.*
-				cd ..
-				rm *.tar.* debian-binary
-				cd .. ;;
-			(*) echo "extract: '$1' cannot be extracted" >&2
-				success=1  ;;
-		esac
-		(( success = $success > 0 ? $success : $? ))
-		(( $success == 0 )) && (( $remove_archive == 0 )) && rm "$1"
-		shift
-	done
-}
-
-
-
-
-
-#
-# <- functions
-#
-
-
+# set PATH so it includes user's private ~/.local/bin if it exists
+if [ -d "$HOME/.local/bin" ] ; then
+  PATH="$HOME/.local/bin:$PATH"
+fi
 
 # rvm env
 [[ -s "$HOME/.rvm/scripts/rvm" ]] && source "$HOME/.rvm/scripts/rvm" # Load RVM into a shell session *as a function*
