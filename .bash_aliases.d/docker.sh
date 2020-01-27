@@ -1,7 +1,4 @@
 
-
-alias docker="d"
-
 docker_enter()
 {
   docker run -it "$1" /bin/bash
