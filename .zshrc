@@ -71,13 +71,17 @@ plugins+=(django node ruby perl python spring)
 plugins+=(rake rails jsontools)
 plugins+=(bundler pip npm bower cloudapp)
 plugins+=(docker boot2docker docker-compose)
-plugins+=(autojump colored-man-pages colorize extract)
+plugins+=(colored-man-pages colorize extract)
 
 # include Z
 plugins+=(z)
 if [ -f ${ZSH}/plugins/z/z.sh ]; then
     . ${ZSH}/plugins/z/z.sh
 fi
+
+
+# sudo apt-get isntall autojump
+plugins+=(autojump)
 
 # git clone https://github.com/zsh-users/zsh-autosuggestions ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-autosuggestions
 plugins+=(zsh-autosuggestions)
@@ -155,3 +159,7 @@ if [ -d $TEXLIVE_PATH ] ; then
     MANPATH=$MANPATH:$TEXLIVE_PATH/texmf-dist/doc/man
     TEXLIVE_LOG=$TEXLIVE_PATH/install-tl.log
 fi
+
+
+# fonts
+source ~/.fonts/*.sh
