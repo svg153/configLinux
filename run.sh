@@ -77,22 +77,37 @@ c=`sudo lspci | grep UNCLAIMED | wc -l`
 
 
 # Multimedia codecs
-sudo apt-get -qq -y install libavcodec-extra ffmpeg
+sudo apt-get -qq -y install \
+    libavcodec-extra \
+    ffmpeg
 
 # Volume Control: (Optional, Only for Xfce users)
-sudo apt-get -qq -y install pavucontrol
+sudo apt-get -qq -y install \
+    pavucontrol
 
-
+# bluetooth
+sudo apt-get -qq -y install \
+    bluetooth \
+    pulseaudio-module-bluetooth \
+    bluewho \
+    blueman \
+    bluez
 
 #
 # Drivers
 #
 
+
+# utils
 sudo apt-get -qq -y install curl
 
 
 # package manager
-sudo apt-get -qq -y install synaptic apt-xapian-index gdebi gksu
+sudo apt-get -qq -y install \
+    synaptic \
+    apt-xapian-index \
+    gdebi \
+    gksu
 
 # other packages
 sudo apt-get -qq -y install \
@@ -107,11 +122,10 @@ mkdir "${PROGRAMAS_PATH}"
 mkdir ~/.fonts
 mkdir ~/.icons
 
+
+
 # install zsh
 sudo apt-get -qq -y install zsh
-
-
-
 
 rm ~/.aliases; ln -s ~/REPOS/configLinux/.aliases ~/.aliases
 rm ~/.bashrc; ln -s ~/REPOS/configLinux/.bashrc ~/.bashrc
@@ -213,6 +227,26 @@ if [[ -e "${keyboard_filepath_mine}" ]]; then
   fi
 fi
 sudo dpkg-reconfigure -phigh console-setup
+
+
+# Docker
+sudo apt-get -qq -y remove docker docker-engine docker.io containerd runc
+sudo apt-get -qq -y update
+sudo apt-get -qq -y install
+apt-transport-https     ca-certificates     curl     gnupg-agent     software-properties-common
+curl -fsSL https://download.docker.com/linux/debian/gpg | sudo apt-key add -
+sudo add-apt-repository    "deb [arch=amd64] https://download.docker.com/linux/debian \
+   $(lsb_release -cs) \
+   stable"
+sudo apt-get -qq -y update
+sudo apt-get -qq -y install docker-ce docker-ce-cli containerd.io apt-cache madison docker-ce
+sudo docker run hello-world
+sudo groupadd docker
+sudo usermod -aG docker $USER
+newgrp docker
+docker run hello-world
+sudo systemctl enable docker
+
 
 #
 # PROGRAMS

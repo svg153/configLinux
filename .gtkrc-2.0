@@ -20,3 +20,10 @@ style "pager" = "default"
 }
 widget_class "*Pager*"             style "pager"
 class "*Pager*"                    style "pager"
+
+style "my-thunar-colours"
+{
+   base[NORMAL]        = "#ff0000"
+}
+widget_class "*ThunarShortcutsView*"		style "my-thunar-colours"
+widget_class "*ThunarTreeView*"			style "my-thunar-colours"
