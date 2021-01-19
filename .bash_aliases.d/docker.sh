@@ -23,3 +23,8 @@ alias docker_rm_images_all='docker rmi -f $(docker_list_images_all)'  # remove a
 alias docker_list_volumes_all='docker volume ls -q | tr "\n" " "' # list all volumes images
 alias docker_rm_volumes_all='docker volumes rm $(docker_list_volumes_all)'  # remove all docker volume
 alias docker_clean_all="docker_stop_all; docker_rm_cont_all; docker_rm_images_all"
+
+# 
+alias dcoker="docker"
+alias dkr="docker"
+alias dockre="docker"

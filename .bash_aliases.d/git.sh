@@ -29,7 +29,10 @@ alias git-discart="g discart"
 alias git-last="g last"
 
 
-
+# 
+alias gri="g"
+alias gti="g"
+alias gir="g"
 
 
 
