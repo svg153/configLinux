@@ -1,0 +1,7 @@
+jira:
+  protocol: http
+  url: "atlassian:8080/jira/"
+  user: "user"
+  password: "pass"
+issues:
+  - IS-111
