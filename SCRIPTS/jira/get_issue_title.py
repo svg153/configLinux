@@ -65,7 +65,7 @@ def get_summary_from_api(jc: JiraConfig, issues: list) -> requests.Response:
         
     issues_str = ",".join(issues)
     data = {
-        "jql": "issue in [%s]" % issues_str,
+        "jql": "key in (%s)" % issues_str,
         "startAt": 0,
         "maxResults": 10000000,
         "fields": [
