@@ -135,6 +135,10 @@ rm ~/.bashrc; ln -s ${CONFIG_PATH}/.bashrc ~/.bashrc
 rm ~/.bash_profile; ln -s ${CONFIG_PATH}/.bash_profile ~/.bash_profile
 rm ~/SCRIPTS; ln -s ${CONFIG_PATH}/SCRIPTS ~/SCRIPTS
 
+# GIT
+rm ~/.git-template; ln -s ${CONFIG_PATH}/.git-template ~/.git-template
+git config --global init.templateDir ~/.git-template
+
 
 # install .oh-my-zsh
 if [[ ${SHELL} != *"zsh"* ]]; then
