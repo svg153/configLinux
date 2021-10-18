@@ -1,0 +1,14 @@
+[user]
+	name = Sergio Valverde
+[core]
+	askpass =
+	# gitproxy = gitproxy
+[push]
+	default = upstream
+[alias]
+	st = status
+	ci = commit
+	co = checkout
+	unstage = reset HEAD --
+	discart = checkout --
+	last = log -1 HEAD

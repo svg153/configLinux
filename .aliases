@@ -1,4 +1,4 @@
-alias edit_aliases="nano ~/.aliases && source "~/.aliases""
+alias edit_aliases="nano ~/.aliases && source ~/.aliases"
 
 
 #
@@ -56,7 +56,9 @@ alias nomachine_restart="nomachine --restart"
 # Docker
 #
 get_container_id_by_name() { get_container_id=$(docker container ls -a --filter name="$1" | tail -n +2 | awk '{print($1)}');};
-docker_enter() { docker run -i "$1" /bin/bash }
+docker_enter() {
+  docker run -i "$1" /bin/bash
+};
 alias di="docker images"
 alias docker_list_containers_all='docker container ls -a -q | tr "\n" " "'
 alias docker_stop_all='docker stop $(docker ps -a -q | tr "\n" " ")'     # stop all containers
@@ -67,11 +69,13 @@ alias docker_list_volumes_all='docker volume ls -q | tr "\n" " "' # list all vol
 alias docker_rm_volumes_all='docker volumes rm $(docker_list_volumes_all)'  # remove all docker volume
 alias docker_clean_all="docker_stop_all; docker_rm_cont_all; docker_rm_images_all"
 
+
 htpasswd_docker() { docker run --rm httpd:2.4-alpine htpasswd -nbB ${1} ${2} ;};
 
 # portainer
 # https://github.com/portainer/portainer
 get_portainer_container_id() { get_container_id_by_name "portainer" && portainer_container_id=${get_container_id} ;};
+
 dockerGUI_func() {
   #portainer_container_id=$(get_portainer_container_id)
   # portainer_container_id=$(docker container ls -a --filter name="portainer" | tail -n +2 | awk '{print($1)}')
@@ -129,10 +133,14 @@ alias dockviz="docker run -it --rm -v /var/run/docker.sock:/var/run/docker.sock 
 #
 # my git aliases
 #
-new-repo() { fullRepoPath="$1"; repoNameGit=$(basename "$fullRepoPath"); repoName="${repoNameGit%.*}"; mkdir -p ~/REPOSITORIOS/$repoName};
+new-repo() {
+  fullRepoPath="$1"; repoNameGit=$(basename "$fullRepoPath"); repoName="${repoNameGit%.*}"; mkdir -p ~/REPOSITORIOS/$repoName
+};
 alias git-clone='git-clone() { fullRepoPath="$1"; repoNameGit=$(basename "$fullRepoPath"); repoName="${repoNameGit%.*}"; mkdir -p ~/REPOSITORIOS/$repoName; git clone "$1"}; git-clone'
 alias git-new='git-new() { fullRepoPath="$1"; repoNameGit=$(basename "$fullRepoPath"); repoName="${repoNameGit%.*}"; mkdir -p ~/REPOSITORIOS/$repoName; echo "# $repoName" >> README.md; git init; git add README.md; git commit -m "first commit"; git remote add origin $1; git push -u origin master}; git-new'
 alias git-update-branch-from-dev="git pull origin develop"
+alias git-gui="git gui &> /dev/null &"
+alias ggui=git-gui
 
 
 # my repos aliases
@@ -190,5 +198,5 @@ ic_docker() {
   cd ~/REPOSITORIOS/imdea-controls-cli_gitlab/
   make OPTS="$opts"
   cd - > /dev/null
-}
+};
 alias ic="ic_docker"

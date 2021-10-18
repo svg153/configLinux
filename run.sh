@@ -4,7 +4,7 @@
 # 1º) user must be in sudoers
 #         * su && apt-get install sudo && adduser ${USER} sudo && exit
 #         * reboot
-# 2º) sudo apt-get install git && mkdir ~/REPOSITORIOS && git clone https://github.com/svg153/configLinux.git ~/REPOSITORIOS/configLinux/
+# 2º) sudo apt-get install git && mkdir ~/REPOSITORIOS && git clone https://github.com/svg153/configLinux.git ${CONFIG_PATH}/
 
 # configure the /etc/apt/sources.list
 # sudo mv /etc/apt/sources.list /etc/apt/sources.list.OLD
@@ -20,6 +20,8 @@ sudo apt-get update && sudo apt-get upgrade && sudo apt-get dist-upgrade && sudo
 #
 
 PROGRAMAS_PATH="~/PROGRAMAS/"
+REPOS_PATH="~/REPOSITORIOS/"
+CONFIG_PATH="${REPOS_PATH}/configLinux/"
 
 #
 # VARS
@@ -77,40 +79,55 @@ c=`sudo lspci | grep UNCLAIMED | wc -l`
 
 
 # Multimedia codecs
-sudo apt-get -qq -y install libavcodec-extra ffmpeg
+sudo apt-get -qq -y install \
+    libavcodec-extra \
+    ffmpeg
 
 # Volume Control: (Optional, Only for Xfce users)
-sudo apt-get -qq -y install pavucontrol
+sudo apt-get -qq -y install \
+    pavucontrol
 
-
+# bluetooth
+sudo apt-get -qq -y install \
+    bluetooth \
+    pulseaudio-module-bluetooth \
+    bluewho \
+    blueman \
+    bluez
 
 #
 # Drivers
 #
 
+
+# utils
 sudo apt-get -qq -y install curl
 
 
 # package manager
-sudo apt-get -qq -y install synaptic apt-xapian-index gdebi gksu
+sudo apt-get -qq -y install \
+    synaptic \
+    apt-xapian-index \
+    gdebi \
+    gksu
 
 # other packages
 sudo apt-get -qq -y install \
-    zip unzip unrar \
+    zip unzip \
     xclip \
-    shutter \
     wmctrl
+
+apt install unrar
 
 # make tree folders
 mkdir "${PROGRAMAS_PATH}"
 mkdir ~/.fonts
 mkdir ~/.icons
 
+
+
 # install zsh
 sudo apt-get -qq -y install zsh
-
-
-
 
 rm ~/.aliases; ln -s ~/REPOS/configLinux/.aliases ~/.aliases
 rm ~/.bashrc; ln -s ~/REPOS/configLinux/.bashrc ~/.bashrc
@@ -118,10 +135,14 @@ rm ~/.bash_profile; ln -s ~/REPOS/configLinux/.bash_profile ~/.bash_profile
 rm ~/SCRIPTS; ln -s ~/REPOS/configLinux/SCRIPTS ~/SCRIPTS
 
 # create the symlinks
-rm ~/.aliases; ln -s ~/REPOSITORIOS/configLinux/.aliases ~/.aliases
-rm ~/.bashrc; ln -s ~/REPOSITORIOS/configLinux/.bashrc ~/.bashrc
-rm ~/.bash_profile; ln -s ~/REPOSITORIOS/configLinux/.bash_profile ~/.bash_profile
-rm ~/SCRIPTS; ln -s ~/REPOSITORIOS/configLinux/SCRIPTS ~/SCRIPTS
+rm ~/.aliases; ln -s ${CONFIG_PATH}/.aliases ~/.aliases
+rm ~/.bashrc; ln -s ${CONFIG_PATH}/.bashrc ~/.bashrc
+rm ~/.bash_profile; ln -s ${CONFIG_PATH}/.bash_profile ~/.bash_profile
+rm ~/SCRIPTS; ln -s ${CONFIG_PATH}/SCRIPTS ~/SCRIPTS
+
+# GIT
+rm ~/.git-template; ln -s ${CONFIG_PATH}/.git-template ~/.git-template
+git config --global init.templateDir ~/.git-template
 
 
 # install .oh-my-zsh
@@ -129,21 +150,26 @@ if [[ ${SHELL} != *"zsh"* ]]; then
     sh -c "$(wget https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh -O -)"
 
     # configure zsh
-    rm ~/.zshrc; ln -s ~/REPOSITORIOS/configLinux/.zshrc ~/.zshrc
+    rm ~/.zshrc; ln -s ${CONFIG_PATH}/.zshrc ~/.zshrc
 
+    ZSH_C="${ZSH_CUSTOM:-~/.oh-my-zsh/custom}"
+    
     # install zsh plugins
-    OMZsh_C_P="${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/"
+    OMZsh_C_P="${ZSH_C}/plugins/"
+    git clone https://github.com/zsh-users/zsh-autosuggestions 
+    git clone https://github.com/zsh-users/zsh-completions
+    git clone https://github.com/zsh-users/zsh-navigation-tools
+    git clone https://github.com/zsh-users/zsh-syntax-highlighting
+    git clone https://github.com/zsh-users/zsh-history-substring-search
+    git clone https://github.com/djui/alias-tips.git 
+    git clone https://github.com/chrissicool/zsh-256color
+    cd -
 
-    git clone https://github.com/zsh-users/zsh-autosuggestions ${OMZsh_C_P}
-    git clone https://github.com/zsh-users/zsh-completions ${OMZsh_C_P}
-    git clone https://github.com/zsh-users/zsh-navigation-tools ${OMZsh_C_P}
-    git clone https://github.com/zsh-users/zsh-syntax-highlighting ${OMZsh_C_P}
-    git clone https://github.com/ricardrobin/zsh-output-highlighting ${OMZsh_C_P}
-    git clone https://github.com/djui/alias-tips.git ${OMZsh_C_P}
+    sudo apt-get install autojump
 
-    OMZsh_C_T="${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/themes/"
-    [[ -d ${${OMZsh_C_P}} ]] && rm -rf ${OMZsh_C_P}
-    ln -s ~/REPOSITORIOS/configLinux/SCRIPTS/.oh-my-zsh/custom/themes/ ${OMZsh_C_P}
+    OMZsh_C_T="${ZSH_C}/themes/"
+    [[ -d ${OMZsh_C_T} ]] && rm -rf ${OMZsh_C_T}
+    ln -s ${CONFIG_PATH}/.oh-my-zsh/custom/themes/ ${OMZsh_C_T}
 
     # clone
     git clone https://github.com/powerline/fonts.git --depth=1
@@ -166,6 +192,11 @@ if [[ ${SHELL} != *"zsh"* ]]; then
     cd -
 fi
 
+
+
+# Install gitk
+sudo apt-get install -qq -y git-gui gitk
+
 # install openvpn
 sudo apt-get -qq -y install openvpm resolvconf network-manager-openvpn-gnome
 
@@ -178,13 +209,6 @@ sudo dpkg -i ${deb_filepath_dw}
 # fix chrome installation
 sudo apt-get --fix-broken-install && sudo apt-get update && sudo apt-get -qq -y install && rm ${deb_filepath_dw}
 
-
-# install php
-# sudo apt-get install php5-common libapache2-mod-php5 php5-cli
-
-# TODO: install php7
-
-
 # Install telegram
 wget -O ${PROGRAMAS_PATH}/tsetup.tar.xz https://telegram.org/dl/desktop/linux
 cd ${PROGRAMAS_PATH}
@@ -193,20 +217,6 @@ sudo ln -s ${PROGRAMAS_PATH}/Telegram/Telegram /bin/telegram
 rm -rf tsetup.tar.xz
 cd
 
-# Install smartgit
-deb_filename="smartgit-17_1_2.deb"
-deb_filepath_dw="${PROGRAMAS_PATH}/${deb_filename}"
-wget -O ${deb_filepath_dw} http://www.syntevo.com/smartgit/download?file=smartgit/smartgit-17_1_2.deb
-sudo dpkg -i ${deb_filepath_dw}
-rm ${deb_filepath_dw}
-
-# Install atom
-# deb_filename="atom-amd64.deb"
-# deb_filepath_dw="${PROGRAMAS_PATH}/${deb_filename}"
-# wget -O ${deb_filepath_dw} https://atom.io/download/deb
-# sudo dpkg -i ${deb_filepath_dw}
-# rm ${deb_filepath_dw}
-
 # @TODO: Install VSCODE
 curl https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor > microsoft.gpg
 sudo mv microsoft.gpg /etc/apt/trusted.gpg.d/microsoft.gpg
@@ -214,16 +224,9 @@ sudo sh -c 'echo "deb [arch=amd64] https://packages.microsoft.com/repos/vscode s
 sudo apt-get update
 sudo apt-get install -qq -y code
 
-# Install Lightworks
-deb_filename="lwks-14.0.0-amd64.deb"
-deb_filepath_dw="${PROGRAMAS_PATH}/${deb_filename}"
-wget -O ${deb_filepath_dw} https://downloads.lwks.com/v14/${deb_filename}
-sudo dpkg -i ${deb_filepath_dw}
-rm ${deb_filepath_dw}
-
 # config keyboard
 keyboard_filepath_ori="/etc/default/keyboard"
-keyboard_filepath_mine="~/REPOSITORIOS/configLinux/keyboard"
+keyboard_filepath_mine="${CONFIG_PATH}/keyboard"
 sudo cp ${keyboard_filepath_ori} ${keyboard_filepath_ori}.OLD
 sudo rm ${keyboard_filepath_ori}
 if [[ -e "${keyboard_filepath_mine}" ]]; then
@@ -233,6 +236,26 @@ if [[ -e "${keyboard_filepath_mine}" ]]; then
   fi
 fi
 sudo dpkg-reconfigure -phigh console-setup
+
+
+# Docker
+sudo apt-get -qq -y remove docker docker-engine docker.io containerd runc
+sudo apt-get -qq -y update
+sudo apt-get -qq -y install
+apt-transport-https     ca-certificates     curl     gnupg-agent     software-properties-common
+curl -fsSL https://download.docker.com/linux/debian/gpg | sudo apt-key add -
+sudo add-apt-repository    "deb [arch=amd64] https://download.docker.com/linux/debian \
+   $(lsb_release -cs) \
+   stable"
+sudo apt-get -qq -y update
+sudo apt-get -qq -y install docker-ce docker-ce-cli containerd.io apt-cache madison docker-ce
+sudo docker run hello-world
+sudo groupadd docker
+sudo usermod -aG docker $USER
+newgrp docker
+docker run hello-world
+sudo systemctl enable docker
+
 
 #
 # PROGRAMS
@@ -244,11 +267,19 @@ sudo dpkg-reconfigure -phigh console-setup
 # APPS
 #
 
-sudo apt-get -qq -y install rsync \
-    qalculate vlc gimp \
-    gparted gnome-disk-utility
+# xfce4
+sudo apt-get -qq -y install \
+    xfce4-whiskermenu-plugin \
+    menulibre \
+    xfce4-clipman \
+    xfce4-panel-dev \
+    xfce4-power-manager \
+    xfce4-screenshooter \
+    xfce4-taskmanager \
+    xfce4-terminal \
+    xfce4-xkb-plugin
 
-# Check this apps:
+# TODO: Check this apps:
 #file-roller
 #evince
 #doidon
@@ -265,6 +296,17 @@ sudo apt-get -qq -y install rsync \
 #xarchiver
 #xserver-xorg-input-synaptics
 
+
+sudo apt-get -qq -y install rsync \
+    qalculate vlc gimp \
+    gparted gnome-disk-utility
+
+
+# flameshot (new shutter)
+sudo apt install flameshot
+
+
+
 #
 # APPS
 #
@@ -273,10 +315,6 @@ sudo apt-get -qq -y install rsync \
 #
 # CUSTOMIZATION
 #
-
-
-# xfce4
-sudo apt-get -qq -y install xfce4-whiskermenu-plugin menulibre xfce4-clipman xfce4-panel-dev xfce4-power-manager xfce4-screenshooter xfce4-taskmanager xfce4-terminal xfce4-xkb-plugin
 
 # lightdm
 touch /usr/share/lightdm/lightdm.conf.d/01_my.conf
@@ -287,12 +325,30 @@ EOL
 
 
 # fonts
-sudo apt-get -qq -y install fonts-dejavu fonts-dejavu-extra fonts-droid-fallback fonts-freefont-ttf fonts-liberation fonts-noto fonts-noto-mono fonts-opensymbol ttf-bitstream-vera ttf-dejavu ttf-dejavu-core ttf-dejavu-extra ttf-freefont ttf-liberation ttf-mscorefonts-installer qt4-qtconfig
+sudo apt-get -qq -y install \
+    fonts-dejavu \
+    fonts-dejavu-extra \
+    fonts-droid-fallback \
+    fonts-freefont-ttf \
+    fonts-liberation \
+    fonts-noto \
+    fonts-noto-mono \
+    fonts-opensymbol \
+    ttf-bitstream-vera \
+    ttf-dejavu \
+    ttf-dejavu-core \
+    ttf-dejavu-extra \
+    ttf-freefont \
+    ttf-liberation \
+    ttf-mscorefonts-installer \
+    qt4-qtconfig
 
 
 # themes
 # Numix: https://github.com/numixproject/numix-gtk-theme
-sudo apt-get -qq -y install numix-gtk-theme numix-icon-theme-circle numix-icon-theme-shine
+sudo add-apt-repository ppa:numix/ppa
+sudo apt update
+sudo apt install numix-*
 
 # Xfce-dust-svg153
 sudo cp -r ./themes/* /usr/share/themes/
@@ -313,3 +369,10 @@ sudo apt clean
 #
 # CLEAN
 #
+
+#
+# Thanks:
+#    https://linuxpanda.wordpress.com/2016/12/31/things-to-do-after-installing-debian-stretch/
+#    https://www.youtube.com/watch?v=BWBHJmAmZgk
+#    https://www.youtube.com/watch?v=c60x3nd7cag
+#    https://www.youtube.com/watch?v=GR2y0xOIIdI

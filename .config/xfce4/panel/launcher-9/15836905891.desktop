@@ -7,6 +7,7 @@ StartupNotify=true
 Terminal=false
 Categories=Utility;X-XFCE;X-Xfce-Toplevel;
 OnlyShowIn=XFCE;
+X-AppStream-Ignore=True
 Name=Terminal Emulator
 Comment=Use the command line
 X-XFCE-Source=file:///usr/share/applications/exo-terminal-emulator.desktop
