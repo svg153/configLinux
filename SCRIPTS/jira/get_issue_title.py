@@ -19,9 +19,9 @@ class JiraConfig:
         
 def _parse_args():
     parser = argparse.ArgumentParser(
-        prog="createRelease",
+        prog="get_issue_title",
         usage="%(prog)s ",
-        description="Hifly release automation (only git repos)",
+        description="get_issue_title",
     )
     parser.add_argument('--yaml-input', required=True, type=str,
                         help='input configuration file (yaml format)')
