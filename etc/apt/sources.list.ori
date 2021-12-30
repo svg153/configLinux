@@ -1,0 +1,24 @@
+# 
+
+# deb cdrom:[Official Debian GNU/Linux Live 10.3.0 xfce 2020-02-08T12:43]/ 0_MIO/0_ADMIN/pycharm-2016.2.3/helpers/tools/
+# deb cdrom:[Official Debian GNU/Linux Live 10.3.0 xfce 2020-02-08T12:43]/ bullseye main
+
+deb http://deb.debian.org/debian/ bullseye main
+deb-src http://deb.debian.org/debian/ bullseye main
+
+#deb https://deb.debian.org/debian-security/ bullseye-security main contrib
+#deb-src https://deb.debian.org/debian-security/ bullseye-security main contrib
+deb http://security.debian.org/debian-security/ bullseye-security main contrib
+deb-src http://security.debian.org/debian-security/ bullseye-security main contrib
+
+# bullseye-security, previously known as 'volatile'
+deb http://deb.debian.org/debian/ bullseye-updates main
+deb-src http://deb.debian.org/debian/ bullseye-updates main
+
+# This system was installed using small removable media
+# (e.g. netinst, live or single CD). The matching "deb cdrom"
+# entries were disabled at the end of the installation process.
+# For information about how to configure apt package sources,
+# see the sources.list(5) manual.
+deb [arch=amd64] https://download.docker.com/linux/debian bullseye stable
+# deb-src [arch=amd64] https://download.docker.com/linux/debian bullseye stable
