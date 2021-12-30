@@ -23,6 +23,9 @@ PROGRAMAS_PATH="~/PROGRAMAS/"
 REPOS_PATH="~/REPOSITORIOS/"
 CONFIG_PATH="${REPOS_PATH}/configLinux/"
 
+alias ins="apt -qq -y install"
+alias install="sudo ins"
+
 #
 # VARS
 #
@@ -33,20 +36,20 @@ CONFIG_PATH="${REPOS_PATH}/configLinux/"
 # DRIVERS
 #
 
-sudo apt-get -qq -y install firmware-linux
+install firmware-linux lshw
 
 
-intel=`lshw | grep CPU | grep Intel | wc -l`
-[[ ${intel} -gt 0 ]] && sudo apt-get -qq -y install intel-microcode
-amd=`lshw | grep CPU | grep amd | wc -l`
-[[ ${amd} -gt 0 ]] && sudo apt-get -qq -y install amd64-microcode
+intel=$(lshw | grep CPU | grep Intel | wc -l)
+[[ ${intel} -gt 0 ]] && install intel-microcode
+amd=$(lshw | grep CPU | grep amd | wc -l)
+[[ ${amd} -gt 0 ]] && install amd64-microcode
 
 
 # install graphics: https://wiki.debian.org/GraphicsCard
 
 # AMD or ATI: https://wiki.debian.org/AtiHowTo
-isATI=`lspci -nn | grep VGA | grep ATI | wc -l`
-[[ ${isATI} -ne 0 ]] && sudo apt-get -qq -y install firmware-linux-nonfree libgl1-mesa-dri xserver-xorg-video-ati
+isATI=$(lspci -nn | grep VGA | grep ATI | wc -l)
+[[ ${isATI} -ne 0 ]] && install firmware-linux-nonfree libgl1-mesa-dri xserver-xorg-video-ati
 # OFFICIAL AMD or ATI:
 #    https://wiki.debian.org/ATIProprietary
 #    http://support.amd.com/en-us/kb-articles/Pages/AMDGPU-PRO-Install.aspx
@@ -54,41 +57,39 @@ isATI=`lspci -nn | grep VGA | grep ATI | wc -l`
 # Nvidia: https://wiki.debian.org/NvidiaGraphicsDrivers
 
 # firmware-realtek
-sudo apt-get -qq -y install firmware-realtek
+install firmware-realtek
 
 # wifi
-sudo apt-get -qq -y install wpasupplicant wireless-tools network-manager
+install wpasupplicant wireless-tools network-manager
 # GUI to manage network connections
 #    https://wiki.debian.org/WiFi/HowToUse
-sudo apt-get -qq -y install network-manager-gnome
+install network-manager-gnome
 
 # unclaimed drivers
-sudo lshw | grep UNCLAIMED
-c=`sudo lshw | grep UNCLAIMED | wc -l`
-#[[ ${c} -ne 0 ]] && exit 1
+unclaimed=$(sudo lshw | grep UNCLAIMED)
+c=$(echo ${unclaimed} | wc -l)
+[[ ${c} -ne 0 ]] && echo "Drivers UNCLAIMED" && echo "${unclaimed}" && exit 1
 
-sudo lspci | grep UNCLAIMED
-c=`sudo lspci | grep UNCLAIMED | wc -l`
-#[[ ${c} -ne 0 ]] && exit 1
+unclaimed=$(sudo lspci | grep UNCLAIMED)
+c=$(echo ${unclaimed} | wc -l)
+[[ ${c} -ne 0 ]] && echo "Drivers UNCLAIMED" && echo "${unclaimed}" && exit 1
 
-sudo lshw | grep UNCLAIMED
-c=`sudo lspci | grep UNCLAIMED | wc -l`
 #[[ ${c} -ne 0 ]] && exit 1
 
 
 
 
 # Multimedia codecs
-sudo apt-get -qq -y install \
+install \
     libavcodec-extra \
     ffmpeg
 
 # Volume Control: (Optional, Only for Xfce users)
-sudo apt-get -qq -y install \
+install \
     pavucontrol
 
 # bluetooth
-sudo apt-get -qq -y install \
+install \
     bluetooth \
     pulseaudio-module-bluetooth \
     bluewho \
@@ -101,18 +102,18 @@ sudo apt-get -qq -y install \
 
 
 # utils
-sudo apt-get -qq -y install curl
+install curl
 
 
 # package manager
-sudo apt-get -qq -y install \
+install \
     synaptic \
     apt-xapian-index \
     gdebi \
     gksu
 
 # other packages
-sudo apt-get -qq -y install \
+install \
     zip unzip \
     xclip \
     wmctrl
@@ -127,7 +128,7 @@ mkdir ~/.icons
 
 
 # install zsh
-sudo apt-get -qq -y install zsh
+install zsh
 
 rm ~/.aliases; ln -s ~/REPOS/configLinux/.aliases ~/.aliases
 rm ~/.bashrc; ln -s ~/REPOS/configLinux/.bashrc ~/.bashrc
@@ -166,7 +167,7 @@ if [[ ${SHELL} != *"zsh"* ]]; then
     git clone https://github.com/chrissicool/zsh-256color
     cd -
 
-    sudo apt-get install autojump
+    install autojump
 
     OMZsh_C_T="${ZSH_C}/themes/"
     [[ -d ${OMZsh_C_T} ]] && rm -rf ${OMZsh_C_T}
@@ -196,10 +197,10 @@ fi
 
 
 # Install gitk
-sudo apt-get install -qq -y git-gui gitk
+install git-gui gitk
 
 # install openvpn
-sudo apt-get -qq -y install openvpm resolvconf network-manager-openvpn-gnome
+install openvpm resolvconf network-manager-openvpn-gnome
 
 
 # install google-chrome
@@ -208,7 +209,7 @@ deb_filepath_dw="${PROGRAMAS_PATH}/${deb_filename}"
 wget -O ${deb_filepath_dw} https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb ${PROGRAMAS_PATH}
 sudo dpkg -i ${deb_filepath_dw}
 # fix chrome installation
-sudo apt-get --fix-broken-install && sudo apt-get update && sudo apt-get -qq -y install && rm ${deb_filepath_dw}
+sudo apt-get --fix-broken-install && sudo apt-get update && install && rm ${deb_filepath_dw}
 
 # Install telegram
 wget -O ${PROGRAMAS_PATH}/tsetup.tar.xz https://telegram.org/dl/desktop/linux
@@ -223,7 +224,7 @@ curl https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor > microso
 sudo mv microsoft.gpg /etc/apt/trusted.gpg.d/microsoft.gpg
 sudo sh -c 'echo "deb [arch=amd64] https://packages.microsoft.com/repos/vscode stable main" > /etc/apt/sources.list.d/vscode.list'
 sudo apt-get update
-sudo apt-get install -qq -y code
+install code
 
 # config keyboard
 keyboard_filepath_ori="/etc/default/keyboard"
@@ -242,14 +243,13 @@ sudo dpkg-reconfigure -phigh console-setup
 # Docker
 sudo apt-get -qq -y remove docker docker-engine docker.io containerd runc
 sudo apt-get -qq -y update
-sudo apt-get -qq -y install
-apt-transport-https     ca-certificates     curl     gnupg-agent     software-properties-common
+install apt-transport-https ca-certificates curl gnupg-agent software-properties-common
 curl -fsSL https://download.docker.com/linux/debian/gpg | sudo apt-key add -
-sudo add-apt-repository    "deb [arch=amd64] https://download.docker.com/linux/debian \
+sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/debian \
    $(lsb_release -cs) \
    stable"
 sudo apt-get -qq -y update
-sudo apt-get -qq -y install docker-ce docker-ce-cli containerd.io apt-cache madison docker-ce
+install docker-ce docker-ce-cli containerd.io apt-cache madison docker-ce
 sudo docker run hello-world
 sudo groupadd docker
 sudo usermod -aG docker $USER
@@ -269,7 +269,7 @@ sudo systemctl enable docker
 #
 
 # xfce4
-sudo apt-get -qq -y install \
+install \
     xfce4-whiskermenu-plugin \
     menulibre \
     xfce4-clipman \
@@ -298,7 +298,7 @@ sudo apt-get -qq -y install \
 #xserver-xorg-input-synaptics
 
 
-sudo apt-get -qq -y install rsync \
+install rsync \
     qalculate vlc gimp \
     gparted gnome-disk-utility
 
@@ -326,7 +326,7 @@ EOL
 
 
 # fonts
-sudo apt-get -qq -y install \
+install \
     fonts-dejavu \
     fonts-dejavu-extra \
     fonts-droid-fallback \
