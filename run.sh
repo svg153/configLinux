@@ -74,9 +74,6 @@ unclaimed=$(sudo lspci | grep UNCLAIMED)
 c=$(echo ${unclaimed} | wc -l)
 [[ ${c} -ne 0 ]] && echo "Drivers UNCLAIMED" && echo "${unclaimed}" && exit 1
 
-#[[ ${c} -ne 0 ]] && exit 1
-
-
 
 
 # Multimedia codecs
@@ -129,11 +126,6 @@ mkdir ~/.icons
 
 # install zsh
 install zsh
-
-rm ~/.aliases; ln -s ~/REPOS/configLinux/.aliases ~/.aliases
-rm ~/.bashrc; ln -s ~/REPOS/configLinux/.bashrc ~/.bashrc
-rm ~/.bash_profile; ln -s ~/REPOS/configLinux/.bash_profile ~/.bash_profile
-rm ~/SCRIPTS; ln -s ~/REPOS/configLinux/SCRIPTS ~/SCRIPTS
 
 # create the symlinks
 rm ~/.aliases; ln -s ${CONFIG_PATH}/.aliases ~/.aliases
