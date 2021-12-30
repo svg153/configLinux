@@ -304,7 +304,10 @@ install rsync \
 
 
 # flameshot (new shutter)
-sudo apt install flameshot
+install flameshot
+flameshot_configfile=".config/flameshot/flameshot.ini"
+rm ${flameshot_configfile}
+ln -s ${CONFIG_PATH}/${flameshot_configfile} ~/${flameshot_configfile}
 
 
 
