@@ -54,3 +54,7 @@ dive() {
 # dockviz
 # https://github.com/justone/dockviz
 alias dockviz="docker run -it --rm -v /var/run/docker.sock:/var/run/docker.sock nate/dockviz"
+
+# ocrmypdf
+# https://github.com/jbarlow83/OCRmyPDF
+alias ocrmypdf='docker run --rm  -i --user "$(id -u):$(id -g)" --workdir /data -v "$PWD:/data" jbarlow83/ocrmypdf'

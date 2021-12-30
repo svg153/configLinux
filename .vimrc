@@ -106,7 +106,7 @@ let g:DoxygenToolkit_authorName="John Doe <john@doe.com>"
 " create doxygen comment
 map <F10> :Dox<CR>
 " build using makeprg with <F7>
-set makeprg=/home/sevg/sevg_ws_hifly/buildscosii/buildscript/make_script_all
+set makeprg=/tmp/make_script
 map <F12> :make <Bar> copen<CR>
 " build using makeprg with <S-F7>
 map <S-F12> :make clean_all<CR>

@@ -1,12 +1,17 @@
 # If you come from bash you might have to change your $PATH.
-# export PATH=$HOME/bin:/usr/local/bin:$PATH
+export PATH=$HOME/bin:/usr/local/bin:$PATH
+# set PATH so it includes user's private ~/.local/bin if it exists
+if [ -d "$HOME/.local/bin" ] ; then
+  export PATH="$HOME/.local/bin:$PATH"
+fi
 
 # Path to your oh-my-zsh installation.
-export ZSH=~/.oh-my-zsh
+export ZSH="/home/svg153/.oh-my-zsh"
 
-# Set name of the theme to load. Optionally, if you set this to "random"
-# it'll load a random theme each time that oh-my-zsh is loaded.
-# See https://github.com/robbyrussell/oh-my-zsh/wiki/Themes
+# Set name of the theme to load --- if set to "random", it will
+# load a random theme each time oh-my-zsh is loaded, in which case,
+# to know which specific one was loaded, run: echo $RANDOM_THEME
+# See https://github.com/ohmyzsh/ohmyzsh/wiki/Themes
 ZSH_THEME="robbyrussell"
 #ZSH_THEME="agnoster"
 
@@ -16,18 +21,31 @@ ZSH_THEME="robbyrussell"
 #POWERLEVEL9K_MODE='flat'
 #POWERLEVEL9K_MODE='compatible'
 
+# Set list of themes to pick from when loading at random
+# Setting this variable when ZSH_THEME=random will cause zsh to load
+# a theme from this variable instead of looking in $ZSH/themes/
+# If set to an empty array, this variable will have no effect.
+# ZSH_THEME_RANDOM_CANDIDATES=( "robbyrussell" "agnoster" )
+
+
+
 # Uncomment the following line to use case-sensitive completion.
 # CASE_SENSITIVE="true"
 
-# Uncomment the following line to use hyphen-insensitive completion. Case
-# sensitive completion must be off. _ and - will be interchangeable.
+# Uncomment the following line to use hyphen-insensitive completion.
+# Case-sensitive completion must be off. _ and - will be interchangeable.
 # HYPHEN_INSENSITIVE="true"
 
-# Uncomment the following line to disable bi-weekly auto-update checks.
-# DISABLE_AUTO_UPDATE="true"
+# Uncomment the following lines to change the auto-update behavior
+# zstyle ':omz:update' mode disabled  # disable automatic updates
+# zstyle ':omz:update' mode auto      # update automatically without asking
+# zstyle ':omz:update' mode reminder  # just remind me to update when it's time
 
 # Uncomment the following line to change how often to auto-update (in days).
-export UPDATE_ZSH_DAYS=7
+# zstyle ':omz:update' frequency 13
+
+# Uncomment the following line if pasting URLs and other text is messed up.
+# DISABLE_MAGIC_FUNCTIONS="true"
 
 # Uncomment the following line to disable colors in ls.
 # DISABLE_LS_COLORS="true"
@@ -39,6 +57,9 @@ export UPDATE_ZSH_DAYS=7
 ENABLE_CORRECTION="true"
 
 # Uncomment the following line to display red dots whilst waiting for completion.
+# You can also set it to another string to have that shown instead of the default red dots.
+# e.g. COMPLETION_WAITING_DOTS="%F{yellow}waiting...%f"
+# Caution: this setting can cause issues with multiline prompts in zsh < 5.7.1 (see #5765)
 COMPLETION_WAITING_DOTS="true"
 
 # Uncomment the following line if you want to disable marking untracked files
@@ -48,28 +69,26 @@ COMPLETION_WAITING_DOTS="true"
 
 # Uncomment the following line if you want to change the command execution time
 # stamp shown in the history command output.
-# The optional three formats: "mm/dd/yyyy"|"dd.mm.yyyy"|"yyyy-mm-dd"
-HIST_STAMPS="dd/mm/yyyy"
+# You can set one of the optional three formats:
+# "mm/dd/yyyy"|"dd.mm.yyyy"|"yyyy-mm-dd"
+# or set a custom format using the strftime function format specifications,
+# see 'man strftime' for details.
+# HIST_STAMPS="mm/dd/yyyy"
 
 # Would you like to use another custom folder than $ZSH/custom?
 # ZSH_CUSTOM=/path/to/new-custom-folder
 
-
-#
-# --> PLUGINS
-#
-
-
-# Which plugins would you like to load? (plugins can be found in ~/.oh-my-zsh/plugins/*)
-# Custom plugins may be added to ~/.oh-my-zsh/custom/plugins/
+# Which plugins would you like to load?
+# Standard plugins can be found in $ZSH/plugins/
+# Custom plugins may be added to $ZSH_CUSTOM/plugins/
 # Example format: plugins=(rails git textmate ruby lighthouse)
 # Add wisely, as too many plugins slow down shell startup.
 plugins=(gnu-utils history)
 plugins+=(textmate lighthouse)
-plugins+=(git git-auto-fetch git-extras gitfast git-flow git-flow-avh git-hubflow gitignore git-prompt git-remote-branch github)
-plugins+=(django node ruby perl python spring)
+plugins+=(git git-auto-fetch git-extras gitfast git-flow git-flow-avh git-hubflow gitignore git-prompt github)
+plugins+=(node ruby perl python spring)
 plugins+=(rake rails jsontools)
-plugins+=(bundler pip npm bower cloudapp)
+plugins+=(bundler pip npm bower)
 plugins+=(docker boot2docker docker-compose)
 plugins+=(colored-man-pages colorize extract)
 
@@ -97,8 +116,6 @@ ZSH_HIGHLIGHT_HIGHLIGHTERS=(main brackets pattern root)
 plugins+=(zsh-history-substring-search)
 # git clone https://github.com/zsh-users/zsh-completions ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-completions
 plugins+=(zsh-completions)
-# git clone https://github.com/ricardrobin/zsh-output-highlighting ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-output-highlighting
-plugins+=(zsh-output-highlighting)
 # git clone https://github.com/djui/alias-tips.git ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/alias-tips
 plugins+=(alias-tips)
 # git clone https://github.com/chrissicool/zsh-256color ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-256color
@@ -106,18 +123,9 @@ plugins+=(zsh-256color)
 
 autoload -U compinit && compinit
 
-source "${ZSH}/oh-my-zsh.sh"
-
-#
-# <-- PLUGINS
-#
-
-
+source $ZSH/oh-my-zsh.sh
 
 # User configuration
-if [ -f ~/.aliases ]; then
-    . ~/.aliases
-fi
 
 # export MANPATH="/usr/local/man:$MANPATH"
 
@@ -134,9 +142,6 @@ fi
 # Compilation flags
 # export ARCHFLAGS="-arch x86_64"
 
-# ssh
-# export SSH_KEY_PATH="~/.ssh/dsa_id"
-
 # Set personal aliases, overriding those provided by oh-my-zsh libs,
 # plugins, and themes. Aliases can be placed here, though oh-my-zsh
 # users are encouraged to define aliases within the ZSH_CUSTOM folder.
@@ -144,22 +149,16 @@ fi
 #
 # Example aliases
 alias zshconfig="vi ~/.zshrc"
+alias ohmyzsh="vi ~/.oh-my-zsh"
+if [ -f ~/.bash_aliases ]; then
+    source ~/.bash_aliases
+fi
 
-
-# # rvm env
-# [[ -s "$HOME/.rvm/scripts/rvm" ]] && source "$HOME/.rvm/scripts/rvm" # Load RVM into a shell session *as a function*
-# [[ -e "$HOME/.rvm/bin" ]] && export PATH="$PATH:$HOME/.rvm/bin" # Add RVM to PATH for scripting
-
-# set PATH if texlive exists
-## https://en.wikibooks.org/wiki/LaTeX/Installation#.2ABSD_and_GNU.2FLinux
-TEXLIVE_PATH=/usr/local/texlive/2016/
-if [ -d $TEXLIVE_PATH ] ; then
-    PATH=$PATH:$TEXLIVE_PATH/bin/x86_64-linux
-    INFOPATH=$INFOPATH:$TEXLIVE_PATH/texmf-dist/doc/info
-    MANPATH=$MANPATH:$TEXLIVE_PATH/texmf-dist/doc/man
-    TEXLIVE_LOG=$TEXLIVE_PATH/install-tl.log
+if [ -f ~/.aliases ]; then
+    source ~/.aliases
 fi
 
 
 # fonts
+# https://github.com/gabrielelana/awesome-terminal-fonts
 source ~/.fonts/*.sh

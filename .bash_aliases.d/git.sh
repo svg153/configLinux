@@ -9,15 +9,17 @@ alias gg=ggui
 alias gci="g commit"
 alias gco="g checkout"
 alias gst="g status"
-alias gunstage="g reset HEAD --"
+alias gres="g unstage"
+alias gunstage="gres"
 alias gu="gunstage"
-alias gdiscart="g checkout --"
-alias gdis="gdiscart"
+alias gdis="g discart"
+alias gdiscart="gdis"
 alias glast="g log -1 HEAD"
 alias gcbt="g co -t origin"
 alias gsave="g stash"
 alias gpop="g stash pop"
 
+alias git-update='g stash && git pull && git stash pop'
 alias git-update-branch-from-dev="g pull origin develop"
 
 # Needs discart in gitconfig

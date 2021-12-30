@@ -4,7 +4,7 @@
 # 1º) user must be in sudoers
 #         * su && apt-get install sudo && adduser ${USER} sudo && exit
 #         * reboot
-# 2º) sudo apt-get install git && mkdir ~/REPOSITORIOS && git clone https://github.com/svg153/configLinux.git ~/REPOSITORIOS/configLinux/
+# 2º) sudo apt-get install git && mkdir ~/REPOSITORIOS && git clone https://github.com/svg153/configLinux.git ${CONFIG_PATH}/
 
 # configure the /etc/apt/sources.list
 # sudo mv /etc/apt/sources.list /etc/apt/sources.list.OLD
@@ -20,6 +20,8 @@ sudo apt-get update && sudo apt-get upgrade && sudo apt-get dist-upgrade && sudo
 #
 
 PROGRAMAS_PATH="~/PROGRAMAS/"
+REPOS_PATH="~/REPOSITORIOS/"
+CONFIG_PATH="${REPOS_PATH}/configLinux/"
 
 #
 # VARS
@@ -133,10 +135,14 @@ rm ~/.bash_profile; ln -s ~/REPOS/configLinux/.bash_profile ~/.bash_profile
 rm ~/SCRIPTS; ln -s ~/REPOS/configLinux/SCRIPTS ~/SCRIPTS
 
 # create the symlinks
-rm ~/.aliases; ln -s ~/REPOSITORIOS/configLinux/.aliases ~/.aliases
-rm ~/.bashrc; ln -s ~/REPOSITORIOS/configLinux/.bashrc ~/.bashrc
-rm ~/.bash_profile; ln -s ~/REPOSITORIOS/configLinux/.bash_profile ~/.bash_profile
-rm ~/SCRIPTS; ln -s ~/REPOSITORIOS/configLinux/SCRIPTS ~/SCRIPTS
+rm ~/.aliases; ln -s ${CONFIG_PATH}/.aliases ~/.aliases
+rm ~/.bashrc; ln -s ${CONFIG_PATH}/.bashrc ~/.bashrc
+rm ~/.bash_profile; ln -s ${CONFIG_PATH}/.bash_profile ~/.bash_profile
+rm ~/SCRIPTS; ln -s ${CONFIG_PATH}/SCRIPTS ~/SCRIPTS
+
+# GIT
+rm ~/.git-template; ln -s ${CONFIG_PATH}/.git-template ~/.git-template
+git config --global init.templateDir ~/.git-template
 
 
 # install .oh-my-zsh
@@ -144,23 +150,26 @@ if [[ ${SHELL} != *"zsh"* ]]; then
     sh -c "$(wget https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh -O -)"
 
     # configure zsh
-    rm ~/.zshrc; ln -s ~/REPOSITORIOS/configLinux/.zshrc ~/.zshrc
+    rm ~/.zshrc; ln -s ${CONFIG_PATH}/.zshrc ~/.zshrc
 
+    ZSH_C="${ZSH_CUSTOM:-~/.oh-my-zsh/custom}"
+    
     # install zsh plugins
-    OMZsh_C_P="${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/"
+    OMZsh_C_P="${ZSH_C}/plugins/"
+    git clone https://github.com/zsh-users/zsh-autosuggestions 
+    git clone https://github.com/zsh-users/zsh-completions
+    git clone https://github.com/zsh-users/zsh-navigation-tools
+    git clone https://github.com/zsh-users/zsh-syntax-highlighting
+    git clone https://github.com/zsh-users/zsh-history-substring-search
+    git clone https://github.com/djui/alias-tips.git 
+    git clone https://github.com/chrissicool/zsh-256color
+    cd -
 
-    git clone https://github.com/zsh-users/zsh-autosuggestions ${OMZsh_C_P}
-    git clone https://github.com/zsh-users/zsh-completions ${OMZsh_C_P}
-    git clone https://github.com/zsh-users/zsh-navigation-tools ${OMZsh_C_P}
-    git clone https://github.com/zsh-users/zsh-syntax-highlighting ${OMZsh_C_P}
-    git clone https://github.com/ricardrobin/zsh-output-highlighting ${OMZsh_C_P}
-    git clone https://github.com/djui/alias-tips.git ${OMZsh_C_P}
+    sudo apt-get install autojump
 
-    sudo apt-get isntall autojump
-
-    OMZsh_C_T="${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/themes/"
-    [[ -d ${${OMZsh_C_P}} ]] && rm -rf ${OMZsh_C_P}
-    ln -s ~/REPOSITORIOS/configLinux/SCRIPTS/.oh-my-zsh/custom/themes/ ${OMZsh_C_P}
+    OMZsh_C_T="${ZSH_C}/themes/"
+    [[ -d ${OMZsh_C_T} ]] && rm -rf ${OMZsh_C_T}
+    ln -s ${CONFIG_PATH}/.oh-my-zsh/custom/themes/ ${OMZsh_C_T}
 
     # clone
     git clone https://github.com/powerline/fonts.git --depth=1
@@ -217,7 +226,7 @@ sudo apt-get install -qq -y code
 
 # config keyboard
 keyboard_filepath_ori="/etc/default/keyboard"
-keyboard_filepath_mine="~/REPOSITORIOS/configLinux/keyboard"
+keyboard_filepath_mine="${CONFIG_PATH}/keyboard"
 sudo cp ${keyboard_filepath_ori} ${keyboard_filepath_ori}.OLD
 sudo rm ${keyboard_filepath_ori}
 if [[ -e "${keyboard_filepath_mine}" ]]; then
@@ -318,12 +327,12 @@ EOL
 # fonts
 sudo apt-get -qq -y install \
     fonts-dejavu \
-    fonts-dejavu-extra \ 
-    fonts-droid-fallback \ 
-    fonts-freefont-ttf \ 
-    fonts-liberation \ 
-    fonts-noto \ 
-    fonts-noto-mono \ 
+    fonts-dejavu-extra \
+    fonts-droid-fallback \
+    fonts-freefont-ttf \
+    fonts-liberation \
+    fonts-noto \
+    fonts-noto-mono \
     fonts-opensymbol \
     ttf-bitstream-vera \
     ttf-dejavu \

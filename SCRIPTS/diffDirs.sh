@@ -1,7 +1,5 @@
 #!/bin/bash
 
-# diff -y /home/hifly_admin/installation/install.sh /home/trsevg/trsevg_ws_smccm.main/installation/install.sh
-
 WHOIAMI=$(whoami)
 
 default_pathDir1="/home/svg153/REPOSITORIOS/android-emulator/tools/SwiftHand/src"
