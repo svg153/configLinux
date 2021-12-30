@@ -156,6 +156,7 @@ if [[ ${SHELL} != *"zsh"* ]]; then
     
     # install zsh plugins
     OMZsh_C_P="${ZSH_C}/plugins/"
+    cd ${OMZsh_C_P}
     git clone https://github.com/zsh-users/zsh-autosuggestions 
     git clone https://github.com/zsh-users/zsh-completions
     git clone https://github.com/zsh-users/zsh-navigation-tools
