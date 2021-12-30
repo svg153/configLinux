@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<channel name="pointers" version="1.0">
+  <property name="Barcode_Reader_" type="empty">
+    <property name="RightHanded" type="bool" value="true"/>
+    <property name="Threshold" type="int" value="4"/>
+    <property name="Acceleration" type="double" value="2.400000"/>
+  </property>
+  <property name="Texas_Instruments_MSP430-USB_Mouse" type="empty">
+    <property name="RightHanded" type="bool" value="true"/>
+    <property name="Threshold" type="int" value="3"/>
+    <property name="Acceleration" type="double" value="2.100000"/>
+  </property>
+</channel>

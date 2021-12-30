@@ -42,6 +42,7 @@
       </property>
       <property name="autohide-behavior" type="uint" value="2"/>
     </property>
+    <property name="dark-mode" type="bool" value="true"/>
   </property>
   <property name="plugins" type="empty">
     <property name="plugin-1" type="string" value="applicationsmenu"/>
@@ -69,9 +70,25 @@
         <value type="string" value="task manager"/>
         <value type="string" value="clipit"/>
         <value type="string" value="blueman-applet"/>
+        <value type="string" value="ozone x11"/>
+        <value type="string" value="skypeforlinux"/>
         <value type="string" value="flameshot"/>
       </property>
       <property name="names-hidden" type="array">
+      </property>
+      <property name="known-legacy-items" type="array">
+        <value type="string" value="task manager"/>
+        <value type="string" value="networkmanager applet"/>
+        <value type="string" value="ibus panel"/>
+      </property>
+      <property name="known-items" type="array">
+        <value type="string" value="flameshot"/>
+        <value type="string" value="chrome_status_icon_3"/>
+        <value type="string" value="chrome_status_icon_2"/>
+        <value type="string" value="chrome_status_icon_1"/>
+        <value type="string" value="Skype1"/>
+        <value type="string" value="blueman"/>
+        <value type="string" value="Diodon"/>
       </property>
     </property>
     <property name="plugin-7" type="string" value="showdesktop"/>
@@ -88,7 +105,7 @@
     <property name="plugin-17" type="string" value="xfce4-timer-plugin"/>
     <property name="plugin-18" type="string" value="pulseaudio">
       <property name="enable-keyboard-shortcuts" type="bool" value="true"/>
-      <property name="mpris-players" type="string" value="chrome.instance1406"/>
+      <property name="mpris-players" type="string" value="chrome.instance1406;chrome.instance7500"/>
     </property>
     <property name="plugin-19" type="string" value="netload"/>
     <property name="plugin-21" type="string" value="diskperf"/>

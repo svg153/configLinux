@@ -6,4 +6,5 @@ show_label_governor=true
 show_warning=true
 keep_compact=false
 one_line=false
+freq_unit=1
 
