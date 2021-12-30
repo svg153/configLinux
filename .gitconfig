@@ -2,6 +2,7 @@
 	name = Sergio Valverde
 [core]
 	askpass =
+	editor = vim
 	# gitproxy = gitproxy
 [push]
 	default = upstream
