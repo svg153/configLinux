@@ -4,9 +4,11 @@
   <property name="notify-location" type="uint" value="2"/>
   <property name="theme" type="string" value="Default"/>
   <property name="expire-timeout" type="int" value="4"/>
-  <property name="initial-opacity" type="double" value="0.690000"/>
+  <property name="initial-opacity" type="double" value="1.000000"/>
   <property name="applications" type="empty">
     <property name="known_applications" type="array">
+      <value type="string" value="appimagekit_8a2dfe5069ffb2cf73a483d1da558b77-Telegram_Desktop"/>
+      <value type="string" value="blueman"/>
       <value type="string" value="Clementine"/>
       <value type="string" value="Electron"/>
       <value type="string" value="flameshot"/>
@@ -14,8 +16,11 @@
       <value type="string" value="nm-applet"/>
       <value type="string" value="org.gnome.Software"/>
       <value type="string" value="Skype"/>
+      <value type="string" value="teams"/>
       <value type="string" value="Thunar"/>
+      <value type="string" value="vokoscreenNG"/>
       <value type="string" value="Xfce volume control"/>
+      <value type="string" value="Xfce4-notifyd settings"/>
       <value type="string" value="xfce4-power-manager"/>
       <value type="string" value="xfce4-sensors-plugin"/>
     </property>

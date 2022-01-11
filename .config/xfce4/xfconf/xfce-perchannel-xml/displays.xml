@@ -2,16 +2,21 @@
 
 <channel name="displays" version="1.0">
   <property name="Default" type="empty">
-    <property name="HDMI-A-3" type="string" value="1. LG 29&quot;">
+    <property name="HDMI-A-3" type="string" value="Samsung 7&quot;">
       <property name="Active" type="bool" value="true"/>
-      <property name="Resolution" type="string" value="2560x1080"/>
-      <property name="RefreshRate" type="double" value="59.999534"/>
+      <property name="Resolution" type="string" value="1280x720"/>
+      <property name="RefreshRate" type="double" value="60.000000"/>
       <property name="Rotation" type="int" value="0"/>
       <property name="Reflection" type="string" value="0"/>
       <property name="Primary" type="bool" value="false"/>
       <property name="Position" type="empty">
-        <property name="X" type="int" value="0"/>
-        <property name="Y" type="int" value="0"/>
+        <property name="X" type="int" value="3840"/>
+        <property name="Y" type="int" value="1021"/>
+      </property>
+      <property name="EDID" type="string" value="82905f8fa1c3514a9bb03f5523fe7b8c313f300a"/>
+      <property name="Scale" type="empty">
+        <property name="X" type="double" value="2.000000"/>
+        <property name="Y" type="double" value="2.000000"/>
       </property>
     </property>
     <property name="default" type="string" value="default">
@@ -26,7 +31,97 @@
         <property name="Y" type="int" value="0"/>
       </property>
     </property>
+    <property name="DisplayPort-3" type="string" value="Samsung 32&quot;">
+      <property name="Active" type="bool" value="true"/>
+      <property name="EDID" type="string" value="af5c971658ee8c75114fc5a3042b180f51fb595f"/>
+      <property name="Resolution" type="string" value="3840x2160"/>
+      <property name="RefreshRate" type="double" value="59.996625"/>
+      <property name="Rotation" type="int" value="0"/>
+      <property name="Reflection" type="string" value="0"/>
+      <property name="Primary" type="bool" value="false"/>
+      <property name="Scale" type="empty">
+        <property name="X" type="double" value="1.000000"/>
+        <property name="Y" type="double" value="1.000000"/>
+      </property>
+      <property name="Position" type="empty">
+        <property name="X" type="int" value="0"/>
+        <property name="Y" type="int" value="0"/>
+      </property>
+    </property>
   </property>
-  <property name="Notify" type="bool" value="false"/>
-  <property name="ActiveProfile" type="string" value="Default"/>
+  <property name="Notify" type="bool" value="true"/>
+  <property name="ActiveProfile" type="string" value="a00d35d67f39425d22800b5676c6dcc2ebc308f9"/>
+  <property name="Fallback" type="empty">
+    <property name="DisplayPort-3" type="string" value="Samsung 32&quot;">
+      <property name="Active" type="bool" value="true"/>
+      <property name="EDID" type="string" value="af5c971658ee8c75114fc5a3042b180f51fb595f"/>
+      <property name="Resolution" type="string" value="3840x2160"/>
+      <property name="RefreshRate" type="double" value="59.996625"/>
+      <property name="Rotation" type="int" value="0"/>
+      <property name="Reflection" type="string" value="0"/>
+      <property name="Primary" type="bool" value="false"/>
+      <property name="Scale" type="empty">
+        <property name="X" type="double" value="1.000000"/>
+        <property name="Y" type="double" value="1.000000"/>
+      </property>
+      <property name="Position" type="empty">
+        <property name="X" type="int" value="0"/>
+        <property name="Y" type="int" value="0"/>
+      </property>
+    </property>
+    <property name="HDMI-A-3" type="string" value="Samsung 7&quot;">
+      <property name="Active" type="bool" value="true"/>
+      <property name="EDID" type="string" value="82905f8fa1c3514a9bb03f5523fe7b8c313f300a"/>
+      <property name="Resolution" type="string" value="1280x720"/>
+      <property name="RefreshRate" type="double" value="60.000000"/>
+      <property name="Rotation" type="int" value="0"/>
+      <property name="Reflection" type="string" value="0"/>
+      <property name="Primary" type="bool" value="false"/>
+      <property name="Scale" type="empty">
+        <property name="X" type="double" value="2.000000"/>
+        <property name="Y" type="double" value="2.000000"/>
+      </property>
+      <property name="Position" type="empty">
+        <property name="X" type="int" value="3840"/>
+        <property name="Y" type="int" value="1021"/>
+      </property>
+    </property>
+  </property>
+  <property name="a00d35d67f39425d22800b5676c6dcc2ebc308f9" type="string" value="salon">
+    <property name="DisplayPort-3" type="string" value="Samsung 32&quot;">
+      <property name="Active" type="bool" value="true"/>
+      <property name="EDID" type="string" value="af5c971658ee8c75114fc5a3042b180f51fb595f"/>
+      <property name="Resolution" type="string" value="3840x2160"/>
+      <property name="RefreshRate" type="double" value="59.996625"/>
+      <property name="Rotation" type="int" value="0"/>
+      <property name="Reflection" type="string" value="0"/>
+      <property name="Primary" type="bool" value="false"/>
+      <property name="Scale" type="empty">
+        <property name="X" type="double" value="1.000000"/>
+        <property name="Y" type="double" value="1.000000"/>
+      </property>
+      <property name="Position" type="empty">
+        <property name="X" type="int" value="0"/>
+        <property name="Y" type="int" value="0"/>
+      </property>
+    </property>
+    <property name="HDMI-A-3" type="string" value="Samsung 7&quot;">
+      <property name="Active" type="bool" value="true"/>
+      <property name="EDID" type="string" value="82905f8fa1c3514a9bb03f5523fe7b8c313f300a"/>
+      <property name="Resolution" type="string" value="1280x720"/>
+      <property name="RefreshRate" type="double" value="60.000000"/>
+      <property name="Rotation" type="int" value="0"/>
+      <property name="Reflection" type="string" value="0"/>
+      <property name="Primary" type="bool" value="false"/>
+      <property name="Scale" type="empty">
+        <property name="X" type="double" value="2.000000"/>
+        <property name="Y" type="double" value="2.000000"/>
+      </property>
+      <property name="Position" type="empty">
+        <property name="X" type="int" value="3840"/>
+        <property name="Y" type="int" value="1021"/>
+      </property>
+    </property>
+  </property>
+  <property name="AutoEnableProfiles" type="bool" value="true"/>
 </channel>

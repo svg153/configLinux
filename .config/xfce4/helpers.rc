@@ -1,3 +1,5 @@
 MailReader=evolution
-
 WebBrowser=google-chrome
+FileManager=thunar
+TerminalEmulator=terminator
+
