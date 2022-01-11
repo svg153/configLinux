@@ -113,7 +113,8 @@ install \
 install \
     zip unzip \
     xclip \
-    wmctrl
+    wmctrl \
+    xdotool
 
 apt install unrar
 
@@ -207,7 +208,7 @@ sudo apt-get --fix-broken-install && sudo apt-get update && install && rm ${deb_
 wget -O ${PROGRAMAS_PATH}/tsetup.tar.xz https://telegram.org/dl/desktop/linux
 cd ${PROGRAMAS_PATH}
 tar xvf tsetup.tar.xz
-sudo ln -s ${PROGRAMAS_PATH}/Telegram/Telegram /bin/telegram
+sudo ln -s ${PROGRAMAS_PATH}/Telegram/Telegram ~/bin/telegram
 rm -rf tsetup.tar.xz
 cd
 
