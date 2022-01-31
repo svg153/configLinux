@@ -1,17 +1,7 @@
-
-docker_enter()
-{
-  docker run -it "$1" /bin/bash
-};
-
-
-docker_rm_c_exited()
-{
-  docker ps --filter \"status=exited\" --format \"{{.ID}}\" | awk \'{print \$1}\' | xargs --no-run-if-empty docker rm
-};
-
-# get_container_id_by_name() { local get_container_id=$(docker container ls -a --filter name="$1" | tail -n +2 | awk '{print($1)}');};
-get_container_id_by_name() { docker container ls -a --filter name="$1" | tail -n +2 | awk '{print $1}';};
+#
+alias dcoker="docker"
+alias dkr="docker"
+alias dockre="docker"
 
 alias di="docker images"
 
@@ -24,7 +14,18 @@ alias docker_list_volumes_all='docker volume ls -q | tr "\n" " "' # list all vol
 alias docker_rm_volumes_all='docker volumes rm $(docker_list_volumes_all)'  # remove all docker volume
 alias docker_clean_all="docker_stop_all; docker_rm_cont_all; docker_rm_images_all"
 
-# 
-alias dcoker="docker"
-alias dkr="docker"
-alias dockre="docker"
+docker_enter()
+{
+  docker run -it "$1" /bin/bash
+}
+
+docker_rm_c_exited()
+{
+  docker ps --filter "status=exited" --format "{{.ID}}" | awk '{print $1}' | xargs --no-run-if-empty docker rm
+}
+
+# get_container_id_by_name() { local get_container_id=$(docker container ls -a --filter name="$1" | tail -n +2 | awk '{print($1)}');};
+get_container_id_by_name()
+{
+  docker container ls -a --filter name="$1" | tail -n +2 | awk '{print $1}'
+}

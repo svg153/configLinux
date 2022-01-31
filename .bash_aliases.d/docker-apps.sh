@@ -58,3 +58,39 @@ alias dockviz="docker run -it --rm -v /var/run/docker.sock:/var/run/docker.sock 
 # ocrmypdf
 # https://github.com/jbarlow83/OCRmyPDF
 alias ocrmypdf='docker run --rm  -i --user "$(id -u):$(id -g)" --workdir /data -v "$PWD:/data" jbarlow83/ocrmypdf'
+
+# tldr pages
+# https://github.com/s3than/docker-tldr
+alias tldr='docker run -it s3than/tldr'
+
+# kubescape
+# https://github.com/armosec/kubescape
+kubescape() {
+  docker run -v $(pwd)/$1:/app/example.yaml quay.io/armosec/kubescape scan framework nsa /app/example.yaml
+}
+
+# yq
+# https://github.com/mikefarah/yq
+yq() {
+  docker run --rm -i -v "${PWD}":/workdir mikefarah/yq "$@"
+}
+# json2yaml
+alias json2yaml="jq -r yamlify2"
+
+# k6
+# https://github.com/grafana/k6
+alias k6="docker run -i loadimpact/k6"
+alias k6r="k6 run - <"
+
+# shellcheck
+# https://github.com/koalaman/shellcheck
+alias shellcheck="docker run --rm -v \"$PWD:/mnt\" koalaman/shellcheck:stable"
+
+# terrascan
+# https://github.com/accurics/terrascan
+alias terrascan="docker run --rm -it -v \"$(pwd):/iac\" -w /iac accurics/terrascan"
+
+# diagrams
+# https://github.com/mingrammer/diagrams -> Docker: https://github.com/mujahidk/python-diagrams
+# - In Go languaje: https://github.com/blushft/go-diagrams
+alias diagrams="docker run -it --rm -v \"$PWD:/diagrams/scripts/\" -w /diagrams/scripts/ mjdk/diagrams hello-world.py"

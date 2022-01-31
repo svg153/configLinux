@@ -2,6 +2,11 @@
 
 alias edit_aliases="nano ~/.aliases && source ~/.aliases"
 
+alias ..="cd .."
+alias ...="cd ../.."
+alias ....="cd ../../.."
+alias .....="cd ../../../.."
+
 # some more ls aliases
 alias ll='ls -alF'
 alias la='ls -A'
@@ -9,32 +14,34 @@ alias l='ls -CF'
 
 alias s="source"
 
-
 alias hgrep="grep -rni"
 alias hgrepcodews="hgrep $1 * | cut -d ":" -f 1  | sort -u | cut -d "/" -f 1-7 | sort -u"
 
 alias ctar="tar cf"
 alias untar="tar xf"
-
-alias shellcheck='docker run --rm -v "$PWD:/mnt" koalaman/shellcheck:stable'
 
 # Add an "alert" alias for long running commands.  Use like so:
 #   sleep 10; alert
 alias alert='notify-send --urgency=low -i "$([ $? = 0 ] && echo terminal || echo error)" "$(history|tail -n1|sed -e '\''s/^\s*[0-9]\+\s*//;s/[;&|]\s*alert$//'\'')"'
 
 
-alias s="source"
+#
+# TOOLs
+#
 
-alias hgrep="grep -rni"
-alias hgrepcodews="hgrep $1 * | cut -d ":" -f 1  | sort -u | cut -d "/" -f 1-7 | sort -u"
-docker_enter()
-{
-  docker run -it "$1" /bin/bash
-}
+# earthly
+# https://github.com/earthly/earthly
+alias e="earthly"
+alias eb="earthly +build"
+alias ed="earthly +docker"
 
-alias ctar="tar cf"
-alias untar="tar xf"
+# Make
+alias m="make"
+alias mb="make build"
+alias mr="make run"
+alias mrl="make release"
+alias mc="make clean"
 
-alias docker_rm_c_exited="docker ps --filter \"status=exited\" --format \"{{.ID}}\" | awk \'{print \$1}\' | xargs --no-run-if-empty docker rm"
-
-alias shellcheck='docker run --rm -v "$PWD:/mnt" koalaman/shellcheck:stable'
+#
+# TOOLs
+#
