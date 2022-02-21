@@ -223,6 +223,21 @@
           <property name="image-style" type="int" value="5"/>
           <property name="last-image" type="string" value="/usr/share/images/desktop-base/default"/>
         </property>
+        <property name="workspace9" type="empty">
+          <property name="color-style" type="int" value="1"/>
+          <property name="image-style" type="int" value="5"/>
+          <property name="last-image" type="string" value="/usr/share/images/desktop-base/default"/>
+        </property>
+        <property name="workspace10" type="empty">
+          <property name="color-style" type="int" value="1"/>
+          <property name="image-style" type="int" value="5"/>
+          <property name="last-image" type="string" value="/usr/share/images/desktop-base/default"/>
+        </property>
+        <property name="workspace11" type="empty">
+          <property name="color-style" type="int" value="1"/>
+          <property name="image-style" type="int" value="5"/>
+          <property name="last-image" type="string" value="/usr/share/images/desktop-base/default"/>
+        </property>
       </property>
       <property name="monitorHDMI-A-3" type="empty">
         <property name="workspace0" type="empty">
@@ -270,14 +285,34 @@
           <property name="image-style" type="int" value="5"/>
           <property name="last-image" type="string" value="/usr/share/images/desktop-base/default"/>
         </property>
+        <property name="workspace9" type="empty">
+          <property name="color-style" type="int" value="1"/>
+          <property name="image-style" type="int" value="5"/>
+          <property name="last-image" type="string" value="/usr/share/images/desktop-base/default"/>
+        </property>
+        <property name="workspace10" type="empty">
+          <property name="color-style" type="int" value="1"/>
+          <property name="image-style" type="int" value="5"/>
+          <property name="last-image" type="string" value="/usr/share/images/desktop-base/default"/>
+        </property>
+        <property name="workspace11" type="empty">
+          <property name="color-style" type="int" value="1"/>
+          <property name="image-style" type="int" value="5"/>
+          <property name="last-image" type="string" value="/usr/share/images/desktop-base/default"/>
+        </property>
       </property>
     </property>
   </property>
   <property name="desktop-icons" type="empty">
     <property name="show-hidden-files" type="bool" value="false"/>
+    <property name="primary" type="bool" value="false"/>
   </property>
   <property name="last" type="empty">
     <property name="window-width" type="int" value="730"/>
     <property name="window-height" type="int" value="521"/>
+  </property>
+  <property name="windowlist-menu" type="empty">
+    <property name="show-submenus" type="bool" value="false"/>
+    <property name="show-sticky-once" type="bool" value="false"/>
   </property>
 </channel>

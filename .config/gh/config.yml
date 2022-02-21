@@ -1,0 +1,63 @@
+# What protocol to use when performing git operations. Supported values: ssh, https
+git_protocol: https
+# What editor gh should run when creating issues, pull requests, etc. If blank, will refer to environment.
+editor:
+# When to interactively prompt. This is a global config that cannot be overridden by hostname. Supported values: enabled, disabled
+prompt: enabled
+# A pager program to send command output to, e.g. "less". Set the value to "cat" to disable the pager.
+pager:
+# Aliases allow you to create nicknames for gh commands
+# Examples:
+#  * https://gist.github.com/vilmibm/a1b9a405ac0d5153c614c9c646e37d13
+#  * https://github.com/vEnhance/dotfiles/blob/main/gh-config.yml
+#  * https://github.com/aaronpowell/system-init/blob/master/common/gh-config.yml
+aliases:
+    co: pr checkout # this alias is shipped by default
+    clone: repo clone "$1"/"$2"
+    prv: pr view
+    aliases: alias list
+    codespaces: codespace list
+    configs: config list
+    repos: repo list
+    repos-name-all: |-
+        !(
+            user=${1:-$USER}
+            gh api --paginate graphql -f owner="${user}" -f query='
+            query($owner: String!, $per_page: Int = 100, $endCursor: String) {
+                repositoryOwner(login: $owner) {
+                    repositories(first: $per_page, after: $endCursor, ownerAffiliations: OWNER) {
+                        nodes { name }
+                        pageInfo { hasNextPage endCursor }
+                    }
+                }
+            }
+            ' | jq -r '.data.repositoryOwner.repositories.nodes[].name' | sort
+        )
+    repos-name: |-
+        !(
+            user=${1:-$USER}
+            gh repos-name-all "${user}" --json name --jq '.[].name' | sort
+        )
+    clone-repos-all: |-
+        !(
+            user=${1:-$USER}
+            gh repos-name-all "${user}" | xargs -I '%' gh clone ${user} %
+        )
+    clone-all-repos: |-
+        !(
+            user=${1:-$USER}
+            gh clone-repos-all ${user}
+        )
+
+    issues: issue list
+    prs: pr list
+    releases: release list
+    runs: run list
+    secrets: secret list
+    ssh-keys: ssh-key list
+    workflows: workflow list
+
+# The path to a unix socket through which send HTTP connections. If blank, HTTP traffic will be handled by net/http.DefaultTransport.
+http_unix_socket:
+# What web browser gh should use when opening URLs. If blank, will refer to environment.
+browser:

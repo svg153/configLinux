@@ -2,3 +2,7 @@
 **/*~
 *.tags
 .config/xfce4/desktop/icons.*
+
+# AUTOMATICALLY GENERATED from run.sh
+.config/xfce4/xfconf/xfce-perchannel-xml/xfce4-power-manager.xml
+# AUTOMATICALLY GENERATED from run.sh

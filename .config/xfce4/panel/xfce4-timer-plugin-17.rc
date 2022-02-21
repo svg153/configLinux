@@ -1,5 +1,5 @@
 [others]
-nowin_if_alarm=false
+nowin_if_alarm=true
 use_global_command=false
 global_command=
 repeat_alarm=false

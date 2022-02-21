@@ -107,6 +107,10 @@ if [ -f ~/.bash_aliases ]; then
     . ~/.bash_aliases
 fi
 
+if [ -f ~/.bash_profile ]; then
+    . ~/.bash_profile
+fi
+
 if [ -f ~/.aliases ]; then
     . ~/.aliases
 fi
@@ -126,17 +130,12 @@ if ! shopt -oq posix; then
   fi
 fi
 
-if [ -f ~/.bash_profile ]; then
-    . ~/.bash_profile
-fi
-
 
 # set PATH so it includes user's private ~/.local/bin if it exists
 if [ -d "$HOME/.local/bin" ] ; then
   PATH="$HOME/.local/bin:$PATH"
 fi
 
-# rvm env
-[[ -s "$HOME/.rvm/scripts/rvm" ]] && source "$HOME/.rvm/scripts/rvm" # Load RVM into a shell session *as a function*
+source ~/.fonts/*.sh
 
-[[ -e "$HOME/.rvm/bin" ]] && export PATH="$PATH:$HOME/.rvm/bin" # Add RVM to PATH for scripting
+eval "$(starship init bash)"

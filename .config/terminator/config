@@ -3,18 +3,19 @@
   suppress_multiple_term_dialog = True
 [keybindings]
   layout_launcher = <Primary><Shift>l
+[profiles]
+  [[default]]
+    cursor_color = "#00ff00"
+    font = FiraCode Nerd Font Mono 16
+    foreground_color = "#00ff00"
+    use_system_font = False
 [layouts]
   [[default]]
     [[[child1]]]
       parent = window0
       type = Terminal
+      profile = default
     [[[window0]]]
       parent = ""
       type = Window
 [plugins]
-[profiles]
-  [[default]]
-    cursor_color = "#00ff00"
-    font = Monospace 12
-    foreground_color = "#00ff00"
-    use_system_font = False

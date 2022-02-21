@@ -25,4 +25,8 @@
       <value type="string" value="xfce4-sensors-plugin"/>
     </property>
   </property>
+  <property name="primary-monitor" type="uint" value="1"/>
+  <property name="log-level" type="uint" value="0"/>
+  <property name="log-level-apps" type="uint" value="0"/>
+  <property name="do-slideout" type="bool" value="true"/>
 </channel>

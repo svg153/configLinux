@@ -9,7 +9,8 @@
   <property name="Texas_Instruments_MSP430-USB_Mouse" type="empty">
     <property name="RightHanded" type="bool" value="true"/>
     <property name="Threshold" type="int" value="1"/>
-    <property name="Acceleration" type="double" value="4.300000"/>
+    <property name="Acceleration" type="double" value="3.500000"/>
+    <property name="ReverseScrolling" type="bool" value="false"/>
   </property>
   <property name="Barcode_Reader__Mouse" type="empty">
     <property name="RightHanded" type="bool" value="true"/>
@@ -21,7 +22,7 @@
   </property>
   <property name="Texas_Instruments_MSP430-USB_Mouse_Consumer_Control" type="empty">
     <property name="RightHanded" type="bool" value="true"/>
-    <property name="Threshold" type="int" value="4"/>
+    <property name="Threshold" type="int" value="6"/>
     <property name="Acceleration" type="double" value="2.000000"/>
   </property>
   <property name="Barcode_Reader__Consumer_Control" type="empty">

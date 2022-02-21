@@ -19,15 +19,141 @@ sudo apt-get update && sudo apt-get upgrade && sudo apt-get dist-upgrade && sudo
 # VARS
 #
 
+COMPANY_NAME=""
+COMPANY_USER_NAME=""
+COMPANY_USER_EMAIL=""
+
+
+MODE=${1:-desktop}
+MODE_DESKTOP="desktop"
+MODE_LAPTOP="laptop"
+
 PROGRAMAS_PATH="~/PROGRAMAS/"
 REPOS_PATH="~/REPOSITORIOS/"
 CONFIG_PATH="${REPOS_PATH}/configLinux/"
 
 alias ins="apt -qq -y install"
 alias install="sudo ins"
+alias update="sudo apt -qq -y update"
 
 #
 # VARS
+#
+
+
+#
+#
+#
+
+function install_gh()
+{
+    curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | sudo dd of=/usr/share/keyrings/githubcli-archive-keyring.gpg
+    echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" | sudo tee /etc/apt/sources.list.d/github-cli.list > /dev/null
+    update
+    install gh
+}
+
+function install_vscode()
+{
+    curl https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor > microsoft.gpg
+    sudo mv microsoft.gpg /etc/apt/trusted.gpg.d/microsoft.gpg
+    sudo sh -c 'echo "deb [arch=amd64] https://packages.microsoft.com/repos/vscode stable main" > /etc/apt/sources.list.d/vscode.list'
+    update
+    install code
+}
+
+function install_docker()
+{
+    sudo apt-get -qq -y remove docker docker-engine docker.io containerd runc
+    sudo apt-get -qq -y update
+    install apt-transport-https ca-certificates curl gnupg-agent software-properties-common
+    curl -fsSL https://download.docker.com/linux/debian/gpg | sudo apt-key add -
+    sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/debian \
+        $(lsb_release -cs) \
+        stable"
+    sudo apt-get -qq -y update
+    install docker-ce docker-ce-cli containerd.io apt-cache madison docker-ce
+    sudo docker run hello-world
+    sudo groupadd docker
+    sudo usermod -aG docker $USER
+    newgrp docker
+    docker run hello-world
+    sudo systemctl enable docker
+}
+
+function install_docker_compose()
+{
+    # https://docs.docker.com/compose/install/#install-as-a-container
+    local version="1.29.2"
+    sudo curl -L "https://github.com/docker/compose/releases/download/${version}/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+    sudo chmod +x /usr/local/bin/docker-compose
+    sudo curl \
+        -L https://raw.githubusercontent.com/docker/compose/${version}/contrib/completion/bash/docker-compose \
+        -o /etc/bash_completion.d/docker-compose
+}
+
+function install_telegram()
+{
+    wget -O ${PROGRAMAS_PATH}/tsetup.tar.xz https://telegram.org/dl/desktop/linux
+    cd ${PROGRAMAS_PATH}
+    tar xvf tsetup.tar.xz
+    sudo ln -s ${PROGRAMAS_PATH}/Telegram/Telegram ~/bin/telegram
+    rm -rf tsetup.tar.xz
+    cd
+}
+
+
+function install_fonts
+{
+    # # clone
+    # git clone https://github.com/powerline/fonts.git --depth=1
+    # # install
+    # cd fonts
+    # ./install.sh
+    # # clean-up a bit
+    # cd ..
+    # rm -rf fonts
+
+
+    # cd /tmp
+    # git clone https://github.com/gabrielelana/awesome-terminal-fonts
+    # mkdir -p ~/.fonts
+    # cp awesome-terminal-fonts/build/* ~/.fonts
+    # fc-cache -fv ~/.fonts
+    # mkdir -p ~/.config/fontconfig/conf.d
+    # cp awesome-terminal-fonts/config/10-symbols.conf ~/.config/fontconfig/conf.d
+    # # echo "Do this 'echo "source ~/.fonts/*.sh" >> ~/.zshrc'"/
+    
+    cd /tmp
+    # https://github.com/ryanoasis/nerd-fonts
+    git clone --filter=blob:none --sparse git@github.com:ryanoasis/nerd-fonts
+    cd nerd-fonts
+    git sparse-checkout add patched-fonts/Hack
+    ./install.sh Hack
+    git sparse-checkout add patched-fonts/FiraCode
+    ./install.sh FiraCode
+    cd ..
+    rm -rf nerd-fonts
+    
+    # https://github.com/ryanoasis/nerd-fonts#font-patcher
+    docker run -v ~/.local/share/fonts/:/in -v ~/.local/share/fonts/:/out nerdfonts/patcher --powerline --powerlineextra
+    # docker run -v ~/.local/share/fonts/:/in -v ~/.local/share/fonts/:/out nerdfonts/patcher --complete
+    sudo chown -R $USER:$USER ~/.local/share/fonts
+    
+    fc-cache -fv
+}
+
+
+function install_starship()
+{    
+    sh -c "$(curl -fsSL https://starship.rs/install.sh)"
+    # TODO: ask sudo pass
+    mkdir -p ~/.config && ln -s ${CONFIG_PATH}/starship.toml ~/.config/starship.toml
+}
+
+
+#
+#
 #
 
 
@@ -111,12 +237,13 @@ install \
 
 # other packages
 install \
-    zip unzip \
+    zip unzip unrar \
     xclip \
     wmctrl \
-    xdotool
+    xdotool \
+    bash-completions
 
-apt install unrar
+
 
 # make tree folders
 mkdir "${PROGRAMAS_PATH}"
@@ -125,8 +252,6 @@ mkdir ~/.icons
 
 
 
-# install zsh
-install zsh
 
 # create the symlinks
 rm ~/.aliases; ln -s ${CONFIG_PATH}/.aliases ~/.aliases
@@ -137,8 +262,11 @@ rm ~/SCRIPTS; ln -s ${CONFIG_PATH}/SCRIPTS ~/SCRIPTS
 # GIT
 rm ~/.git-template; ln -s ${CONFIG_PATH}/.git-template ~/.git-template
 git config --global init.templateDir ~/.git-template
+install_gh
 
 
+# install zsh
+install zsh
 # install .oh-my-zsh
 if [[ ${SHELL} != *"zsh"* ]]; then
     sh -c "$(wget https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh -O -)"
@@ -166,24 +294,6 @@ if [[ ${SHELL} != *"zsh"* ]]; then
     [[ -d ${OMZsh_C_T} ]] && rm -rf ${OMZsh_C_T}
     ln -s ${CONFIG_PATH}/.oh-my-zsh/custom/themes/ ${OMZsh_C_T}
 
-    # clone
-    git clone https://github.com/powerline/fonts.git --depth=1
-    # install
-    cd fonts
-    ./install.sh
-    # clean-up a bit
-    cd ..
-    rm -rf fonts
-
-
-    git clone https://github.com/gabrielelana/awesome-terminal-fonts
-    mkdir -p ~/.fonts
-    cp awesome-terminal-fonts/build/* ~/.fonts
-    fc-cache -fv ~/.fonts
-    mkdir -p ~/.config/fontconfig/conf.d
-    cp awesome-terminal-fonts/config/10-symbols.conf ~/.config/fontconfig/conf.d
-    # echo "Do this 'echo "source ~/.fonts/*.sh" >> ~/.zshrc'"/
-
     cd -
 fi
 
@@ -204,20 +314,12 @@ sudo dpkg -i ${deb_filepath_dw}
 # fix chrome installation
 sudo apt-get --fix-broken-install && sudo apt-get update && install && rm ${deb_filepath_dw}
 
-# Install telegram
-wget -O ${PROGRAMAS_PATH}/tsetup.tar.xz https://telegram.org/dl/desktop/linux
-cd ${PROGRAMAS_PATH}
-tar xvf tsetup.tar.xz
-sudo ln -s ${PROGRAMAS_PATH}/Telegram/Telegram ~/bin/telegram
-rm -rf tsetup.tar.xz
-cd
+
+install_telegram
+
 
 # @TODO: Install VSCODE
-curl https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor > microsoft.gpg
-sudo mv microsoft.gpg /etc/apt/trusted.gpg.d/microsoft.gpg
-sudo sh -c 'echo "deb [arch=amd64] https://packages.microsoft.com/repos/vscode stable main" > /etc/apt/sources.list.d/vscode.list'
-sudo apt-get update
-install code
+install_vscode
 
 # config keyboard
 keyboard_filepath_ori="/etc/default/keyboard"
@@ -234,22 +336,7 @@ sudo dpkg-reconfigure -phigh console-setup
 
 
 # Docker
-sudo apt-get -qq -y remove docker docker-engine docker.io containerd runc
-sudo apt-get -qq -y update
-install apt-transport-https ca-certificates curl gnupg-agent software-properties-common
-curl -fsSL https://download.docker.com/linux/debian/gpg | sudo apt-key add -
-sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/debian \
-   $(lsb_release -cs) \
-   stable"
-sudo apt-get -qq -y update
-install docker-ce docker-ce-cli containerd.io apt-cache madison docker-ce
-sudo docker run hello-world
-sudo groupadd docker
-sudo usermod -aG docker $USER
-newgrp docker
-docker run hello-world
-sudo systemctl enable docker
-
+install_docker
 
 #
 # PROGRAMS
@@ -350,6 +437,19 @@ sudo apt install numix-*
 # Xfce-dust-svg153
 sudo cp -r ./themes/* /usr/share/themes/
 
+# xfce
+os_xfce4="~/.config/xfce4"
+os_xfconf="${os_xfce4}/xfconf"
+repo_xfce4="${CONFIG_PATH}/.config/xfce4"
+repo_xfconf="${repo_xfce4}/xfconf"
+
+mv ${os_xfce4}{,.ori}
+ln -s ${repo_xfce4} ${os_xfce4}
+
+xfce_mode="${MODE_DESKTOP}"
+[[ "${MODE}" == "${MODE_LAPTOP}" ]] && xfce_mode="${MODE_LAPTOP}"
+ln -s ${repo_xfconf}/xfce-perchannel-xml/{xfce4-power-manager-${xfce_mode}.xml,xfce4-power-manager.xml}
+
 #
 # CUSTOMIZATION
 #
@@ -366,6 +466,17 @@ sudo apt clean
 #
 # CLEAN
 #
+
+# TODO: mdkir ${REPOS_PATH}
+# TODO: Crete and configure: ~/.gitconfig-work
+# echo """
+# [user]
+#     name = ${COMPANY_USER_NAME}
+#     email = ${COMPANY_USER_EMAIL}
+# """ > ~/.gitconfig-work
+# TODO: ln -s ~/0_WORK -> ${REPOS_PATH}/...../${COMPANY_NAME}
+
+# TODO: check wheel scroll https://askubuntu.com/a/304653
 
 #
 # Thanks:

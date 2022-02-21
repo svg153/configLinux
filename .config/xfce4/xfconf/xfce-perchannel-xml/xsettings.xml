@@ -39,6 +39,6 @@
     <property name="TitlebarMiddleClick" type="empty"/>
   </property>
   <property name="Gdk" type="empty">
-    <property name="WindowScalingFactor" type="empty"/>
+    <property name="WindowScalingFactor" type="int" value="1"/>
   </property>
 </channel>
