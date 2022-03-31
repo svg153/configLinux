@@ -135,5 +135,10 @@ if [ -f "$HOME/.config/starship.toml" ]; then
     eval "$(starship init bash)"
 fi
 
+# autojump
+# https://github.com/wting/autojump
+if [ -f /usr/share/autojump/autojump.sh ]; then
+    . /usr/share/autojump/autojump.sh
+fi
 export PATH="$HOME/.local/opt/go/bin:$PATH"
 export PATH="$HOME/go/bin:$PATH"
