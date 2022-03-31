@@ -374,19 +374,6 @@ install_vscode
 
 install_azurecli
 
-# config keyboard
-keyboard_filepath_ori="/etc/default/keyboard"
-keyboard_filepath_mine="${CONFIG_PATH}/keyboard"
-sudo cp ${keyboard_filepath_ori} ${keyboard_filepath_ori}.OLD
-sudo rm ${keyboard_filepath_ori}
-if [[ -e "${keyboard_filepath_mine}" ]]; then
-  sudo ln -s ${keyboard_filepath_mine} ${keyboard_filepath_ori}
-  if [[ $? -ne 0 ]]; then
-      sudo cp ${keyboard_filepath_mine} ${keyboard_filepath_ori}
-  fi
-fi
-sudo dpkg-reconfigure -phigh console-setup
-
 tools=(k9s jq yq fd bat)
 # tools+=(nerdfonts)
 for p in "${tools[@]}"; do
@@ -504,6 +491,19 @@ ln -s ${repo_xfce4} ${os_xfce4}
 xfce_mode="${MODE_DESKTOP}"
 [[ "${MODE}" == "${MODE_LAPTOP}" ]] && xfce_mode="${MODE_LAPTOP}"
 ln -s ${repo_xfconf}/xfce-perchannel-xml/{xfce4-power-manager-${xfce_mode}.xml,xfce4-power-manager.xml}
+
+# config keyboard
+keyboard_filepath_ori="/etc/default/keyboard"
+keyboard_filepath_mine="${CONFIG_PATH}/keyboard"
+sudo cp ${keyboard_filepath_ori} ${keyboard_filepath_ori}.OLD
+sudo rm ${keyboard_filepath_ori}
+if [[ -e "${keyboard_filepath_mine}" ]]; then
+  sudo ln -s ${keyboard_filepath_mine} ${keyboard_filepath_ori}
+  if [[ $? -ne 0 ]]; then
+      sudo cp ${keyboard_filepath_mine} ${keyboard_filepath_ori}
+  fi
+fi
+sudo dpkg-reconfigure -phigh console-setup
 
 #
 # CUSTOMIZATION
