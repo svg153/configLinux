@@ -95,7 +95,7 @@ plugins+=(perl jsontools)
 # plugins+=(ruby rails rake)
 plugins+=(python pip)
 plugins+=(golang)
-plugins+=(docker docker-compose kubectl helm) # https://github.com/ohmyzsh/ohmyzsh/tree/master/plugins/kubectl
+plugins+=(docker docker-compose kubectl helm minikube) # https://github.com/ohmyzsh/ohmyzsh/tree/master/plugins/kubectl
 plugins+=(httpie)
 
 # include Z

@@ -130,6 +130,15 @@ function install_docker_compose()
         -o /etc/bash_completion.d/docker-compose
 }
 
+function install_minikube()
+{
+    # https://minikube.sigs.k8s.io/docs/start/
+    curl -LO https://storage.googleapis.com/minikube/releases/latest/minikube_latest_amd64.deb
+    sudo dpkg -i minikube_latest_amd64.deb
+    rm minikube_latest_amd64.deb
+    minikube start
+}
+
 function install_telegram()
 {
     wget -O ${PROGRAMAS_PATH}/tsetup.tar.xz https://telegram.org/dl/desktop/linux
