@@ -139,6 +139,25 @@ function install_minikube()
     minikube start
 }
 
+function install_chrome()
+{
+    deb_filename="google-chrome-stable_current_amd64.deb"
+    deb_filepath_dw="${PROGRAMAS_PATH}/${deb_filename}"
+    wget -O ${deb_filepath_dw} https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb ${PROGRAMAS_PATH}
+    sudo dpkg -i ${deb_filepath_dw}
+    # fix chrome installation
+    sudo apt-get --fix-broken-install && sudo apt-get update && install && rm ${deb_filepath_dw}
+}
+
+function install_vscode()
+{
+    curl https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor > microsoft.gpg
+    sudo mv microsoft.gpg /etc/apt/trusted.gpg.d/microsoft.gpg
+    sudo sh -c 'echo "deb [arch=amd64] https://packages.microsoft.com/repos/vscode stable main" > /etc/apt/sources.list.d/vscode.list'
+    update
+    install code
+}
+
 function install_telegram()
 {
     wget -O ${PROGRAMAS_PATH}/tsetup.tar.xz https://telegram.org/dl/desktop/linux
@@ -150,44 +169,12 @@ function install_telegram()
 }
 
 
-function install_fonts
+function install_gh()
 {
-    # # clone
-    # git clone https://github.com/powerline/fonts.git --depth=1
-    # # install
-    # cd fonts
-    # ./install.sh
-    # # clean-up a bit
-    # cd ..
-    # rm -rf fonts
-
-
-    # cd /tmp
-    # git clone https://github.com/gabrielelana/awesome-terminal-fonts
-    # mkdir -p ~/.fonts
-    # cp awesome-terminal-fonts/build/* ~/.fonts
-    # fc-cache -fv ~/.fonts
-    # mkdir -p ~/.config/fontconfig/conf.d
-    # cp awesome-terminal-fonts/config/10-symbols.conf ~/.config/fontconfig/conf.d
-    # # echo "Do this 'echo "source ~/.fonts/*.sh" >> ~/.zshrc'"/
-    
-    cd /tmp
-    # https://github.com/ryanoasis/nerd-fonts
-    git clone --filter=blob:none --sparse git@github.com:ryanoasis/nerd-fonts
-    cd nerd-fonts
-    git sparse-checkout add patched-fonts/Hack
-    ./install.sh Hack
-    git sparse-checkout add patched-fonts/FiraCode
-    ./install.sh FiraCode
-    cd ..
-    rm -rf nerd-fonts
-    
-    # https://github.com/ryanoasis/nerd-fonts#font-patcher
-    docker run -v ~/.local/share/fonts/:/in -v ~/.local/share/fonts/:/out nerdfonts/patcher --powerline --powerlineextra
-    # docker run -v ~/.local/share/fonts/:/in -v ~/.local/share/fonts/:/out nerdfonts/patcher --complete
-    sudo chown -R $USER:$USER ~/.local/share/fonts
-    
-    fc-cache -fv
+    curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | sudo dd of=/usr/share/keyrings/githubcli-archive-keyring.gpg
+    echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" | sudo tee /etc/apt/sources.list.d/github-cli.list > /dev/null
+    update
+    install gh
 }
 
 function install_starship()
@@ -354,15 +341,11 @@ install git-gui gitk
 # install openvpn
 install openvpm resolvconf network-manager-openvpn-gnome
 
+# Docker
+install_docker
 
 # install google-chrome
-deb_filename="google-chrome-stable_current_amd64.deb"
-deb_filepath_dw="${PROGRAMAS_PATH}/${deb_filename}"
-wget -O ${deb_filepath_dw} https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb ${PROGRAMAS_PATH}
-sudo dpkg -i ${deb_filepath_dw}
-# fix chrome installation
-sudo apt-get --fix-broken-install && sudo apt-get update && install && rm ${deb_filepath_dw}
-
+install_chrome
 
 install_telegram
 
