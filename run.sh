@@ -168,6 +168,13 @@ function install_telegram()
     cd
 }
 
+function install_by_webinstall()
+{
+    local p=$1
+    [[ $# -ne 1 ]] && echo "webinstall: webinstall <program>" && return 1
+    [[ -z "${p}" ]] && echo "webinstall: program is empty" && return 1
+    curl -sS https://webinstall.dev/${p} | bash
+}
 
 function install_gh()
 {
@@ -366,9 +373,11 @@ if [[ -e "${keyboard_filepath_mine}" ]]; then
 fi
 sudo dpkg-reconfigure -phigh console-setup
 
-
-# Docker
-install_docker
+tools=(k9s jq yq fd bat)
+# tools+=(nerdfonts)
+for p in "${tools[@]}"; do
+    install_by_webinstall $p
+done
 
 #
 # PROGRAMS
