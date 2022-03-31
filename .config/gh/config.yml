@@ -57,6 +57,31 @@ aliases:
     ssh-keys: ssh-key list
     workflows: workflow list
 
+    list-milestones: |-
+        api graphql -F owner=':owner' -F name=':repo' -f query='
+            query ListMilestones($name: String!, $owner: String!) {
+                repository(owner: $owner, name: $name) {
+                    milestones(first: 100) {
+                        nodes {
+                            title
+                            number
+                            description
+                            dueOn
+                            url
+                            state
+                            closed
+                            closedAt
+                            updatedAt
+                        }
+                    }
+                }
+            }
+        '
+    lm: |-
+        !(
+            gh list-milestones | jq '.data.repository.milestones.nodes[]'
+        )
+
 # The path to a unix socket through which send HTTP connections. If blank, HTTP traffic will be handled by net/http.DefaultTransport.
 http_unix_socket:
 # What web browser gh should use when opening URLs. If blank, will refer to environment.
