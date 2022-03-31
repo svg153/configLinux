@@ -123,7 +123,11 @@ if [ -d "$HOME/.local/bin" ] ; then
   PATH="$HOME/.local/bin:$PATH"
 fi
 
-source ~/.fonts/*.sh
+# fonts
+# https://github.com/gabrielelana/awesome-terminal-fonts
+if [ -f ~/.fonts/*.sh ]; then
+    source ~/.fonts/*.sh
+fi
 
 # starship
 # https://github.com/starship/starship

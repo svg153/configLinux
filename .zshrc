@@ -159,9 +159,13 @@ if [ -f ~/.aliases ]; then
     source ~/.aliases
 fi
 
-
 # fonts
 # https://github.com/gabrielelana/awesome-terminal-fonts
+# TODO: fix "not matches found"
+# if [ -f ~/.fonts/*.sh ]; then
+#     source ~/.fonts/*.sh
+# fi
+
 # starship
 # https://github.com/starship/starship
 if [ -f "$HOME/.config/starship.toml" ]; then

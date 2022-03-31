@@ -51,21 +51,53 @@ function install_git() {
     sudo apt install git
 }
 
-function install_gh()
+function install_fonts
 {
-    curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | sudo dd of=/usr/share/keyrings/githubcli-archive-keyring.gpg
-    echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" | sudo tee /etc/apt/sources.list.d/github-cli.list > /dev/null
-    update
-    install gh
-}
+    install fontconfig
 
-function install_vscode()
-{
-    curl https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor > microsoft.gpg
-    sudo mv microsoft.gpg /etc/apt/trusted.gpg.d/microsoft.gpg
-    sudo sh -c 'echo "deb [arch=amd64] https://packages.microsoft.com/repos/vscode stable main" > /etc/apt/sources.list.d/vscode.list'
-    update
-    install code
+    # # clone
+    # git clone https://github.com/powerline/fonts.git --depth=1
+    # # install
+    # cd fonts
+    # ./install.sh
+    # # clean-up a bit
+    # cd ..
+    # rm -rf fonts
+
+
+    # cd /tmp
+    # git clone https://github.com/gabrielelana/awesome-terminal-fonts
+    # mkdir -p ~/.fonts
+    # cp awesome-terminal-fonts/build/* ~/.fonts
+    # fc-cache -fv ~/.fonts
+    # mkdir -p ~/.config/fontconfig/conf.d
+    # cp awesome-terminal-fonts/config/10-symbols.conf ~/.config/fontconfig/conf.d
+    # # echo "Do this 'echo "source ~/.fonts/*.sh" >> ~/.zshrc'"/
+
+    cd /tmp
+    # https://github.com/ryanoasis/nerd-fonts
+    git clone --filter=blob:none --sparse git@github.com:ryanoasis/nerd-fonts.git
+    cd nerd-fonts
+    git sparse-checkout add patched-fonts/Hack
+    ./install.sh Hack
+    ./font-patcher --complete
+    git sparse-checkout add patched-fonts/FiraCode
+    ./install.sh FiraCode
+    ./font-patcher --complete
+
+    # OTHER: how to download and install fonts from the command line
+    # mkdir -p ~/.local/share/fonts
+    # cd ~/.local/share/fonts && curl -fLo "Droid Sans Mono for Powerline Nerd Font Complete.otf" https://github.com/ryanoasis/nerd-fonts/raw/master/patched-fonts/DroidSansMono/complete/Droid%20Sans%20Mono%20Nerd%20Font%20Complete.otf
+
+    cd ..
+    rm -rf nerd-fonts
+
+    # https://github.com/ryanoasis/nerd-fonts#font-patcher
+    docker run -v ~/.local/share/fonts/:/in -v ~/.local/share/fonts/:/out nerdfonts/patcher --powerline --powerlineextra
+    # docker run -v ~/.local/share/fonts/:/in -v ~/.local/share/fonts/:/out nerdfonts/patcher --complete
+    sudo chown -R $USER:$USER ~/.local/share/fonts
+
+    fc-cache -fv
 }
 
 function install_docker()
