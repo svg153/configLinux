@@ -11,9 +11,10 @@ pager:
 #  * https://gist.github.com/vilmibm/a1b9a405ac0d5153c614c9c646e37d13
 #  * https://github.com/vEnhance/dotfiles/blob/main/gh-config.yml
 #  * https://github.com/aaronpowell/system-init/blob/master/common/gh-config.yml
+#  * https://github.com/cli/cli/issues/1200#issuecomment-659921986
 aliases:
     co: pr checkout # this alias is shipped by default
-    clone: repo clone "$1"/"$2"
+    clo: repo clone "$1"/"$2"
     prv: pr view
     aliases: alias list
     codespaces: codespace list
@@ -41,14 +42,13 @@ aliases:
     clone-repos-all: |-
         !(
             user=${1:-$USER}
-            gh repos-name-all "${user}" | xargs -I '%' gh clone ${user} %
+            gh repos-name-all "${user}" | xargs -I '%' gh repo clone ${user}/%
         )
     clone-all-repos: |-
         !(
             user=${1:-$USER}
             gh clone-repos-all ${user}
         )
-
     issues: issue list
     prs: pr list
     releases: release list
