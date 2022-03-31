@@ -45,6 +45,12 @@ alias update="sudo apt -qq -y update"
 #
 #
 
+function install_git() {
+    sudo add-apt-repository ppa:git-core/ppa
+    sudo apt update
+    sudo apt install git
+}
+
 function install_gh()
 {
     curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | sudo dd of=/usr/share/keyrings/githubcli-archive-keyring.gpg
@@ -225,6 +231,8 @@ install \
 
 
 # utils
+install_git
+
 install curl
 
 
