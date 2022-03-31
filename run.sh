@@ -19,6 +19,7 @@ sudo apt-get update && sudo apt-get upgrade && sudo apt-get dist-upgrade && sudo
 # VARS
 #
 
+USER_EMAIL=""
 COMPANY_NAME=""
 COMPANY_USER_NAME=""
 COMPANY_USER_EMAIL=""
@@ -511,6 +512,11 @@ sudo apt clean
 #
 
 # TODO: mdkir ${REPOS_PATH}
+# TODO: Crete and configure: ~/.gitconfig-default
+# echo """
+# [user]
+#     email = ${USER_EMAIL}
+# """ > ~/.gitconfig-work
 # TODO: Crete and configure: ~/.gitconfig-work
 # echo """
 # [user]
