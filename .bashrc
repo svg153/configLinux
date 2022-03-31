@@ -134,3 +134,6 @@ fi
 if [ -f "$HOME/.config/starship.toml" ]; then
     eval "$(starship init bash)"
 fi
+
+export PATH="$HOME/.local/opt/go/bin:$PATH"
+export PATH="$HOME/go/bin:$PATH"
