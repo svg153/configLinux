@@ -195,6 +195,11 @@ function install_starship()
     mkdir -p ~/.config && ln -s ${CONFIG_PATH}/.config/starship.toml ~/.config/starship.toml
 }
 
+function install_azurecli()
+{
+    # https://docs.microsoft.com/en-us/cli/azure/install-azure-cli-apt?view=azure-cli-latest
+    curl -L https://aka.ms/InstallAzureCli | bash
+}
 
 #
 #
@@ -365,6 +370,9 @@ install_telegram
 
 # @TODO: Install VSCODE
 install_vscode
+
+
+install_azurecli
 
 # config keyboard
 keyboard_filepath_ori="/etc/default/keyboard"

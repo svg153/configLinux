@@ -144,5 +144,10 @@ fi
 # Generated for envman. Do not edit.
 [ -s "$HOME/.config/envman/load.sh" ] && source "$HOME/.config/envman/load.sh"
 
+# azure-cli
+if [ -f "$HOME/lib/azure-cli/az.completion" ]; then
+    source "$HOME/lib/azure-cli/az.completion"
+fi
+
 export PATH="$HOME/.local/opt/go/bin:$PATH"
 export PATH="$HOME/go/bin:$PATH"
