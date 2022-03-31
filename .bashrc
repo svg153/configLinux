@@ -140,5 +140,9 @@ fi
 if [ -f /usr/share/autojump/autojump.sh ]; then
     . /usr/share/autojump/autojump.sh
 fi
+
+# Generated for envman. Do not edit.
+[ -s "$HOME/.config/envman/load.sh" ] && source "$HOME/.config/envman/load.sh"
+
 export PATH="$HOME/.local/opt/go/bin:$PATH"
 export PATH="$HOME/go/bin:$PATH"

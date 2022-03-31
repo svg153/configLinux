@@ -177,3 +177,6 @@ fi
 if [ -f "$HOME/.config/starship.toml" ]; then
     eval "$(starship init zsh)"
 fi
+
+# Generated for envman. Do not edit.
+[ -s "$HOME/.config/envman/load.sh" ] && source "$HOME/.config/envman/load.sh"
