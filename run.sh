@@ -262,6 +262,7 @@ mkdir ~/.icons
 
 
 # create the symlinks
+rm ~/.aliases_init; ln -s ${CONFIG_PATH}/.aliases ~/.aliases_init
 rm ~/.aliases; ln -s ${CONFIG_PATH}/.aliases ~/.aliases
 rm ~/.bashrc; ln -s ${CONFIG_PATH}/.bashrc ~/.bashrc
 rm ~/.bash_profile; ln -s ${CONFIG_PATH}/.bash_profile ~/.bash_profile

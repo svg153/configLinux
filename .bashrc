@@ -12,21 +12,8 @@ esac
 # -> functions
 #
 
-# THANKS: https://github.com/devonjones/bash_magic/
-function include_d {
-    local dir=$1
-    for f in ${dir}.d*/* ; do
-        [ -f "${f}" ] && . ${f}
-    done
-    # if [ -d $HOME/.$dir.d -a -r $HOME/.$dir.d -a -x $HOME/.$dir.d ]; then
-    # 	for i in $HOME/.$dir.d/*.sh; do
-    # 		 . $i
-    # 	done
-    # fi
-}
+source ~/.aliases_init
 export -f include_d
-
-
 
 #
 # <- functions
