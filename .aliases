@@ -4,11 +4,14 @@ alias edit_aliases="nano ~/.aliases && source ~/.aliases"
 #
 # system aliases
 #
+alias x="chmod +x"
 
 alias lsla="ls -lha"
 alias lsl="ls -l"
 alias lsline='ls $@ | tr "\n" " "'
-alias ln="ln -s"
+
+alias lns="ln -s"
+
 alias cd..="cd .."
 alias cd...="..."
 
