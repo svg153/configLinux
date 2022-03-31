@@ -14,6 +14,7 @@ export ZSH="/home/svg153/.oh-my-zsh"
 # See https://github.com/ohmyzsh/ohmyzsh/wiki/Themes
 ZSH_THEME="robbyrussell"
 #ZSH_THEME="agnoster"
+#ZSH_THEME="svg153"
 
 #ZSH_THEME="powerlevel9k/powerlevel9k"
 #POWERLEVEL9K_MODE='awesome-fontconfig'
@@ -82,15 +83,20 @@ COMPLETION_WAITING_DOTS="true"
 # Standard plugins can be found in $ZSH/plugins/
 # Custom plugins may be added to $ZSH_CUSTOM/plugins/
 # Example format: plugins=(rails git textmate ruby lighthouse)
-# Add wisely, as too many plugins slow down shell startup.
+# Add wisely, as too many plugins slow down shell startup
+# TO Check all the alias: https://github.com/ohmyzsh/ohmyzsh/tree/master/plugins/<PLUGIN>
 plugins=(gnu-utils history)
-plugins+=(textmate lighthouse)
-plugins+=(git git-auto-fetch git-extras gitfast git-flow git-flow-avh git-hubflow gitignore git-prompt github)
-plugins+=(node ruby perl python spring)
-plugins+=(rake rails jsontools)
-plugins+=(bundler pip npm bower)
-plugins+=(docker boot2docker docker-compose)
 plugins+=(colored-man-pages colorize extract)
+plugins+=(git git-auto-fetch git-extras gitignore git-prompt)
+plugins+=(gh github) # https://github.com/ohmyzsh/ohmyzsh/tree/master/plugins/gh
+plugins+=(perl jsontools)
+# plugins+=(java spring mvn)
+# plugins+=(node npm)
+# plugins+=(ruby rails rake)
+plugins+=(python pip)
+plugins+=(golang)
+plugins+=(docker docker-compose kubectl helm) # https://github.com/ohmyzsh/ohmyzsh/tree/master/plugins/kubectl
+plugins+=(httpie)
 
 # include Z
 plugins+=(z)
