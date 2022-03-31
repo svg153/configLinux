@@ -318,16 +318,17 @@ if [[ ${SHELL} != *"zsh"* ]]; then
     rm ~/.zshrc; ln -s ${CONFIG_PATH}/.zshrc ~/.zshrc
 
     ZSH_C="${ZSH_CUSTOM:-~/.oh-my-zsh/custom}"
-    
+
     # install zsh plugins
     OMZsh_C_P="${ZSH_C}/plugins/"
+
     cd ${OMZsh_C_P}
-    git clone https://github.com/zsh-users/zsh-autosuggestions 
+    git clone https://github.com/zsh-users/zsh-autosuggestions
     git clone https://github.com/zsh-users/zsh-completions
     git clone https://github.com/zsh-users/zsh-navigation-tools
     git clone https://github.com/zsh-users/zsh-syntax-highlighting
     git clone https://github.com/zsh-users/zsh-history-substring-search
-    git clone https://github.com/djui/alias-tips.git 
+    git clone https://github.com/djui/alias-tips.git
     git clone https://github.com/chrissicool/zsh-256color
     cd -
 
