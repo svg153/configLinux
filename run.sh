@@ -1,5 +1,8 @@
 #!/bin/bash
 
+set -e
+set -u
+
 # RUN BEFORE:
 # 1º) user must be in sudoers
 #         * su && apt-get install sudo && adduser ${USER} sudo && exit
