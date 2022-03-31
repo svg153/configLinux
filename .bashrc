@@ -125,4 +125,8 @@ fi
 
 source ~/.fonts/*.sh
 
-eval "$(starship init bash)"
+# starship
+# https://github.com/starship/starship
+if [ -f "$HOME/.config/starship.toml" ]; then
+    eval "$(starship init bash)"
+fi

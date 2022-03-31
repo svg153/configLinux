@@ -162,4 +162,8 @@ fi
 
 # fonts
 # https://github.com/gabrielelana/awesome-terminal-fonts
-source ~/.fonts/*.sh
+# starship
+# https://github.com/starship/starship
+if [ -f "$HOME/.config/starship.toml" ]; then
+    eval "$(starship init zsh)"
+fi

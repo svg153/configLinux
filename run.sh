@@ -149,12 +149,11 @@ function install_fonts
     fc-cache -fv
 }
 
-
 function install_starship()
-{    
+{
     sh -c "$(curl -fsSL https://starship.rs/install.sh)"
     # TODO: ask sudo pass
-    mkdir -p ~/.config && ln -s ${CONFIG_PATH}/starship.toml ~/.config/starship.toml
+    mkdir -p ~/.config && ln -s ${CONFIG_PATH}/.config/starship.toml ~/.config/starship.toml
 }
 
 
