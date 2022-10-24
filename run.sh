@@ -188,6 +188,37 @@ function install_gh()
     install gh
 }
 
+function install_gh_extensions(){
+    gh_extension=(
+        dlvhdr/gh-dash
+        rsese/gh-actions-status
+        matt-bartel/gh-clone-org
+        meiji163/gh-notify
+        rethab/gh-project
+        seachicken/gh-poi
+        redraw/gh-install
+    )
+    for ext in "${gh_extension[@]}"; do
+        install_gh_ext "${ext}"
+    done
+}
+
+function install_gh_ext()
+{
+    local ext=$1
+    [[ $# -ne 1 ]] && echo "Usage: install_gh_extensions <extension>" && return 1
+    [[ -z "${ext}" ]] && echo "install_gh_extensions: extension is empty" && return 1
+    gh extension install "${ext}"
+}
+
+function install_by_gh()
+{
+    local p=$1
+    [[ $# -ne 1 ]] && echo "Usage: install_by_gh <github_org_repo>" && return 1
+    [[ -z "${p}" ]] && echo "install_by_gh: github_org_repo is empty" && return 1
+    gh install "${p}"
+}
+
 function install_starship()
 {
     sh -c "$(curl -fsSL https://starship.rs/install.sh)"
@@ -316,7 +347,7 @@ rm ~/SCRIPTS; ln -s ${CONFIG_PATH}/SCRIPTS ~/SCRIPTS
 rm ~/.git-template; ln -s ${CONFIG_PATH}/.git-template ~/.git-template
 git config --global init.templateDir ~/.git-template
 install_gh
-
+install_gh_extensions
 
 # install zsh
 install zsh
