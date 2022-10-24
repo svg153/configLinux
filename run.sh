@@ -371,6 +371,9 @@ if [[ ${SHELL} != *"zsh"* ]]; then
     git clone https://github.com/zsh-users/zsh-history-substring-search
     git clone https://github.com/djui/alias-tips.git
     git clone https://github.com/chrissicool/zsh-256color
+    git clone https://github.com/ptavares/zsh-terraform
+    git clone https://github.com/dmakeienko/azcli.git
+    git clone https://github.com/reegnz/jq-zsh-plugin ./jq
     cd -
 
     install autojump
