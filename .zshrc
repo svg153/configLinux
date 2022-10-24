@@ -96,7 +96,10 @@ plugins+=(perl jsontools)
 plugins+=(python pip)
 plugins+=(golang)
 plugins+=(docker docker-compose kubectl helm minikube) # https://github.com/ohmyzsh/ohmyzsh/tree/master/plugins/kubectl
+plugins+=(azcli) # https://github.com/dmakeienko/azcli
+plugins+=(zsh-terraform) # https://github.com/ptavares/zsh-terraform
 plugins+=(httpie)
+plugins+=(jq) # https://github.com/reegnz/jq-zsh-plugin
 
 # include Z
 plugins+=(z)
