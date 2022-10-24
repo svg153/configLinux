@@ -6,6 +6,7 @@ alias ..="cd .."
 alias ...="cd ../.."
 alias ....="cd ../../.."
 alias .....="cd ../../../.."
+cdf() { cd $(dirname $1) }
 
 # some more ls aliases
 alias ll='ls -alF'
@@ -13,6 +14,7 @@ alias la='ls -A'
 alias l='ls -CF'
 
 alias s="source"
+alias sa="source .alias"
 
 alias hgrep="grep -rni"
 alias hgrepcodews="hgrep $1 * | cut -d ":" -f 1  | sort -u | cut -d "/" -f 1-7 | sort -u"
