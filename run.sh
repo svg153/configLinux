@@ -405,11 +405,22 @@ install_vscode
 
 install_azurecli
 
-tools=(k9s jq yq fd bat)
+tools_by_webi=(k9s jq yq fd bat fzf)
 # tools+=(nerdfonts)
-for p in "${tools[@]}"; do
-    install_by_webinstall $p
+for p in "${tools_by_webi[@]}"; do
+    install_by_webinstall "${p}"
 done
+
+tools_by_github=(
+    wtfutil/wtf
+    noahgorstein/jqp
+    go-task/task
+    multiprocessio/ds   
+)
+# TODO: interactive install...
+# for p in "${tools_by_github[@]}"; do
+#     install_by_gh "${p}"
+# done
 
 #
 # PROGRAMS
