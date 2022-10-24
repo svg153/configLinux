@@ -16,6 +16,34 @@ aliases:
     co: pr checkout # this alias is shipped by default
     clo: repo clone "$1"/"$2"
     prv: pr view
+    pro: pr checkout
+    prc: pr create
+    prci: |-
+        !(
+            branch_name=$(git rev-parse --abbrev-ref HEAD)
+            wi_id=$(echo ${branch_name} | awk -F'_' '{print $1}')
+            wi_title=$(echo ${branch_name} | awk -F'_' '{print $2}')
+            
+            pr_title="${wi_id} ${wi_title}"
+            gh prc --title "${pr_title}" --body "${wi_id}" --draft
+        )
+    pr-auto-approved: |-
+        !(
+            branch_name=$(git rev-parse --abbrev-ref HEAD)
+            gh pr review \
+                ${branch_name} \
+                --approve \
+                --comment \"approved from gh cli\"
+        )
+    pr-merge: |-
+        !(
+            branch_name=$(git rev-parse --abbrev-ref HEAD)
+            gh pr merge \
+                ${branch_name} \
+                --auto \
+                --squash \
+                --delete-branch
+        )
     aliases: alias list
     codespaces: codespace list
     configs: config list
@@ -37,8 +65,10 @@ aliases:
     repos-name: |-
         !(
             user=${1:-$USER}
-            gh repos-name-all "${user}" --json name --jq '.[].name' | sort
+            gh repo list "${user}" --limit 9999 --json "name" --jq ".[].name"
         )
+    # https://github.com/matt-bartel/gh-clone-org
+    clo-org: clone-org
     clone-repos-all: |-
         !(
             user=${1:-$USER}
@@ -56,7 +86,6 @@ aliases:
     secrets: secret list
     ssh-keys: ssh-key list
     workflows: workflow list
-
     list-milestones: |-
         api graphql -F owner=':owner' -F name=':repo' -f query='
             query ListMilestones($name: String!, $owner: String!) {
@@ -80,6 +109,20 @@ aliases:
     lm: |-
         !(
             gh list-milestones | jq '.data.repository.milestones.nodes[]'
+        )
+    rate-limit: |-
+        !(
+            gh api \
+                -H "Accept: application/vnd.github.v3+json" \
+                /rate_limit
+        )
+    rate-limit-table: |-
+        !(
+            gh api \
+                -H "Accept: application/vnd.github.v3+json" \
+                /rate_limit \
+            | jq '.resources' \
+            | jq -r '(["LIMIT","USED","REMAINING","RESET"] | (., map(length*"-"))), (.[] | [.limit, .used, .remaining, .reset]) | @tsv'
         )
 
 # The path to a unix socket through which send HTTP connections. If blank, HTTP traffic will be handled by net/http.DefaultTransport.
