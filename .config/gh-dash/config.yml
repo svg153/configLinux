@@ -1,0 +1,13 @@
+# https://docs.github.com/en/search-github/searching-on-github/searching-issues-and-pull-requests
+prSections:
+  - title: me
+    filters: user:@me is:open
+issuesSections:
+  - title: open by me
+    filters: user:@me is:open
+defaults:
+  prsLimit: 20 # global limit
+  issuesLimit: 20 # global limit
+  preview:
+    open: true
+    width: 60
