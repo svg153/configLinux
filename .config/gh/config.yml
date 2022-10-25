@@ -109,7 +109,10 @@ aliases:
     issues: issue list
     releases: release list
     runs: run list
-    runs-branch: run list --branch=$(git branch --show)
+    runs-branch: |-
+        !(
+            gh run list --branch=$(git branch --show)
+        )
     secrets: secret list
     ssh-keys: ssh-key list
     workflows: workflow list
