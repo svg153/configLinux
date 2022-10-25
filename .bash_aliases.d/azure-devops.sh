@@ -1,6 +1,6 @@
 # needs az and az azure-devops extension installed
 # needs az devops login and configure with default organization 
-az-wi-title(){
+azdo-item-title(){
     local wi_id="$1"
 
     az boards work-item show \
@@ -12,7 +12,7 @@ az-wi-title(){
         | sed -e 's/[ \t]*$//' \
         | tr ' ' '-'
 }
-az-wi-status(){
+azdo-item-status(){
     local wi_id="$1"
 
     az boards work-item show \
@@ -22,7 +22,7 @@ az-wi-status(){
 }
 azdo-branch-title(){
     local wi_id="$1"
-    local wi_title="$(az-wi-title "${wi_id}")"
+    local wi_title="$(azdo-item-title "${wi_id}")"
     
     echo "AB-${wi_id}_${wi_title}"
 }
