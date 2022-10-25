@@ -63,6 +63,32 @@ aliases:
                 }
             ' | jq -r '.data.repositoryOwner.repositories.nodes[].name' | sort
         )
+    repo-dependabot-alerts: |-
+        !(
+            user=${1:-$USER}
+            repo=${2:-$REPO}
+            gh api --paginate graphql -f owner="${user}" -f name="${repo}" -f query='
+                query($owner: String!, $name: String!, $per_page: Int = 100, $endCursor: String) {
+                    repository(owner: $owner, name: $name) {
+                        vulnerabilityAlerts(first: $per_page, after: $endCursor) {
+                            nodes {
+                                createdAt
+                                dismissedAt
+                                securityVulnerability {
+                                    package {
+                                        name
+                                    }
+                                    advisory {
+                                        description
+                                    }
+                                }
+                            }
+                            pageInfo { hasNextPage endCursor }
+                        }
+                    }
+                }
+            '
+        )
     repos-name: |-
         !(
             user=${1:-$USER}
