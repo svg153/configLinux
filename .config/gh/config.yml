@@ -13,8 +13,9 @@ pager:
 #  * https://github.com/aaronpowell/system-init/blob/master/common/gh-config.yml
 #  * https://github.com/cli/cli/issues/1200#issuecomment-659921986
 aliases:
+    aliases: alias list
     co: pr checkout # this alias is shipped by default
-    clo: repo clone "$1"/"$2"
+    prs: pr list
     prv: pr view
     pro: pr checkout
     prc: pr create
@@ -44,22 +45,22 @@ aliases:
                 --squash \
                 --delete-branch
         )
-    aliases: alias list
     codespaces: codespace list
     configs: config list
+    clo: repo clone "$1"/"$2"
     repos: repo list
     repos-name-all: |-
         !(
             user=${1:-$USER}
             gh api --paginate graphql -f owner="${user}" -f query='
-            query($owner: String!, $per_page: Int = 100, $endCursor: String) {
-                repositoryOwner(login: $owner) {
-                    repositories(first: $per_page, after: $endCursor, ownerAffiliations: OWNER) {
-                        nodes { name }
-                        pageInfo { hasNextPage endCursor }
+                query($owner: String!, $per_page: Int = 100, $endCursor: String) {
+                    repositoryOwner(login: $owner) {
+                        repositories(first: $per_page, after: $endCursor, ownerAffiliations: OWNER) {
+                            nodes { name }
+                            pageInfo { hasNextPage endCursor }
+                        }
                     }
                 }
-            }
             ' | jq -r '.data.repositoryOwner.repositories.nodes[].name' | sort
         )
     repos-name: |-
@@ -80,9 +81,9 @@ aliases:
             gh clone-repos-all ${user}
         )
     issues: issue list
-    prs: pr list
     releases: release list
     runs: run list
+    runs-branch: run list --branch=$(git branch --show)
     secrets: secret list
     ssh-keys: ssh-key list
     workflows: workflow list
