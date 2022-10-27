@@ -24,9 +24,30 @@ aliases:
             branch_name=$(git rev-parse --abbrev-ref HEAD)
             wi_id=$(echo ${branch_name} | awk -F'_' '{print $1}')
             wi_title=$(echo ${branch_name} | awk -F'_' '{print $2}')
+
+            wi_id_azdo=$(echo ${wi_id} | tr '-' '#')
+            wi_title_azdo=$(echo ${wi_title} | tr '-' ' ')
+
+            pr_title="${wi_id_azdo} ${wi_title_azdo}"
+            pr_body="${wi_id_azdo}"
             
-            pr_title="${wi_id} ${wi_title}"
-            gh prc --title "${pr_title}" --body "${wi_id}" --draft
+            # Remove next line when https://github.com/cli/cli/issues/1718 is fixed
+            git push -u origin HEAD
+            
+            gh prc \
+                --title "${pr_title}" \
+                --body "${pr_body}" \
+                --draft
+        )
+    approve: pr review --approve
+    pr-approve: |-
+        !(
+            last_pr_id=$(gh pr view --json number --jq '.number')
+            pr_id=${1:-$last_pr_id}
+            gh pr review \
+                ${pr_id} \
+                --approve \
+                --comment "approved from gh cli"
         )
     pr-auto-approved: |-
         !(
@@ -34,7 +55,7 @@ aliases:
             gh pr review \
                 ${branch_name} \
                 --approve \
-                --comment \"approved from gh cli\"
+                --comment "approved from gh cli"
         )
     pr-merge: |-
         !(
