@@ -38,5 +38,6 @@
 	upll = pull
 	pus = push
 	puhs = push
+	psuh = push
 [init]
 	defaultBranch = main
