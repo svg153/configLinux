@@ -14,10 +14,10 @@ pager:
 #  * https://github.com/cli/cli/issues/1200#issuecomment-659921986
 aliases:
     aliases: alias list
-    co: pr checkout # this alias is shipped by default
     prs: pr list
     prv: pr view
     pro: pr checkout
+    co: pr checkout
     prc: pr create
     prci: |-
         !(
