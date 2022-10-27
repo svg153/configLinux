@@ -19,7 +19,8 @@ alias gcbt="g co -t origin"
 alias gsave="g stash"
 alias gpop="g stash pop"
 
-alias git-update='g stash && git pull && git stash pop'
+alias git-branch-name="git rev-parse --abbrev-ref HEAD"
+alias git-update='g stash && g pull && g stash pop'
 alias git-update-branch-from-dev="g pull origin develop"
 
 # Needs alias in gitconfig
