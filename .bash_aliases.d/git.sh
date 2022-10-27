@@ -22,7 +22,7 @@ alias gpop="g stash pop"
 alias git-update='g stash && git pull && git stash pop'
 alias git-update-branch-from-dev="g pull origin develop"
 
-# Needs discart in gitconfig
+# Needs alias in gitconfig
 alias git-st="g st"
 alias git-ci="g ci"
 alias git-co="g co"
@@ -35,7 +35,3 @@ alias git-last="g last"
 alias gri="g"
 alias gti="g"
 alias gir="g"
-
-
-
-
