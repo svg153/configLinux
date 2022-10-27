@@ -154,6 +154,9 @@ aliases:
             | jq '.resources' \
             | jq -r '(["LIMIT","USED","REMAINING","RESET"] | (., map(length*"-"))), (.[] | [.limit, .used, .remaining, .reset]) | @tsv'
         )
+    # typos
+    lsit: list
+    
 
 # The path to a unix socket through which send HTTP connections. If blank, HTTP traffic will be handled by net/http.DefaultTransport.
 http_unix_socket:
