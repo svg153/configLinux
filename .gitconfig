@@ -41,5 +41,7 @@
 	pus = push
 	puhs = push
 	psuh = push
+[include]
+	path = .gitconfig-default
 [init]
 	defaultBranch = main
