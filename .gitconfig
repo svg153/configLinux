@@ -22,6 +22,7 @@
 	amend = ci --amend --no-edit
 	amend-force = !git amend && git pf
 	co = checkout
+	discart = checkout --
 	undo = reset --soft HEAD~1
 	unstage = reset HEAD --
 	reset-branch = !git reset $(git merge-base main $(git branch --show-current))
@@ -30,7 +31,7 @@
 	diffw = diff --ignore-blank-lines --ignore-all-space
 	difft = difftool #TODO: install difftool
 	author = config --get user.email
-	reset-branch = !git reset $(git merge-base main $(git branch --show-current))
+	x = update-index --chmod=+x
 	fame = !docker run --rm -v $(pwd):/repo casperdcl/git-fame
 	# typos
 	pul = pull
