@@ -1,3 +1,5 @@
+# THNAKS:
+#   * https://github.com/US-CBP/GTAS/blob/master/.gitconfig
 [user]
 	name = Sergio Valverde
 [core]
@@ -18,7 +20,8 @@
 	ci = commit
 	cim = ci -m 
 	cipc = cim 'Fix pre-commit'
-	cii = "!f() { msg=\"$(git branch --show | tr '_' ' ' | sed 's/AB-/AB#/g' | tr '-' ' ')\" && git commit -m \"${msg}\"; }; f"
+	cii = "!f() { msg=\"$(git branch --show | awk -F'_' '{print $2}' | tr '-' ' ')\" && git commit -m \"${msg}\"; }; f"
+	ciwi = "!f() { msg=\"$(git branch --show | tr '_' ' ' | sed 's/AB-/AB#/g' | tr '-' ' ')\" && git commit -m \"${msg}\"; }; f"
 	amend = ci --amend --no-edit
 	amend-force = !git amend && git pf
 	co = checkout
@@ -43,5 +46,19 @@
 	psuh = push
 [include]
 	path = .gitconfig-default
+[includeIf "gitdir:~/REPOSITORIOS/0_WORK/0_PEZA/"]
+	path = .gitconfig-peza
+[includeIf "gitdir:~/REPOSITORIOS/0_WORK/0_PEZA_ACTIONS/"]
+	path = .gitconfig-peza
+[includeIf "gitdir:~/REPOSITORIOS/0_WORK/NomuPay/"]
+	path = .gitconfig-nomupay
+[diff]
+	tool = difftastic
+[difftool]
+	prompt = false
+[difftool "difftastic"]
+	cmd = difft "$LOCAL" "$REMOTE"
+[pager]
+	difftool = true
 [init]
 	defaultBranch = main
