@@ -18,7 +18,7 @@
 	ci = commit
 	cim = ci -m 
 	cipc = cim 'Fix pre-commit'
-	cii = !git commit -m \"$(git branch --show  | tr '-' ' ')\"
+	cii = "!f() { msg=\"$(git branch --show | tr '_' ' ' | sed 's/AB-/AB#/g' | tr '-' ' ')\" && echo git commit -m \"${msg}\"; }; f"
 	amend = ci --amend --no-edit
 	amend-force = !git amend && git pf
 	co = checkout
