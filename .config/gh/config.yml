@@ -134,6 +134,23 @@ aliases:
         !(
             gh run list --branch=$(git branch --show)
         )
+    execute-workflow-branch: |-
+        !(
+            
+            if [ $# -lt 1 ]; then
+                echo "Usage: gh execute-workflow-branch <workflow_filename> [workflow_args]"
+                exit 1
+            fi
+            workflow_file="$1"; shift
+            if [ -z "$workflow_file" ]; then
+                echo "<workflow_file> is required"
+                exit 1
+            fi
+            workflow_args="$@"
+            workflow_name_to_run=$(yq '.name' ${workflow_file})
+            branch_name=$(git rev-parse --abbrev-ref HEAD)
+            gh workflow run "${workflow_name_to_run}" --ref "${branch_name}" ${workflow_args}
+        )
     secrets: secret list
     ssh-keys: ssh-key list
     workflows: workflow list
