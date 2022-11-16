@@ -94,3 +94,7 @@ alias terrascan="docker run --rm -it -v \"$(pwd):/iac\" -w /iac accurics/terrasc
 # https://github.com/mingrammer/diagrams -> Docker: https://github.com/mujahidk/python-diagrams
 # - In Go languaje: https://github.com/blushft/go-diagrams
 alias diagrams="docker run -it --rm -v \"$PWD:/diagrams/scripts/\" -w /diagrams/scripts/ mjdk/diagrams hello-world.py"
+
+# testssl
+# https://github.com/drwetter/testssl.sh
+alias testssl="docker run --rm -it docker.io/drwetter/testssl.sh"
