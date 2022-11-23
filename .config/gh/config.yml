@@ -21,7 +21,7 @@ aliases:
     prc: pr create
     prci: |-
         !(
-            branch_name=$(git rev-parse --abbrev-ref HEAD)
+            branch_name=$(gh __branch-name)
             wi_id=$(echo ${branch_name} | awk -F'_' '{print $1}')
             wi_title=$(echo ${branch_name} | awk -F'_' '{print $2}')
 
@@ -59,7 +59,7 @@ aliases:
         )
     pr-merge: |-
         !(
-            branch_name=$(git rev-parse --abbrev-ref HEAD)
+            branch_name=$(gh __branch-name)
             gh pr merge \
                 ${branch_name} \
                 --auto \
@@ -148,7 +148,7 @@ aliases:
             fi
             workflow_args="$@"
             workflow_name_to_run=$(yq '.name' ${workflow_file})
-            branch_name=$(git rev-parse --abbrev-ref HEAD)
+            branch_name=$(gh __branch-name)
             gh workflow run "${workflow_name_to_run}" --ref "${branch_name}" ${workflow_args}
         )
     secrets: secret list
@@ -194,6 +194,11 @@ aliases:
         )
     # typos
     lsit: list
+    # private
+    __branch-name: |-
+        !(
+            git rev-parse --abbrev-ref HEAD
+        )
     
 
 # The path to a unix socket through which send HTTP connections. If blank, HTTP traffic will be handled by net/http.DefaultTransport.
