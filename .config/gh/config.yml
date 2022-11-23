@@ -14,8 +14,34 @@ pager:
 #  * https://github.com/cli/cli/issues/1200#issuecomment-659921986
 aliases:
     aliases: alias list
-    prs: pr list
+    prs: |-
+        !(
+            GH_FORCE_TTY='50%' \
+            gh pr list \
+                | fzf \
+                    --ansi --header-lines 3 \
+                    --preview 'GH_FORCE_TTY=$FZF_PREVIEW_COLUMNS gh pr view {1}; GH_FORCE_TTY=$FZF_PREVIEW_COLUMNS gh pr checks {1}' \
+                | awk '{print $1}'
+        
+        )
     prv: pr view
+    co: |-
+        !(
+            gh pr checkout \
+                $(
+                    gh pr list \
+                        | fzf \
+                        | awk '{print $1}' \
+                )
+        )
+    pro: |-
+        !(
+            gh co
+        )
+    prco: |-
+        !(
+            gh co
+        )
     prcr: pr create
     prcri: |-
         !(
@@ -203,9 +229,16 @@ aliases:
             | jq '.resources' \
             | jq -r '(["LIMIT","USED","REMAINING","RESET"] | (., map(length*"-"))), (.[] | [.limit, .used, .remaining, .reset]) | @tsv'
         )
+    ####
+    # Company
+    ####
+    ####
     # typos
+    ####
     lsit: list
+    ####
     # private
+    ####
     __branch-name: |-
         !(
             git rev-parse --abbrev-ref HEAD
