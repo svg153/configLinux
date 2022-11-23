@@ -91,6 +91,11 @@ aliases:
                 }
             ' | jq -r '.data.repositoryOwner.repositories.nodes[].name' | sort
         )
+    alerts: |-
+        !(
+        
+            gh repo-dependabot-alerts  
+        )
     repo-dependabot-alerts: |-
         !(
             user=${1:-$USER}
