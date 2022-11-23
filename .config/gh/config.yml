@@ -42,20 +42,27 @@ aliases:
     approve: pr review --approve
     pr-approve: |-
         !(
-            last_pr_id=$(gh pr view --json number --jq '.number')
-            pr_id=${1:-$last_pr_id}
-            gh pr review \
-                ${pr_id} \
-                --approve \
-                --comment "approved from gh cli"
+            pr_id=""
+            [ $# -eq 1 ] && pr_id=$1
+            [ -z "${pr_id}" ] && pr_id=$(gh pr list | fzf | awk '{print $1}')
+            gh pr-approve-id "${pr_id}"
         )
-    pr-auto-approved: |-
+    pr-approve-last: |-
         !(
-            branch_name=$(git rev-parse --abbrev-ref HEAD)
+            pr_id=$(gh pr list | head -n1 | awk '{print $1}')
+            gh pr-approve-id "${pr_id}"
+        )
+    pr-approve-id: |-
+        !(
+            if [ $# -ne 1 ]; then
+                echo "Usage: gh pr-approve-id [pr_id|branch_name|pr_url]"
+                exit 1
+            fi
+            pr="$1"
             gh pr review \
-                ${branch_name} \
+                ${pr} \
                 --approve \
-                --comment "approved from gh cli"
+                --body "approved from gh cli"
         )
     pr-merge: |-
         !(
