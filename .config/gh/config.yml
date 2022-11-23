@@ -16,10 +16,8 @@ aliases:
     aliases: alias list
     prs: pr list
     prv: pr view
-    pro: pr checkout
-    co: pr checkout
-    prc: pr create
-    prci: |-
+    prcr: pr create
+    prcri: |-
         !(
             branch_name=$(gh __branch-name)
             wi_id=$(echo ${branch_name} | awk -F'_' '{print $1}')
@@ -34,11 +32,12 @@ aliases:
             # Remove next line when https://github.com/cli/cli/issues/1718 is fixed
             git push -u origin HEAD
             
-            gh prc \
+            gh prcr \
                 --title "${pr_title}" \
                 --body "${pr_body}" \
                 --draft
         )
+    prci: pr checks
     approve: pr review --approve
     pr-approve: |-
         !(
