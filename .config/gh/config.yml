@@ -1,7 +1,7 @@
 # What protocol to use when performing git operations. Supported values: ssh, https
 git_protocol: https
 # What editor gh should run when creating issues, pull requests, etc. If blank, will refer to environment.
-editor:
+editor: vi
 # When to interactively prompt. This is a global config that cannot be overridden by hostname. Supported values: enabled, disabled
 prompt: enabled
 # A pager program to send command output to, e.g. "less". Set the value to "cat" to disable the pager.
@@ -22,9 +22,16 @@ aliases:
                     --ansi --header-lines 3 \
                     --preview 'GH_FORCE_TTY=$FZF_PREVIEW_COLUMNS gh pr view {1}; GH_FORCE_TTY=$FZF_PREVIEW_COLUMNS gh pr checks {1}' \
                 | awk '{print $1}'
-        
         )
     prv: pr view
+    sw: |-
+        !(
+            [ $# -eq 0 ] && git switch main
+            [ $# -eq 1 ] && git switch $1
+            if [ $# -eq 2 ] && [ $1 = '-c' ] && [ -n $2 ]; then
+                git switch -c $2
+            fi
+        )
     co: |-
         !(
             gh pr checkout \
@@ -42,8 +49,20 @@ aliases:
         !(
             gh co
         )
+    prcode: |-
+        !(
+            code $(gh pr diff | grep '+++' | cut -d'/' -f2-)
+        )
     prcr: pr create
-    prcri: |-
+    prcrd: |-
+        !(
+            # Remove next line when https://github.com/cli/cli/issues/1718 is fixed
+            git push -u origin HEAD
+            gh prcr \
+                --fill\
+                --draft
+        )
+    prcrwi: |-
         !(
             branch_name=$(gh __branch-name)
             wi_id=$(echo ${branch_name} | awk -F'_' '{print $1}')
@@ -89,14 +108,9 @@ aliases:
                 --approve \
                 --body "approved from gh cli"
         )
-    pr-merge: |-
+    merge: |-
         !(
-            branch_name=$(gh __branch-name)
-            gh pr merge \
-                ${branch_name} \
-                --auto \
-                --squash \
-                --delete-branch
+            gh __pr-merge
         )
     codespaces: codespace list
     configs: config list
@@ -118,8 +132,7 @@ aliases:
         )
     alerts: |-
         !(
-        
-            gh repo-dependabot-alerts  
+            gh repo-dependabot-alerts
         )
     repo-dependabot-alerts: |-
         !(
@@ -173,7 +186,6 @@ aliases:
         )
     execute-workflow-branch: |-
         !(
-            
             if [ $# -lt 1 ]; then
                 echo "Usage: gh execute-workflow-branch <workflow_filename> [workflow_args]"
                 exit 1
@@ -232,6 +244,13 @@ aliases:
     ####
     # Company
     ####
+    pezaio-new-branch: |-
+        !(
+            wi_id="$1"
+            wi_title="$(azdo-item-title "${wi_id}")"
+            
+            git sw -c "AB-${wi_id}_${wi_title}"
+        )
     ####
     # typos
     ####
@@ -243,8 +262,15 @@ aliases:
         !(
             git rev-parse --abbrev-ref HEAD
         )
-    
-
+    __pr-merge: |-
+        !(
+            branch_name=$(gh __branch-name)
+            gh pr merge \
+                ${branch_name} \
+                --auto \
+                --squash \
+                --delete-branch
+        )
 # The path to a unix socket through which send HTTP connections. If blank, HTTP traffic will be handled by net/http.DefaultTransport.
 http_unix_socket:
 # What web browser gh should use when opening URLs. If blank, will refer to environment.
