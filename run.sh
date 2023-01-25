@@ -162,6 +162,30 @@ function install_vscode()
     install code
 }
 
+function install_gum()
+{
+    sudo mkdir -p /etc/apt/keyrings
+    curl -fsSL https://repo.charm.sh/apt/gpg.key | sudo gpg --dearmor -o /etc/apt/keyrings/charm.gpg
+    echo "deb [signed-by=/etc/apt/keyrings/charm.gpg] https://repo.charm.sh/apt/ * *" | sudo tee /etc/apt/sources.list.d/charm.list
+    sudo apt update && sudo apt install gum
+    update 
+    install gum
+}
+
+function install_gum()
+{
+    version=0.4.1
+    wget "https://git.sr.ht/~gpanders/ijq/refs/download/v${version}/ijq-${version}-linux-amd64.tar.gz"
+    tar xf ijq-${version}-linux-amd64.tar.gz
+    cd ijq-${version}
+    sudo cp ijq /usr/local/bin/ijq-${version}
+    sudo ln -s /usr/local/bin/ijq-${version} /usr/local/bin/ijq
+    sudo mkdir -p /usr/local/share/man/man1
+    sudo cp ijq.1 /usr/local/share/man/man1
+    rm -rf ijq-${version}
+    rm ijq-${version}-linux-amd64.tar.gz
+}
+
 function install_telegram()
 {
     wget -O ${PROGRAMAS_PATH}/tsetup.tar.xz https://telegram.org/dl/desktop/linux
@@ -393,10 +417,8 @@ install git-gui gitk
 # install openvpn
 install openvpm resolvconf network-manager-openvpn-gnome
 
-# Docker
 install_docker
 
-# install google-chrome
 install_chrome
 
 install_telegram
@@ -405,7 +427,9 @@ install_telegram
 # @TODO: Install VSCODE
 install_vscode
 
-
+# Tools
+install_gum
+install_ijq
 install_azurecli
 
 tools_by_webi=(k9s jq yq fd bat fzf)
