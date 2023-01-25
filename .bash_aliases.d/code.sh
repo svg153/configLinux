@@ -1,0 +1,3 @@
+codepr(){
+    gh prcode
+}
