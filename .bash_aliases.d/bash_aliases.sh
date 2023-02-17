@@ -6,7 +6,9 @@ alias ..="cd .."
 alias ...="cd ../.."
 alias ....="cd ../../.."
 alias .....="cd ../../../.."
-cdf() { cd $(dirname $1) }
+cdf() {
+    cd $(dirname $1)
+}
 
 # some more ls aliases
 alias ll='ls -alF'
