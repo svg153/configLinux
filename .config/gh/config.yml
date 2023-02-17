@@ -51,7 +51,7 @@ aliases:
         )
     prcode: |-
         !(
-            code $(gh pr diff | grep '+++' | cut -d'/' -f2-)
+            code $(gh pr diff --name-only)
         )
     prcr: pr create
     prcrd: |-
