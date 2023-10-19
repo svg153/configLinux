@@ -49,3 +49,9 @@ alias mc="make clean"
 #
 # TOOLs
 #
+
+# REPOS
+
+notas() {
+    code ~/REPOSITORIOS/0_PERSONAL/notes/
+}

@@ -1,0 +1,16 @@
+#!/bin/bash
+
+# read lines passes by pipe into an array
+lines=()
+while IFS= read -r line; do
+    lines+=("$line")
+done
+
+# for other shells, ${#lines[@]} for bash only
+line_count=$(printf "%s\n" "${lines[@]}" | wc -l)
+
+if ((line_count > 1)); then
+    echo "${lines[@]}" | tr ' ' '\n' | fzf $@    
+else
+    echo "${lines[@]}"
+fi

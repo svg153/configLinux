@@ -10,28 +10,74 @@
 	default = upstream
 [alias]
 	p = push
+	pushu = !git push --set-upstream origin $(git branch --show-current)
 	pf = push --force
 	l = pull
 	lp = pull --prune
 	lr = pull --rebase
+	s = stash
+	su = stash -u
+	swm = switch main
+	swmp = "!git swm && git pull --prune"
+	f = !git stash && git swmp && git stash pop
+	fr = "!f() { branch=\"$(git branch --show-current)\" && git stash && git swmp && git sw ${branch} && git rebase origin/main && git stash pop; }; f"
+	# code-wi-fast
+	fwi = code-wi-fast
+	wif = code-wi-fast
+	code-wi-fast = !git af && git ciwi && gh prcrwi
+	# code-wi-fast
 	lg = log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit --date=relative
 	sw = switch
 	st = status
+	x-stn = !git status --porcelain | grep -E '^[MADRC]' | wc -l
+	add-fzf = "!f() { git add $(git status -s | fzf -m | awk '{print $2}'); }; f"
+	af = add-fzf
+	afciwi = !git add-fzf && git ciwi
+	co = checkout
 	ci = commit
+	ci-fzf = !git add-fzf && git cim
+	ciai = "!github-copilot-cli git-assist \"crea un commit message con formato conveptional commit para este diff $(git diff --staged)\" "
+	# ciai = "!github-copilot-cli git-assist \"actua como si fueras un software developer profesional que sigue las guias de conventional commits. Tu tarea es crear un commando de git commit message con el mejor titulo y la mejor descripción en, con formato TITULO en la primera fila, segunda fila vacía, y en la tercera fila el body con la descrición del cambio. Para poder determinar el mejor titulo y descrición para el commit meesage, extrae toda la informacion del siguiente git diff del cambio: $(git diff --staged)\" "
 	cim = ci -m 
-	cipc = cim 'Fix pre-commit'
-	cib = "!f() { msg=\"$(git branch --show | tr '-' ' ')\" && git commit -m \"${msg}\"; }; f"
-	cibs = "!f() { msg=\"$(git branch --show | tr '-' ' ')\" && git commit -m \"${msg}\" --no-verify; }; f"
+	cifici = cim 'fix(ci): fix ci'
+	x-st = !git status --porcelain | awk '{print $2}' | ~/bin/fzfone -m | xargs git add
+	# x-stm = !git status | grep modified | cut -d ":" -f 2
+	x-stm = !git status -s | grep -E '^[ AM]M ' | awk '{print $2}'
+	addm = "!f() { git add $(git x-stm); }; f"
+	x-stin = !git x-stm | grep -E "*/incidents/$(date +%Y/%m)/*"
+	x-stinadd = !git x-stin | fzfone | xargs git add
+	x-stex = !git x-stm | grep -E "*/executions/$(date +%Y/%m)/*"
+	x-stexadd = !git x-stex | fzfone | xargs git add
+	ciin = !git x-stinadd && git cim
+	ciexm = "!f() { local msg=\"$1\" && git x-stexadd && git cim \"docs(execution): ${msg}\"; }; f"
+	ciexti = !git x-stexadd && git ciexm 'timeline'
+	ciinti = !git x-stinadd && git cim 'docs(incident): timeline'
+	ciinpm = !git x-stinadd && git cim 'docs(incident): postmorten'
+	cipc = cim 'fix: pre-commit'
+	cipcp = !git cipc && git push
+	cipcs = cipc --no-verify
+	cipcsp = !git cipcs && git push
+	cit = cim 'fix: typo'
+	cits = cit --no-verify
+	citsp = !git cits && git push
+	x-get-branch-name-to-commit-message = "!f() { msg=\"$(git branch --show | tr '-' ' ')\" && echo \"${msg}\"; }; f"
+	x-get-branch-name-with-wi-to-commit-message = "!f() { msg=\"$(git branch --show | tr '_' ' ' | sed 's/AB-/AB#/g' | tr '-' ' ')\" && echo \"${msg}\"; }; f"
+	x-get-wiid-from-branch-name = "!f() { wiid=\"$(git branch --show | awk -F'_' '{print $1}' | sed 's/AB-/AB#/g')\" && echo \"${wiid}\"; }; f"
+	cib = "!f() { msg=\"$(git x-get-branch-name-to-commit-message)\" && git commit -m \"${msg}\"; }; f"
+	cibap = "!f() { msg=\"$(git x-get-branch-name-to-commit-message)\" && git add . && git commit -m \"${msg}\" --no-verify; git push; }; f"
+	cibs = "!f() { msg=\"$(git x-get-branch-name-to-commit-message)\" && git commit -m \"${msg}\" --no-verify; }; f"
 	cii = "!f() { msg=\"$(git branch --show | awk -F'_' '{print $2}' | tr '-' ' ')\" && git commit -m \"${msg}\"; }; f"
-	ciwi = "!f() { msg=\"$(git branch --show | tr '_' ' ' | sed 's/AB-/AB#/g' | tr '-' ' ')\" && git commit -m \"${msg}\"; }; f"
-	ciwis = "!f() { msg=\"$(git branch --show | tr '_' ' ' | sed 's/AB-/AB#/g' | tr '-' ' ')\" && git commit -m \"${msg}\" --no-verify; }; f"
+	ciwim = "!f() { local custmsg=\"$1\" && local wiid=\"$(git x-get-wiid-from-branch-name)\" && local msg=\"${wiid} ${custmsg}\" && git commit -m \"${msg}\"; }; f"
+	ciwi = "!f() { msg=\"$(git x-get-branch-name-with-wi-to-commit-message)\" && git commit -m \"${msg}\"; }; f"
+	ciwis = "!f() { msg=\"$(git x-get-branch-name-with-wi-to-commit-message)\" && git commit -m \"${msg}\" --no-verify; }; f"
+	ciwisp = "!f() { msg=\"$(git x-get-branch-name-with-wi-to-commit-message)\" && git commit -m \"${msg}\" --no-verify; git push; }; f"
+	am = amend
 	amend = ci --amend --no-edit
 	amend-ne = amend
 	amend-nv = amend --no-verify
 	amend-nv-force = !git amend-nv && git pf
 	amend-force-nv = amend-force-nv
 	amend-force = !git amend && git pf
-	co = checkout
 	discart = checkout --
 	undo = reset --soft HEAD~1
 	unstage = reset HEAD --
@@ -39,34 +85,20 @@
 	remove-branches = !git branch -D $(git branch --list | fzf -m)
 	branch-name = !git rev-parse --abbrev-ref HEAD
 	last = log -1 HEAD
-	diffw = diff --ignore-blank-lines --ignore-all-space
-	difft = difftool #TODO: install difftool
 	author = config --get user.email
 	x = update-index --chmod=+x
 	fame = !docker run --rm -v $(pwd):/repo casperdcl/git-fame
-	# typos
-	pul = pull
-	pyll = pull
-	pyul = pull
-	upll = pull
-	pus = push
-	puhs = push
-	psuh = push
+	sw-remote-ssh = remote set-url origin \"$(git remote get-url origin | sed \"s/https:\\/\\/\\([^@]*@\\)\\?\\([^/]*\\)\\//git@\\2:/\")\"
+	root = rev-parse --show-toplevel
 [include]
-	path = .gitconfig-default
-[includeIf "gitdir:~/REPOSITORIOS/0_WORK/0_PEZA/"]
-	path = .gitconfig-peza
-[includeIf "gitdir:~/REPOSITORIOS/0_WORK/0_PEZA_ACTIONS/"]
-	path = .gitconfig-peza
-[includeIf "gitdir:~/REPOSITORIOS/0_WORK/NomuPay/"]
-	path = .gitconfig-nomupay
-[diff]
-	tool = difftastic
-[difftool]
-	prompt = false
-[difftool "difftastic"]
-	cmd = difft "$LOCAL" "$REMOTE"
+	path = .gitconfig.d/default.gitconfig
 [pager]
 	difftool = true
 [init]
 	defaultBranch = main
+[credential "https://github.com"]
+	helper = 
+	helper = !/home/svg153/.local/bin/gh auth git-credential
+[credential "https://gist.github.com"]
+	helper = 
+	helper = !/home/svg153/.local/bin/gh auth git-credential

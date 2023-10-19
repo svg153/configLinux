@@ -1,0 +1,12 @@
+# vim: ft=gitconfig
+[alias]
+	# typos
+	pul = pull
+	pyll = pull
+	pyul = pull
+	upll = pull
+	tpul = pull
+	tpull = pull
+	pus = push
+	puhs = push
+	psuh = push

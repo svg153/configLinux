@@ -104,6 +104,19 @@ function install_fonts
     fc-cache -fv
 }
 
+function install_pyenv()
+{
+    # https://github.com/pyenv/pyenv
+    
+    # https://github.com/pyenv/pyenv/wiki#suggested-build-environment
+    sudo apt update; sudo apt install build-essential libssl-dev zlib1g-dev \
+    libbz2-dev libreadline-dev libsqlite3-dev curl \
+    libncursesw5-dev xz-utils libxml2-dev libxmlsec1-dev libffi-dev liblzma-dev
+    
+    # https://github.com/pyenv/pyenv#automatic-installer
+    curl https://pyenv.run | bash
+}
+
 function install_docker()
 {
     sudo apt-get -qq -y remove docker docker-engine docker.io containerd runc
@@ -218,9 +231,9 @@ function install_gh_extensions(){
         rsese/gh-actions-status
         matt-bartel/gh-clone-org
         meiji163/gh-notify
-        rethab/gh-project
         seachicken/gh-poi
         redraw/gh-install
+        github/gh-projects
     )
     for ext in "${gh_extension[@]}"; do
         install_gh_ext "${ext}"
@@ -362,6 +375,7 @@ mkdir ~/.icons
 # create the symlinks
 rm ~/.aliases_init; ln -s ${CONFIG_PATH}/.aliases ~/.aliases_init
 rm ~/.aliases; ln -s ${CONFIG_PATH}/.aliases ~/.aliases
+rm ~/.path; ln -s ${CONFIG_PATH}/.path ~/.path
 rm ~/.bashrc; ln -s ${CONFIG_PATH}/.bashrc ~/.bashrc
 rm ~/.bash_profile; ln -s ${CONFIG_PATH}/.bash_profile ~/.bash_profile
 rm ~/.profile; ln -s ${CONFIG_PATH}/.profile ~/.profile
@@ -411,18 +425,19 @@ fi
 
 
 
-# Install gitk
-install git-gui gitk
 
-# install openvpn
+# install git-gui gitk
+
+# install: openvpn
 install openvpm resolvconf network-manager-openvpn-gnome
 
+# install: dependencies for compiling
+install_pyenv
 install_docker
 
+
 install_chrome
-
 install_telegram
-
 
 # @TODO: Install VSCODE
 install_vscode
@@ -591,18 +606,21 @@ sudo apt clean
 # CLEAN
 #
 
+# if ~/.gitconfig.d/ does not exist then create it the symlink
+[[ ! -d ~/.gitconfig.d/ ]] && ln -s ${CONFIG_PATH}/.gitconfig.d/ ~/.gitconfig.d
+
 # TODO: mdkir ${REPOS_PATH}
 # TODO: Crete and configure: ~/.gitconfig-default
 # echo """
 # [user]
 #     email = ${USER_EMAIL}
-# """ > ~/.gitconfig-work
+# """ > ~/.gitconfig.d/personal-mail.gitconfig
 # TODO: Crete and configure: ~/.gitconfig-work
 # echo """
 # [user]
 #     name = ${COMPANY_USER_NAME}
 #     email = ${COMPANY_USER_EMAIL}
-# """ > ~/.gitconfig-work
+# """ > ~/.gitconfig.d/work-${COMPANY_NAME}.gitconfig
 # TODO: ln -s ~/0_WORK -> ${REPOS_PATH}/...../${COMPANY_NAME}
 
 # TODO: check wheel scroll https://askubuntu.com/a/304653

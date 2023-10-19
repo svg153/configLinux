@@ -85,6 +85,7 @@ alias k6r="k6 run - <"
 # shellcheck
 # https://github.com/koalaman/shellcheck
 alias shellcheck="docker run --rm -v \"$PWD:/mnt\" koalaman/shellcheck:stable"
+alias shfmt="docker run --rm -u \"$(id -u):$(id -g)\" -v \"$PWD:/mnt\" -w /mnt mvdan/shfmt:latest"
 
 # terrascan
 # https://github.com/accurics/terrascan
