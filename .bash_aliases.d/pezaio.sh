@@ -19,11 +19,16 @@ pezaio-new-us-from-us(){
     local feature_id="$(azdo-item-parent-id "${us_id}")"
     
     # create a new user story
-    azdo-item-create \
+    local wi_id="$(azdo-item-create \
         "${us_type}" \
         "${us_title}" \
         "${assigned_to_me}" \
-        "${feature_id}"
+        "${feature_id}" \
+    )"
+    
+    local wi_url="$(azdo-item-url "" "${wi_id}")"
+    
+    echo "${wi_id} - ${wi_url}"
 }
 
 pezaio-open-us(){

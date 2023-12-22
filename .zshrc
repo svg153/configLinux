@@ -87,7 +87,8 @@ COMPLETION_WAITING_DOTS="true"
 # TO Check all the alias: https://github.com/ohmyzsh/ohmyzsh/tree/master/plugins/<PLUGIN>
 plugins=(gnu-utils history)
 plugins+=(colored-man-pages colorize extract)
-plugins+=(git git-auto-fetch git-extras gitignore git-prompt)
+plugins+=(git git-auto-fetch git-extras git-prompt)
+# plugins+=(gitignore) # install alias gi, but i do not use it
 plugins+=(gh github) # https://github.com/ohmyzsh/ohmyzsh/tree/master/plugins/gh
 plugins+=(perl jsontools)
 # plugins+=(java spring mvn)
@@ -187,4 +188,12 @@ fi
 # azure-cli
 if [ -f "$HOME/lib/azure-cli/az.completion" ]; then
     source "$HOME/lib/azure-cli/az.completion"
+fi
+
+# pyenv
+# https://github.com/pyenv/pyenv
+if [ -d "$HOME/.pyenv" ]; then
+    export PYENV_ROOT="$HOME/.pyenv"
+    command -v pyenv 1>/dev/null 2>&1 || export PATH="$PYENV_ROOT/bin:$PATH"
+    eval "$(pyenv init -)"
 fi

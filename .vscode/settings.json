@@ -12,5 +12,6 @@
         "**/.git/objects/**": true,
         "**/.git/subtree-cache/**": true,
     },
-    "python.formatting.provider": "autopep8"
+    "python.formatting.provider": "autopep8",
+    "ansible.python.interpreterPath": "/usr/local/bin/python3"
 }

@@ -56,3 +56,7 @@ terraform_provider_azurerm_install() {
 
   terraform_provider_install "${provider_name}" "${provider_version}"
 }
+
+### Tools
+
+alias tf-summarize="docker run -v $PWD:/workspace -w /workspace ghcr.io/dineshba/tf-summarize"

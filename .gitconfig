@@ -83,6 +83,7 @@
 	unstage = reset HEAD --
 	reset-branch = !git reset $(git merge-base main $(git branch --show-current))
 	remove-branches = !git branch -D $(git branch --list | fzf -m)
+	branches = branch -a | fzf
 	branch-name = !git rev-parse --abbrev-ref HEAD
 	last = log -1 HEAD
 	author = config --get user.email

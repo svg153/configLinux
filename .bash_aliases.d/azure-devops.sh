@@ -1,8 +1,18 @@
 # needs az and az azure-devops extension installed
 # needs az devops login and configure with default organization
 azdo-item-title(){
+    # """
+    # Get the title of a work item
+    #
+    # Args:
+    #     wi_id (str): The id of the work item
+    #
+    # Returns:
+    #     str: The title of the work item
+    # """
+
     local wi_id="$1"
-    
+
     if [ "$#" -ne 1 ]; then
         echo "Illegal number of parameters" >&2
         return 1
@@ -17,9 +27,20 @@ azdo-item-title(){
         | sed -e 's/[ \t]*$//' \
         | tr ' ' '-'
 }
+
 azdo-item-status(){
+    # """
+    # Get the status of a work item
+    #
+    # Args:
+    #     wi_id (str): The id of the work item
+    #
+    # Returns:
+    #     str: The status of the work item
+    # """
+
     local wi_id="$1"
-    
+
     if [ "$#" -ne 1 ]; then
         echo "Illegal number of parameters" >&2
         return 1
@@ -31,19 +52,39 @@ azdo-item-status(){
         --query 'fields."System.Status"'
 }
 azdo-branch-title(){
+    # """
+    # Get the title of a work item
+    #
+    # Args:
+    #     wi_id (str): The id of the work item
+    #
+    # Returns:
+    #     str: The title of the work item
+    # """
+
     local wi_id="$1"
-    
+
     if [ "$#" -ne 1 ]; then
         echo "Illegal number of parameters" >&2
         return 1
     fi
-    
+
     local wi_title="$(azdo-item-title "${wi_id}")"
 
     echo "AB-${wi_id}_${wi_title}"
 }
 
 azdo-new-branch(){
+    # """
+    # Create a new branch from a work item
+    #
+    # Args:
+    #     wi_id (str): The id of the work item
+    #
+    # Returns:
+    #     str: The title of the work item
+    # """
+
     azdo-branch-title "$1" | xargs git sw -c
 }
 
@@ -125,9 +166,34 @@ azdo-item-create(){
     # az boards work-item relation add --id 1 --relation-type "System.LinkTypes.Hierarchy-Reverse" --target-id 2 --output json | jq .id
 }
 
+azdo-item-url(){
+    # """
+    # Get the url to a work item
+    #
+    # Args:
+    #     wi_id (str): The id of the work item
+    #
+    # Returns:
+    #     str: The url to the work item
+    # """
+
+    local wi_id="$1"
+
+    if [ "$#" -ne 1 ]; then
+        echo "Illegal number of parameters" >&2
+        return 1
+    fi
+
+    local org_url="$(az devops configure --list | grep "organization" | cut -d' ' -f3)"
+    local project="$(az devops configure --list | grep "project" | cut -d' ' -f3)"
+    local wi_url="${org_url}/${project}/_workitems/edit/${wi_id}"
+
+    echo "${wi_url}"
+}
+
 azdo-item-open(){
     local wi_id="$1"
-    
+
     if [ "$#" -ne 1 ]; then
         echo "Illegal number of parameters" >&2
         return 1

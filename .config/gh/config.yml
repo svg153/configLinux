@@ -89,7 +89,13 @@ aliases:
     __prcr: "!(\n    root_dir=$(git rev-parse --show-toplevel)\n    branch_name=$(gh __branch-name)\n    title=$(echo ${branch_name} | tr '-' ' ')\n    \n    pr_title=\"${1:-${title}}\"\n    pr_body=\"${2:-${title}}\"\n    \n    # TODO: Remove next line when https://github.com/cli/cli/issues/1718 is fixed\n    git push -u origin HEAD\n    gh prcr \\\n        --title \"${pr_title}\" \\\n        --body \"${pr_body}\" \\\n        --draft\n)"
     # prcrwi: "!(\n    set -x\n    root_dir=$(git rev-parse --show-toplevel)\n    branch_name=$(gh __branch-name)\n    wi_id=$(echo ${branch_name} | awk -F'_' '{print $1}')\n    wi_title=$(echo ${branch_name} | awk -F'_' '{print $2}')\n\n    wi_id_azdo=$(echo ${wi_id} | tr '-' '#')\n    wi_title_azdo=$(echo ${wi_title} | tr '-' ' ')\n\n    pr_title=\"${wi_id_azdo} ${wi_title_azdo}\"\n    \n    # if there is pull_request_template.md file in the .github folder, use it as pr body\n    # pr_tmpl=${root_dir}/.github/pull_request_template.md\n    # Force not enter\n    pr_tmpl=${root_dir}/.github/pull_request_template.md\n    if [ -f \"${pr_tmpl}\" ]; then\n        pr_body_temp_file=$(mktemp)\n        # trap \"rm -f ${pr_body_temp_file}\" EXIT\n        \n        pr_body=$(sed '/<!--/,/-->/d' ${pr_tmpl} > ${pr_body_temp_file})\n        sed -i \"s/### User Stories\\/Bugs affected\\n\\n/### User Stories\\/Bugs affected\\n\\nAB#${wi_id_azdo}\\n/\" ${pr_body_temp_file}\n        \n        pr_body_arg=\"--body-file ${pr_body_temp_file}\"\n    else\n        pr_body=\"${wi_id_azdo}\"\n        pr_body_arg=\"--body ${pr_body}\"\n    fi\n    \n    # Remove next line when https://github.com/cli/cli/issues/1718 is fixed\n    git push -u origin HEAD\n    \n    echo gh prcr \\\n        --title \"${pr_title}\" \\\n        ${pr_body_arg} \\\n        --draft\n)"
     prcrewi: prcrwi
-    prcrwi: "!(\n    # set -x\n    root_dir=$(git rev-parse --show-toplevel)\n    branch_name=$(gh __branch-name)\n    wi_id=$(echo ${branch_name} | awk -F'_' '{print $1}')\n    wi_title=$(echo ${branch_name} | awk -F'_' '{print $2}')\n\n    wi_id_azdo=$(echo ${wi_id} | tr '-' '#')\n    wi_id_azdo_num=$(echo ${wi_id_azdo} | awk -F'#' '{print $2}')\n    wi_title_azdo=$(echo ${wi_title} | tr '-' ' ')\n\n    pr_title=\"${wi_id_azdo} ${wi_title_azdo}\"\n    \n    # if there is pull_request_template.md file in the .github folder, use it as pr body\n    # pr_tmpl=${root_dir}/.github/pull_request_template.md\n    # Force not enter\n    pr_tmpl=${root_dir}/.github/pull_request_template.md\n    pr_body_temp_file=$(mktemp -t pr_body_XXXXX.md)\n    chmod 666 ${pr_body_temp_file}\n    #trap \"rm -f ${pr_body_temp_file}\" EXIT\n\n    if [ -f \"${pr_tmpl}\" ]; then\n        # Modify the template using sed\n        modified_template=$(cat \"${pr_tmpl}\")\n        modified_template=$(echo \"${modified_template}\" | sed '/<!--/,/-->/d')\n        modified_template=$(echo \"${modified_template}\" | sed \"s@### User Stories/Bugs affected@### User Stories/Bugs affected\\n\\nRelated ${wi_id_azdo}@\")\n        modified_template=$(echo \"${modified_template}\" | sed 's@### Other systems impacted@### Other systems impacted\\n\\n- N/A@')\n        modified_template=$(echo \"${modified_template}\" | sed 's@- \\[ \\] No@- [x] No@')\n        # Remplace double empty lines with one empty line\n        modified_template=$(echo \"${modified_template}\" | sed ':L;N;s/^\\n$//;t L')\n        echo \"${modified_template}\" > ${pr_body_temp_file}\n        \n        pr_body=\"${pr_body_temp_file}\"\n    else\n        pr_body=\"${wi_id_azdo}\"\n    fi\n    \n    # TODO: Remove next line when https://github.com/cli/cli/issues/1718 is fixed\n    git push -u origin HEAD\n\n    bash -c \"gh prcr \\\n        --title \\\"${pr_title}\\\" \\\n        --body-file \\\"${pr_body_temp_file}\\\" \\\n        --draft\"\n)"
+    # prcrwi: "!(\n    # set -x\n    root_dir=$(git rev-parse --show-toplevel)\n    branch_name=$(gh __branch-name)\n    wi_id=$(echo ${branch_name} | awk -F'_' '{print $1}')\n    wi_title=$(echo ${branch_name} | awk -F'_' '{print $2}')\n\n    wi_id_azdo=$(echo ${wi_id} | tr '-' '#')\n    wi_id_azdo_num=$(echo ${wi_id_azdo} | awk -F'#' '{print $2}')\n    wi_title_azdo=$(echo ${wi_title} | tr '-' ' ')\n\n    pr_title=\"${wi_id_azdo} ${wi_title_azdo}\"\n    \n    # if there is pull_request_template.md file in the .github folder, use it as pr body\n    # pr_tmpl=${root_dir}/.github/pull_request_template.md\n    # Force not enter\n    pr_tmpl=${root_dir}/.github/pull_request_template.md\n    pr_body_temp_file=$(mktemp -t pr_body_XXXXX.md)\n    chmod 666 ${pr_body_temp_file}\n    #trap \"rm -f ${pr_body_temp_file}\" EXIT\n\n    if [ -f \"${pr_tmpl}\" ]; then\n        # Modify the template using sed\n        modified_template=$(cat \"${pr_tmpl}\")\n        modified_template=$(echo \"${modified_template}\" | sed '/<!--/,/-->/d')\n        modified_template=$(echo \"${modified_template}\" | sed \"s@### User Stories/Bugs affected@### User Stories/Bugs affected\\n\\nRelated ${wi_id_azdo}@\")\n        modified_template=$(echo \"${modified_template}\" | sed 's@### Other systems impacted@### Other systems impacted\\n\\n- N/A@')\n        modified_template=$(echo \"${modified_template}\" | sed 's@- \\[ \\] No@- [x] No@')\n        # Remplace double empty lines with one empty line\n        modified_template=$(echo \"${modified_template}\" | sed ':L;N;s/^\\n$//;t L')\n        echo \"${modified_template}\" > ${pr_body_temp_file}\n        \n        pr_body=\"${pr_body_temp_file}\"\n    else\n        pr_body=\"${wi_id_azdo}\"\n    fi\n    \n    # TODO: Remove next line when https://github.com/cli/cli/issues/1718 is fixed\n    git push -u origin HEAD\n\n    bash -c \"gh prcr \\\n        --title \\\"${pr_title}\\\" \\\n        --body-file \\\"${pr_body_temp_file}\\\" \\\n        --draft\"\n)"
+    # TODO: fix
+    prcrwi: "!(\n    root_dir=$(git rev-parse --show-toplevel)\n    branch_name=$(gh __branch-name)\n    wi_id=$(echo ${branch_name} | awk -F'_' '{print $1}')\n    wi_title=$(echo ${branch_name} | awk -F'_' '{print $2}')\n\n    wi_id_azdo=$(echo ${wi_id} | tr '-' '#')\n    wi_id_azdo_num=$(echo ${wi_id_azdo} | awk -F'#' '{print $2}')\n    wi_title_azdo=$(echo ${wi_title} | tr '-' ' ')\n\n    pr_title=\"${wi_id_azdo} ${wi_title_azdo}\"\n\n    # if there is pull_request_template.md file in the .github folder, use it as pr body\n    # pr_tmpl=${root_dir}/.github/pull_request_template.md\n    # Force not enter\n    pr_tmpl=${root_dir}/.github/pull_request_template.md\n    pr_body_temp_file=$(mktemp -t pr_body_XXXXX.md)\n    chmod 666 ${pr_body_temp_file}\n    #trap \"rm -f ${pr_body_temp_file}\\\" EXIT\n\n    if [ -f \"${pr_tmpl}\" ]; then\n        # Modify the template using sed\n        modified_template=$(cat \"${pr_tmpl}\")\n        modified_template=$(echo \"${modified_template}\" | sed '/<!--/,/-->/d')\n        modified_template=$(echo \"${modified_template}\" | sed \"s@### User Stories/Bugs affected@### User Stories/Bugs affected\\\\n\\\\nRelated ${wi_id_azdo}@\")\n        modified_template=$(echo \"${modified_template}\" | sed 's@### Other systems impacted@### Other systems impacted\\\\n\\\\n- N/A@')\n        modified_template=$(echo \"${modified_template}\" | sed 's@- \\\\[ \\\\] No@- [x] No@')\n        # Remplace double empty lines with one empty line\n        modified_template=$(echo \"${modified_template}\" | sed ':L;N;s/^\\\\\\\\n$//;t L')\n        echo \"${modified_template}\" > ${pr_body_temp_file}\n        \n        pr_body=\"${pr_body_temp_file}\"\n    else\n        pr_body=\"${wi_id_azdo}\"\n    fi\n\n    # TODO: Remove next line when https://github.com/cli/cli/issues/1718 is fixed\n    git push -u origin HEAD\n\n    bash -c \"gh prcr \\\n        --title \\\"${pr_title}\\\" \\\n        --body-file \\\"${pr_body_temp_file}\\\" \\\n        --draft\"\n)"
+    # prcrwi: |-
+    #     !(
+    #         github-prcrwi
+    #     )
     prcrwir: |-
         !(
             gh prcrwi
@@ -98,7 +104,7 @@ aliases:
     prci: pr checks
     approve: pr review --approve
     ok: approve
-    lgtm: pr review \ --approve \ --body "LGTM. Approved from gh cli"
+    lgtm: pr review --approve --body "LGTM. Approved from gh cli"
     pr-approve: |-
         !(
             pr_id=""
@@ -129,6 +135,43 @@ aliases:
         )
     codespaces: codespace list
     configs: config list
+    renewup: |-
+        !(
+            folder_name=$(basename $(pwd))
+            repo_name=${folder_name}
+            
+            owner_name=svg153
+
+            is_git_new=false
+
+            if [ $# -eq 1 ]; then
+                owner_name=$1
+            fi
+            if [ $# -gt 1 ]; then
+                echo "Usage: gh renewup [owner_name]"
+                exit 1
+            fi
+
+            if [ ! -d .git ]; then
+                git init
+                is_git_new=true
+            fi
+
+            gh repo create \
+                ${repo_name} \
+                --private \
+                --source=. \
+                --remote=upstream
+
+            if [ "${is_git_new}" = true ]; then
+                git add .
+                git commit -m "first commit"
+            fi
+
+            git remote add origin git@github.com:${owner_name}/${repo_name}.git
+
+            git push -u origin main
+        )
     clo: repo clone "$1"/"$2"
     repos: repo list
     repos-name-all: |-
@@ -294,3 +337,4 @@ aliases:
 http_unix_socket:
 # What web browser gh should use when opening URLs. If blank, will refer to environment.
 browser:
+version: "1"

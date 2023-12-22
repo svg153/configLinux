@@ -33,18 +33,7 @@ alias alert='notify-send --urgency=low -i "$([ $? = 0 ] && echo terminal || echo
 # TOOLs
 #
 
-# earthly
-# https://github.com/earthly/earthly
-alias e="earthly"
-alias eb="earthly +build"
-alias ed="earthly +docker"
 
-# Make
-alias m="make"
-alias mb="make build"
-alias mr="make run"
-alias mrl="make release"
-alias mc="make clean"
 
 #
 # TOOLs

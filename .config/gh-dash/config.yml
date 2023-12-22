@@ -2,6 +2,12 @@
 prSections:
   - title: me
     filters: user:@me is:open
+  - title: sync
+    filters: org:pezaio is:open label:sync
+  - title: pezaio
+    filters: org:pezaio is:open
+  - title: nomupay
+    filters: org:nomupay is:open
 issuesSections:
   - title: open by me
     filters: user:@me is:open
@@ -11,3 +17,5 @@ defaults:
   preview:
     open: true
     width: 60
+repoPaths: 
+  svg153/*: /home/svg153/REPOSITORIOS/0_PERSONAL/*

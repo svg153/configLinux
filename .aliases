@@ -54,10 +54,10 @@ alias nomachine="sudo /etc/NX/nxserver"
 alias nomachine_restart="nomachine --restart"
 
 
-
 #
 # Docker
 #
+
 get_container_id_by_name() { get_container_id=$(docker container ls -a --filter name="$1" | tail -n +2 | awk '{print($1)}');};
 docker_enter() {
   docker run -i "$1" /bin/bash
@@ -132,6 +132,9 @@ alias dockviz="docker run -it --rm -v /var/run/docker.sock:/var/run/docker.sock 
 ######
 # Personal aliases
 ######
+
+alias branch="pezaio-new-branch"
+alias us="pezaio-new-us-from-us"
 
 #
 # my git aliases

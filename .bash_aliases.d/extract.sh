@@ -68,3 +68,33 @@ EOF
 		shift
 	done
 }
+
+compress () {
+	local success
+	local compress_dir
+	if (( $# == 0 )) || [[ "$1" = "-h" ]] || [[ "$1" = "--help" ]]
+	then
+		cat <<'EOF' >&2
+Usage: compress [-option] [folder ...]
+
+Options:
+    -h, --help      Print this.
+EOF
+	fi
+	while (( $# > 0 ))
+	do
+		if [[ ! -d "$1" ]]
+		then
+			echo "compress: '$1' is not a valid directory" >&2
+			shift
+			continue
+		fi
+		success=0
+		compress_dir="${1:t}"
+		case "$1" in
+			(*) tar -cf "$compress_dir.tar" "$compress_dir" ;;
+		esac
+		(( success = $success > 0 ? $success : $? ))
+		shift
+	done
+}
