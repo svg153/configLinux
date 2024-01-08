@@ -227,13 +227,14 @@ function install_gh()
 
 function install_gh_extensions(){
     gh_extension=(
+        github/gh-copilot
+        github/gh-projects
         dlvhdr/gh-dash
         rsese/gh-actions-status
         matt-bartel/gh-clone-org
         meiji163/gh-notify
         seachicken/gh-poi
         redraw/gh-install
-        github/gh-projects
     )
     for ext in "${gh_extension[@]}"; do
         install_gh_ext "${ext}"
