@@ -8,3 +8,7 @@ success_symbol = "[➜](bold green) "    # The "success_symbol" segment is being
 # Disable the package module, hiding it from the prompt completely
 [package]
 disabled = true
+
+# Disable the cloud module, hiding it from the prompt completely
+[gcloud]
+disabled = true
