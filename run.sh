@@ -7,15 +7,22 @@ set -u
 # 1º) user must be in sudoers
 #         * su && apt-get install sudo && adduser ${USER} sudo && exit
 #         * reboot
-# 2º) sudo apt-get install git && mkdir ~/REPOSITORIOS && git clone https://github.com/svg153/configLinux.git ${CONFIG_PATH}/
+# 2º) sudo apt-get install git && mkdir ~/REPOSITORIOS && git clone https://github.com/svg153/configLinux.git ~/REPOSITORIOS/configLinux/
 
+# TODO: check this lines, only for debian
 # configure the /etc/apt/sources.list
 # sudo mv /etc/apt/sources.list /etc/apt/sources.list.OLD
 # sudo cp ./sources.list /etc/apt/
 # sudo sed -i 's/main/main contrib non-free/g' /etc/apt/sources.list
 
 
-sudo apt-get update && sudo apt-get upgrade && sudo apt-get dist-upgrade && sudo apt-get autoremove
+# update and upgrade only is the system has apt-get (debian, ubuntu, etc)
+if [[ -x "$(command -v apt-get)" ]]; then
+    sudo apt-get update \
+    && sudo apt-get upgrade \
+    && sudo apt-get dist-upgrade \
+    && sudo apt-get autoremove
+fi
 
 
 #
@@ -36,23 +43,163 @@ PROGRAMAS_PATH="~/PROGRAMAS/"
 REPOS_PATH="~/REPOSITORIOS/"
 CONFIG_PATH="${REPOS_PATH}/configLinux/"
 
-alias ins="apt -qq -y install"
-alias install="sudo ins"
-alias update="sudo apt -qq -y update"
+# check if the system is WSL
+isWSL=$(uname -a | grep WSL | wc -l)
 
 #
 # VARS
 #
 
 
+
 #
+# ALIASES
 #
+function aptt() {
+    sudo apt -qq -y $@
+}
+
+function install_by_apt() {
+    aptt install $@
+}
+
+function nstall_by_pgkmanager() {
+    if [[ -x "$(command -v apt-get)" ]]; then
+        install_by_apt $@
+    else
+        echo "Package manager not found"
+        return 1
+    fi
+}
+
+function install() {
+    install_by_pgkmanager
+}
+function remove() {
+    aptt remove $@
+}
+function update() {
+    aptt update $@
+}
+
+#
+# ALIASES
 #
 
-function install_git() {
-    sudo add-apt-repository ppa:git-core/ppa
-    sudo apt update
-    sudo apt install git
+
+
+#
+# FUNCTIONS
+#
+
+function log() {
+    local level=$1
+    local msg=$2
+    local color
+
+    case $level in
+        info)
+            color="\e[32m"  # Green color for info level
+            ;;
+        warning | warn)
+            color="\e[33m"  # Yellow color for warning level
+            ;;
+        error)
+            color="\e[31m"  # Red color for error level
+            ;;
+        *)
+            color="\e[0m"   # Default color
+            ;;
+    esac
+
+    echo -e "${color}[${level}] ${msg}\e[0m"
+}
+
+function create_symlink()
+{
+    if [[ $# -ne 2 ]]; then
+        echo "Usage: create_symlink <source_file> <target_file>"
+        return 1
+    fi
+
+    local source_file=$1
+    local target_file=$2
+
+    if [[ -f $target_file ]]; then
+        rm $target_file
+    elif [[ -L $target_file ]]; then
+        unlink $target_file
+    fi
+
+    # fix target_file
+    target_file=$(echo $target_file | sed 's/\/\//\//g')
+    source_file=$(eval echo $source_file)
+    target_file=$(eval echo $target_file)
+
+    ln -s $source_file $target_file
+}
+
+function make_folder_structure()
+{
+    mkdir -p ${PROGRAMAS_PATH}
+    mkdir -p ~/.fonts
+    mkdir -p ~/.icons
+
+    create_symlink ${CONFIG_PATH}/.aliases_init ~/.aliases_init
+    create_symlink ${CONFIG_PATH}/.aliases ~/.aliases
+    create_symlink ${CONFIG_PATH}/.path ~/.path
+    create_symlink ${CONFIG_PATH}/.bashrc ~/.bashrc
+    create_symlink ${CONFIG_PATH}/.bash_profile ~/.bash_profile
+    create_symlink ${CONFIG_PATH}/.profile ~/.profile
+    create_symlink ${CONFIG_PATH}/SCRIPTS ~/SCRIPTS
+
+    # .config
+    create_symlink ${CONFIG_PATH}/.config/flameshot/ ~/.config/flameshot
+    create_symlink ${CONFIG_PATH}/.config/envman/ ~/.config/envman
+    create_symlink ${CONFIG_PATH}/.config/terminator/ ~/.config/terminator
+    create_symlink ${CONFIG_PATH}/.config/wtf/ ~/.config/wtf
+    create_symlink ${CONFIG_PATH}/.config/xfce/ ~/.config/xfce
+
+
+
+}
+
+function install_zsh()
+{
+    install zsh
+
+    if [[ ${SHELL} != *"zsh"* ]]; then
+        sh -c "$(wget https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh -O -)"
+
+        # configure zsh
+        rm ~/.zshrc; ln -s ${CONFIG_PATH}/.zshrc ~/.zshrc
+
+        ZSH_C="${ZSH_CUSTOM:-~/.oh-my-zsh/custom}"
+
+        # install zsh plugins
+        OMZsh_C_P="${ZSH_C}/plugins/"
+
+        cd ${OMZsh_C_P}
+        git clone https://github.com/zsh-users/zsh-autosuggestions
+        git clone https://github.com/zsh-users/zsh-completions
+        git clone https://github.com/zsh-users/zsh-navigation-tools
+        git clone https://github.com/zsh-users/zsh-syntax-highlighting
+        git clone https://github.com/zsh-users/zsh-history-substring-search
+        git clone https://github.com/djui/alias-tips.git
+        git clone https://github.com/chrissicool/zsh-256color
+        git clone https://github.com/ptavares/zsh-terraform
+        git clone https://github.com/dmakeienko/azcli.git
+        git clone https://github.com/reegnz/jq-zsh-plugin ./jq
+        cd -
+
+        install autojump
+
+        OMZsh_C_T="${ZSH_C}/themes/"
+        [[ -d ${OMZsh_C_T} ]] && rm -rf ${OMZsh_C_T}
+        ln -s ${CONFIG_PATH}/.oh-my-zsh/custom/themes/ ${OMZsh_C_T}
+
+        cd -
+    fi
 }
 
 function install_fonts
@@ -107,44 +254,35 @@ function install_fonts
 function install_pyenv()
 {
     # https://github.com/pyenv/pyenv
-    
+
     # https://github.com/pyenv/pyenv/wiki#suggested-build-environment
     sudo apt update; sudo apt install build-essential libssl-dev zlib1g-dev \
     libbz2-dev libreadline-dev libsqlite3-dev curl \
     libncursesw5-dev xz-utils libxml2-dev libxmlsec1-dev libffi-dev liblzma-dev
-    
+
     # https://github.com/pyenv/pyenv#automatic-installer
     curl https://pyenv.run | bash
 }
 
 function install_docker()
 {
-    sudo apt-get -qq -y remove docker docker-engine docker.io containerd runc
-    sudo apt-get -qq -y update
-    install apt-transport-https ca-certificates curl gnupg-agent software-properties-common
-    curl -fsSL https://download.docker.com/linux/debian/gpg | sudo apt-key add -
-    sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/debian \
-        $(lsb_release -cs) \
-        stable"
-    sudo apt-get -qq -y update
-    install docker-ce docker-ce-cli containerd.io apt-cache madison docker-ce
-    sudo docker run hello-world
-    sudo groupadd docker
-    sudo usermod -aG docker $USER
-    newgrp docker
-    docker run hello-world
-    sudo systemctl enable docker
-}
+    # https://docs.docker.com/engine/install/ubuntu/
 
-function install_docker_compose()
-{
-    # https://docs.docker.com/compose/install/#install-as-a-container
-    local version="1.29.2"
-    sudo curl -L "https://github.com/docker/compose/releases/download/${version}/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
-    sudo chmod +x /usr/local/bin/docker-compose
-    sudo curl \
-        -L https://raw.githubusercontent.com/docker/compose/${version}/contrib/completion/bash/docker-compose \
-        -o /etc/bash_completion.d/docker-compose
+    if [[ ${isWSL} ]]; then
+        echo "No install docker for WSL"
+    else
+        curl -fsSL https://get.docker.com -o get-docker.sh
+        sudo sh ./get-docker.sh --dry-run
+        rm -rf get-docker.sh
+    fi
+
+    # TODO: test
+    # sudo docker run hello-world
+    # sudo groupadd docker
+    # sudo usermod -aG docker $USER
+    # newgrp docker
+    # docker run hello-world
+    # sudo systemctl enable docker
 }
 
 function install_minikube()
@@ -177,16 +315,21 @@ function install_vscode()
 
 function install_gum()
 {
+    # only install gum if it is not installed
+    [[ -x "$(command -v gum)" ]] && return 0
+
     sudo mkdir -p /etc/apt/keyrings
     curl -fsSL https://repo.charm.sh/apt/gpg.key | sudo gpg --dearmor -o /etc/apt/keyrings/charm.gpg
     echo "deb [signed-by=/etc/apt/keyrings/charm.gpg] https://repo.charm.sh/apt/ * *" | sudo tee /etc/apt/sources.list.d/charm.list
     sudo apt update && sudo apt install gum
-    update 
+    update
     install gum
 }
 
-function install_gum()
+function install_ijq()
 {
+    [[ -x "$(command -v ijq)" ]] && return 0
+
     version=0.4.1
     wget "https://git.sr.ht/~gpanders/ijq/refs/download/v${version}/ijq-${version}-linux-amd64.tar.gz"
     tar xf ijq-${version}-linux-amd64.tar.gz
@@ -195,6 +338,7 @@ function install_gum()
     sudo ln -s /usr/local/bin/ijq-${version} /usr/local/bin/ijq
     sudo mkdir -p /usr/local/share/man/man1
     sudo cp ijq.1 /usr/local/share/man/man1
+    cd ..
     rm -rf ijq-${version}
     rm ijq-${version}-linux-amd64.tar.gz
 }
@@ -223,6 +367,18 @@ function install_gh()
     echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" | sudo tee /etc/apt/sources.list.d/github-cli.list > /dev/null
     update
     install gh
+
+    create_symlink ${CONFIG_PATH}/.config/gh/ ~/.config/gh
+
+    # auth
+    if ! gh auth status; then
+        gh auth login
+    fi
+    
+    # Add fingerprint to known_hosts
+    ssh-keyscan -t ed25519 github.com >> ~/.ssh/known_hosts # ssh-ed25519
+    ssh-keyscan -t ecdsa-sha2-nistp256 github.com  >> ~/.ssh/known_hosts
+    ssh-keyscan -t rsa github.com >> ~/.ssh/known_hosts # ssh-rsa
 }
 
 function install_gh_extensions(){
@@ -236,9 +392,23 @@ function install_gh_extensions(){
         seachicken/gh-poi
         redraw/gh-install
     )
-    for ext in "${gh_extension[@]}"; do
-        install_gh_ext "${ext}"
-    done
+
+    if gh auth status; then
+        for ext in "${gh_extension[@]}"; do
+            install_gh_ext "${ext}"
+        done
+
+        create_symlink ${CONFIG_PATH}/.config/gh-dash/ ~/.config/gh-dash # config for dlvhdr/gh-dash
+
+        # my extension
+        gh repo clone svg153/gh-clone-org ${REPOS_PATH}/gh-clone-org
+        ln -s ${REPOS_PATH}/gh-clone-org ~/.local/share/gh/extensions/gh-clone-org-svg153
+        mv ~/.local/share/gh/extensions/gh-clone-org ~/.local/share/gh/extensions/gh-clone-org-matt
+        ln -s ~/.local/share/gh/extensions/gh-clone-org-svg153 ~/.local/share/gh/extensions/gh-clone-org
+
+    else
+        log warn "gh_extensions: gh is not authenticated"
+    fi
 }
 
 function install_gh_ext()
@@ -260,210 +430,263 @@ function install_by_gh()
 function install_starship()
 {
     sh -c "$(curl -fsSL https://starship.rs/install.sh)"
-    # TODO: ask sudo pass
-    mkdir -p ~/.config && ln -s ${CONFIG_PATH}/.config/starship.toml ~/.config/starship.toml
+    # @TODO: ask sudo pass
+    mkdir -p ~/.config
+    create_symlink ${CONFIG_PATH}/.config/starship.toml ~/.config/starship.toml
 }
 
 function install_azurecli()
 {
+    [[ -x "$(command -v az)" ]] && return 0
+
     # https://docs.microsoft.com/en-us/cli/azure/install-azure-cli-apt?view=azure-cli-latest
+    install \
+        python3-distutils \
+        python3-apt
     curl -L https://aka.ms/InstallAzureCli | bash
 }
 
-#
-#
-#
-
-
-
-#
-# DRIVERS
-#
-
-install firmware-linux lshw
-
-
-intel=$(lshw | grep CPU | grep Intel | wc -l)
-[[ ${intel} -gt 0 ]] && install intel-microcode
-amd=$(lshw | grep CPU | grep amd | wc -l)
-[[ ${amd} -gt 0 ]] && install amd64-microcode
-
-
-# install graphics: https://wiki.debian.org/GraphicsCard
-
-# AMD or ATI: https://wiki.debian.org/AtiHowTo
-isATI=$(lspci -nn | grep VGA | grep ATI | wc -l)
-[[ ${isATI} -ne 0 ]] && install firmware-linux-nonfree libgl1-mesa-dri xserver-xorg-video-ati
-# OFFICIAL AMD or ATI:
-#    https://wiki.debian.org/ATIProprietary
-#    http://support.amd.com/en-us/kb-articles/Pages/AMDGPU-PRO-Install.aspx
-
-# Nvidia: https://wiki.debian.org/NvidiaGraphicsDrivers
-
-# firmware-realtek
-install firmware-realtek
-
-# wifi
-install wpasupplicant wireless-tools network-manager
-# GUI to manage network connections
-#    https://wiki.debian.org/WiFi/HowToUse
-install network-manager-gnome
-
-# unclaimed drivers
-unclaimed=$(sudo lshw | grep UNCLAIMED)
-c=$(echo ${unclaimed} | wc -l)
-[[ ${c} -ne 0 ]] && echo "Drivers UNCLAIMED" && echo "${unclaimed}" && exit 1
-
-unclaimed=$(sudo lspci | grep UNCLAIMED)
-c=$(echo ${unclaimed} | wc -l)
-[[ ${c} -ne 0 ]] && echo "Drivers UNCLAIMED" && echo "${unclaimed}" && exit 1
-
-
-
-# Multimedia codecs
-install \
-    libavcodec-extra \
-    ffmpeg
-
-# Volume Control: (Optional, Only for Xfce users)
-install \
-    pavucontrol
-
-# bluetooth
-install \
-    bluetooth \
-    pulseaudio-module-bluetooth \
-    bluewho \
-    blueman \
-    bluez
+function install_minikube()
+{
+    # https://minikube.sigs.k8s.io/docs/start/
+    # TODO: check if works
+    curl -LO https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64
+    sudo dpkg -i minikube_latest_amd64.deb
+    rm minikube_latest_amd64.deb
+    minikube start
+}
 
 #
-# Drivers
+# FUNCTIONS
 #
 
 
-# utils
-install_git
 
-install curl
+#
+# BIG FUNCTIONS
+#
 
+function install_drivers()
+{
+    install firmware-linux lshw
 
-# package manager
-install \
-    synaptic \
-    apt-xapian-index \
-    gdebi \
-    gksu
-
-# other packages
-install \
-    zip unzip unrar \
-    xclip \
-    wmctrl \
-    xdotool \
-    bash-completions
+    intel=$(lshw | grep CPU | grep Intel | wc -l)
+    [[ ${intel} -gt 0 ]] && install intel-microcode
+    amd=$(lshw | grep CPU | grep amd | wc -l)
+    [[ ${amd} -gt 0 ]] && install amd64-microcode
 
 
+    # install graphics: https://wiki.debian.org/GraphicsCard
 
-# make tree folders
-mkdir "${PROGRAMAS_PATH}"
-mkdir ~/.fonts
-mkdir ~/.icons
+    # AMD or ATI: https://wiki.debian.org/AtiHowTo
+    isATI=$(lspci -nn | grep VGA | grep ATI | wc -l)
+    [[ ${isATI} -ne 0 ]] && install firmware-linux-nonfree libgl1-mesa-dri xserver-xorg-video-ati
+    # OFFICIAL AMD or ATI:
+    #    https://wiki.debian.org/ATIProprietary
+    #    http://support.amd.com/en-us/kb-articles/Pages/AMDGPU-PRO-Install.aspx
+
+    # Nvidia: https://wiki.debian.org/NvidiaGraphicsDrivers
+
+    # firmware-realtek
+    install firmware-realtek
+
+    # wifi
+    install wpasupplicant wireless-tools network-manager
+    # GUI to manage network connections
+    #    https://wiki.debian.org/WiFi/HowToUse
+    install network-manager-gnome
+
+    # unclaimed drivers
+    unclaimed=$(sudo lshw | grep UNCLAIMED)
+    c=$(echo ${unclaimed} | wc -l)
+    [[ ${c} -ne 0 ]] && echo "Drivers UNCLAIMED" && echo "${unclaimed}" && exit 1
+
+    unclaimed=$(sudo lspci | grep UNCLAIMED)
+    c=$(echo ${unclaimed} | wc -l)
+    [[ ${c} -ne 0 ]] && echo "Drivers UNCLAIMED" && echo "${unclaimed}" && exit 1
 
 
 
+    # Multimedia codecs
+    install \
+        libavcodec-extra \
+        ffmpeg
 
-# create the symlinks
-rm ~/.aliases_init; ln -s ${CONFIG_PATH}/.aliases ~/.aliases_init
-rm ~/.aliases; ln -s ${CONFIG_PATH}/.aliases ~/.aliases
-rm ~/.path; ln -s ${CONFIG_PATH}/.path ~/.path
-rm ~/.bashrc; ln -s ${CONFIG_PATH}/.bashrc ~/.bashrc
-rm ~/.bash_profile; ln -s ${CONFIG_PATH}/.bash_profile ~/.bash_profile
-rm ~/.profile; ln -s ${CONFIG_PATH}/.profile ~/.profile
-rm ~/SCRIPTS; ln -s ${CONFIG_PATH}/SCRIPTS ~/SCRIPTS
+    # Volume Control: (Optional, Only for Xfce users)
+    install \
+        pavucontrol
 
-# GIT
-rm ~/.git-template; ln -s ${CONFIG_PATH}/.git-template ~/.git-template
-git config --global init.templateDir ~/.git-template
-install_gh
-install_gh_extensions
+    # bluetooth
+    install \
+        bluetooth \
+        pulseaudio-module-bluetooth \
+        bluewho \
+        blueman \
+        bluez
+}
 
-# install zsh
-install zsh
-# install .oh-my-zsh
-if [[ ${SHELL} != *"zsh"* ]]; then
-    sh -c "$(wget https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh -O -)"
+#
+# BIG FUNCTIONS
+#
 
-    # configure zsh
-    rm ~/.zshrc; ln -s ${CONFIG_PATH}/.zshrc ~/.zshrc
 
-    ZSH_C="${ZSH_CUSTOM:-~/.oh-my-zsh/custom}"
 
-    # install zsh plugins
-    OMZsh_C_P="${ZSH_C}/plugins/"
+#
+# MAIN
+#
 
-    cd ${OMZsh_C_P}
-    git clone https://github.com/zsh-users/zsh-autosuggestions
-    git clone https://github.com/zsh-users/zsh-completions
-    git clone https://github.com/zsh-users/zsh-navigation-tools
-    git clone https://github.com/zsh-users/zsh-syntax-highlighting
-    git clone https://github.com/zsh-users/zsh-history-substring-search
-    git clone https://github.com/djui/alias-tips.git
-    git clone https://github.com/chrissicool/zsh-256color
-    git clone https://github.com/ptavares/zsh-terraform
-    git clone https://github.com/dmakeienko/azcli.git
-    git clone https://github.com/reegnz/jq-zsh-plugin ./jq
-    cd -
 
-    install autojump
-
-    OMZsh_C_T="${ZSH_C}/themes/"
-    [[ -d ${OMZsh_C_T} ]] && rm -rf ${OMZsh_C_T}
-    ln -s ${CONFIG_PATH}/.oh-my-zsh/custom/themes/ ${OMZsh_C_T}
-
-    cd -
+# drivers
+if [[ ${isWSL} ]]; then
+    echo "No install drivers for WSL"
+else
+    install_drivers
 fi
 
 
+# utils
+install bash-completion
+install git
+install curl
+install \
+    zip unzip unrar \
+    xclip \
+
+if [[ ${isWSL} ]]; then
+    echo "No install some utils for WSL"
+else
+    # windows automation tools
+    install \
+        wmctrl \
+        xdotool
+
+    # @TODO: check this packages
+    # # package manager
+    # install \
+    #     synaptic \
+    #     apt-xapian-index \
+    #     gdebi \
+    #     gksu
+fi
 
 
-# install git-gui gitk
+# folder structure
+make_folder_structure
+
+# GIT
+# TODO: configure_git function
+log info "git"
+create_symlink ${CONFIG_PATH}/.git-template ~/.git-template
+git config --global init.templateDir ~/.git-template
+
+create_symlink ${CONFIG_PATH}/.gitconfig ~/.gitconfig
+create_symlink ${CONFIG_PATH}/.gitconfig.d ~/.gitconfig.d
+
+NMAE="Sergio Valverde"
+
+# personal mail
+personal_mail_gitconfig="${CONFIG_PATH}/.gitconfig.d/personal-mail.gitconfig"
+if [[ -z "${PERSONAL_EMAIL}" ]]; then
+    echo "Enter your personal email: "
+    read PERSONAL_EMAIL
+fi
+echo """
+[user]
+    name = ${NAME}
+    email = ${PERSONAL_EMAIL}
+""" > ${personal_mail_gitconfig}
+
+# work mail
+if [[ -z "${COMPANY_NAME}" ]]; then
+    echo "Enter your company name: "
+    read COMPANY_NAME
+fi
+work_mail_gitconfig="${CONFIG_PATH}/.gitconfig.d/work-mail.gitconfig"
+echo """
+[user]
+    name = ${NAME}
+    email = ${COMPANY_USER_EMAIL}
+""" > ${work_mail_gitconfig}
+
+log info "gh"
+install_gh
+install_gh_extensions
+
+log info "zsh and .oh-my-zsh"
+install_zsh
+
+log info "git GUI"
+if [[ ${isWSL} ]]; then
+    log info "No install git-gui and gitk for WSL"
+else
+    install \
+        git-gui gitk \
+        meld
+fi
 
 # install: openvpn
-install openvpm resolvconf network-manager-openvpn-gnome
+log info "openvpn"
+if [[ ${isWSL} ]]; then
+    log info "No install openvpn for WSL"
+else
+    install \
+        openvpm \
+        resolvconf \
+        network-manager-openvpn-gnome
+fi
 
 # install: dependencies for compiling
-install_pyenv
+# install_pyenv # @TODO: check if it is necessary
+
+log info "docker"
 install_docker
 
-
-install_chrome
-install_telegram
+if [[ ${isWSL} ]]; then
+    echo "No install chrome and telegram for WSL"
+else
+    install_chrome
+    install_telegram
+fi
 
 # @TODO: Install VSCODE
-install_vscode
+if [[ ${isWSL} ]]; then
+    echo "No install vscode for WSL"
+else
+    install_vscode
+fi
 
 # Tools
 install_gum
 install_ijq
+install_starship
 install_azurecli
 
 tools_by_webi=(k9s jq yq fd bat fzf)
-# tools+=(nerdfonts)
+# tools+=(nerdfonts) # @TODO:
 for p in "${tools_by_webi[@]}"; do
     install_by_webinstall "${p}"
 done
 
+create_symlink ${CONFIG_PATH}/.config/bat/ ~/.config/bat
+create_symlink ${CONFIG_PATH}/.config/k9s/ ~/.config/k9s
+
+# tools that are not in webinstall, and his package is in github
 tools_by_github=(
     wtfutil/wtf
     noahgorstein/jqp
     go-task/task
-    multiprocessio/ds   
+    multiprocessio/ds
 )
-# TODO: interactive install...
-# for p in "${tools_by_github[@]}"; do
-#     install_by_gh "${p}"
-# done
+# @TODO: interactive install...
+#    - https://github.com/redraw/gh-install/issues/5
+#        - https://github.com/wimpysworld/deb-get
+#        - https://github.com/devops-works/binenv
+#        - https://github.com/jooola/gh-release-install
+#        - https://github.com/Rishang/install-release
+
+for p in "${tools_by_github[@]}"; do
+    install_by_gh "${p}"
+done
 
 #
 # PROGRAMS
@@ -475,47 +698,48 @@ tools_by_github=(
 # APPS
 #
 
-# xfce4
-install \
-    xfce4-whiskermenu-plugin \
-    menulibre \
-    xfce4-clipman \
-    xfce4-panel-dev \
-    xfce4-power-manager \
-    xfce4-screenshooter \
-    xfce4-taskmanager \
-    xfce4-terminal \
-    xfce4-xkb-plugin
+if [[ ${isWSL} ]]; then
+    echo "No install apps for WSL"
+else
+    # xfce4
+    install \
+        xfce4-whiskermenu-plugin \
+        menulibre \
+        xfce4-clipman \
+        xfce4-panel-dev \
+        xfce4-power-manager \
+        xfce4-screenshooter \
+        xfce4-taskmanager \
+        xfce4-terminal \
+        xfce4-xkb-plugin
 
-# TODO: Check this apps:
-#file-roller
-#evince
-#doidon
-#clementine
-#shotwell
-#build-essential
-#debian-keyring
-#mousepad
-#p7zip policykit-1-gnome p7zip-full
-#aspell aspell-en hunspell hunspell-en-us mythes-en-us
-#ristretto
-#thunar-archive-plugin
-#ufw
-#xarchiver
-#xserver-xorg-input-synaptics
+    # @TODO: Check this apps:
+    #file-roller
+    #evince
+    #doidon
+    #clementine
+    #shotwell
+    #build-essential
+    #debian-keyring
+    #mousepad
+    #p7zip policykit-1-gnome p7zip-full
+    #aspell aspell-en hunspell hunspell-en-us mythes-en-us
+    #ristretto
+    #thunar-archive-plugin
+    #ufw
+    #xarchiver
+    #xserver-xorg-input-synaptics
 
+    install rsync \
+        qalculate vlc gimp \
+        gparted gnome-disk-utility
 
-install rsync \
-    qalculate vlc gimp \
-    gparted gnome-disk-utility
-
-
-# flameshot (new shutter)
-install flameshot
-flameshot_configfile=".config/flameshot/flameshot.ini"
-rm ${flameshot_configfile}
-ln -s ${CONFIG_PATH}/${flameshot_configfile} ~/${flameshot_configfile}
-
+    # flameshot (new shutter)
+    install flameshot
+    flameshot_configfile=".config/flameshot/flameshot.ini"
+    rm ${flameshot_configfile}
+    ln -s ${CONFIG_PATH}/${flameshot_configfile} ~/${flameshot_configfile}
+fi
 
 
 #
@@ -527,68 +751,70 @@ ln -s ${CONFIG_PATH}/${flameshot_configfile} ~/${flameshot_configfile}
 # CUSTOMIZATION
 #
 
-# lightdm
-touch /usr/share/lightdm/lightdm.conf.d/01_my.conf
-cat >/usr/share/lightdm/lightdm.conf.d/01_my.conf <<EOL
-[SeatDefaults]
-greeter-hide-users=false
-EOL
+# TODO: check wheel scroll https://askubuntu.com/a/304653
 
+if [[ ${isWSL} ]]; then
+    echo "No customization for WSL"
+else
+    # fonts
+    # TODO: check fonts name to install
+    # install \
+    #     fonts-dejavu \
+    #     fonts-dejavu-extra \
+    #     fonts-droid-fallback \
+    #     fonts-freefont-ttf \
+    #     fonts-liberation \
+    #     fonts-noto \
+    #     fonts-noto-mono \
+    #     fonts-opensymbol \
+    #     ttf-bitstream-vera \
+    #     ttf-dejavu \
+    #     ttf-dejavu-core \
+    #     ttf-dejavu-extra \
+    #     ttf-freefont \
+    #     ttf-liberation \
+    #     ttf-mscorefonts-installer \
+    #     qt4-qtconfig
 
-# fonts
-install \
-    fonts-dejavu \
-    fonts-dejavu-extra \
-    fonts-droid-fallback \
-    fonts-freefont-ttf \
-    fonts-liberation \
-    fonts-noto \
-    fonts-noto-mono \
-    fonts-opensymbol \
-    ttf-bitstream-vera \
-    ttf-dejavu \
-    ttf-dejavu-core \
-    ttf-dejavu-extra \
-    ttf-freefont \
-    ttf-liberation \
-    ttf-mscorefonts-installer \
-    qt4-qtconfig
+    # lightdm
+    echo '[SeatDefaults]' >> /usr/share/lightdm/lightdm.conf.d/01_my.conf
+    echo 'greeter-hide-users=false' >> /usr/share/lightdm/lightdm.conf.d/01_my.conf
 
+    # themes
+    # Numix: https://github.com/numixproject/numix-gtk-theme
+    sudo add-apt-repository ppa:numix/ppa
+    sudo apt update
+    sudo apt install numix-*
 
-# themes
-# Numix: https://github.com/numixproject/numix-gtk-theme
-sudo add-apt-repository ppa:numix/ppa
-sudo apt update
-sudo apt install numix-*
+    # Xfce-dust-svg153
+    sudo cp -r ./themes/* /usr/share/themes/
 
-# Xfce-dust-svg153
-sudo cp -r ./themes/* /usr/share/themes/
+    # xfce
+    os_xfce4="~/.config/xfce4"
+    os_xfconf="${os_xfce4}/xfconf"
+    repo_xfce4="${CONFIG_PATH}/.config/xfce4"
+    repo_xfconf="${repo_xfce4}/xfconf"
 
-# xfce
-os_xfce4="~/.config/xfce4"
-os_xfconf="${os_xfce4}/xfconf"
-repo_xfce4="${CONFIG_PATH}/.config/xfce4"
-repo_xfconf="${repo_xfce4}/xfconf"
+    mv ${os_xfce4}{,.ori}
+    ln -s ${repo_xfce4} ${os_xfce4}
 
-mv ${os_xfce4}{,.ori}
-ln -s ${repo_xfce4} ${os_xfce4}
+    xfce_mode="${MODE_DESKTOP}"
+    [[ "${MODE}" == "${MODE_LAPTOP}" ]] && xfce_mode="${MODE_LAPTOP}"
+    ln -s ${repo_xfconf}/xfce-perchannel-xml/{xfce4-power-manager-${xfce_mode}.xml,xfce4-power-manager.xml}
 
-xfce_mode="${MODE_DESKTOP}"
-[[ "${MODE}" == "${MODE_LAPTOP}" ]] && xfce_mode="${MODE_LAPTOP}"
-ln -s ${repo_xfconf}/xfce-perchannel-xml/{xfce4-power-manager-${xfce_mode}.xml,xfce4-power-manager.xml}
-
-# config keyboard
-keyboard_filepath_ori="/etc/default/keyboard"
-keyboard_filepath_mine="${CONFIG_PATH}/keyboard"
-sudo cp ${keyboard_filepath_ori} ${keyboard_filepath_ori}.OLD
-sudo rm ${keyboard_filepath_ori}
-if [[ -e "${keyboard_filepath_mine}" ]]; then
-  sudo ln -s ${keyboard_filepath_mine} ${keyboard_filepath_ori}
-  if [[ $? -ne 0 ]]; then
-      sudo cp ${keyboard_filepath_mine} ${keyboard_filepath_ori}
-  fi
+    # config keyboard
+    keyboard_filepath_ori="/etc/default/keyboard"
+    keyboard_filepath_mine="${CONFIG_PATH}/keyboard"
+    sudo cp ${keyboard_filepath_ori} ${keyboard_filepath_ori}.OLD
+    sudo rm ${keyboard_filepath_ori}
+    if [[ -e "${keyboard_filepath_mine}" ]]; then
+    sudo ln -s ${keyboard_filepath_mine} ${keyboard_filepath_ori}
+    if [[ $? -ne 0 ]]; then
+        sudo cp ${keyboard_filepath_mine} ${keyboard_filepath_ori}
+    fi
+    fi
+    sudo dpkg-reconfigure -phigh console-setup
 fi
-sudo dpkg-reconfigure -phigh console-setup
 
 #
 # CUSTOMIZATION
@@ -606,25 +832,6 @@ sudo apt clean
 #
 # CLEAN
 #
-
-# if ~/.gitconfig.d/ does not exist then create it the symlink
-[[ ! -d ~/.gitconfig.d/ ]] && ln -s ${CONFIG_PATH}/.gitconfig.d/ ~/.gitconfig.d
-
-# TODO: mdkir ${REPOS_PATH}
-# TODO: Crete and configure: ~/.gitconfig-default
-# echo """
-# [user]
-#     email = ${USER_EMAIL}
-# """ > ~/.gitconfig.d/personal-mail.gitconfig
-# TODO: Crete and configure: ~/.gitconfig-work
-# echo """
-# [user]
-#     name = ${COMPANY_USER_NAME}
-#     email = ${COMPANY_USER_EMAIL}
-# """ > ~/.gitconfig.d/work-${COMPANY_NAME}.gitconfig
-# TODO: ln -s ~/0_WORK -> ${REPOS_PATH}/...../${COMPANY_NAME}
-
-# TODO: check wheel scroll https://askubuntu.com/a/304653
 
 #
 # Thanks:

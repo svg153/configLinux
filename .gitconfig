@@ -97,6 +97,7 @@
 	difftool = true
 [init]
 	defaultBranch = main
+	templateDir = /home/svg153/.git-template
 [credential "https://github.com"]
 	helper = 
 	helper = !/home/svg153/.local/bin/gh auth git-credential
