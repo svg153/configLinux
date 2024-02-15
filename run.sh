@@ -39,9 +39,9 @@ MODE=${1:-desktop}
 MODE_DESKTOP="desktop"
 MODE_LAPTOP="laptop"
 
-PROGRAMAS_PATH="~/PROGRAMAS/"
-REPOS_PATH="~/REPOSITORIOS/"
-CONFIG_PATH="${REPOS_PATH}/configLinux/"
+PROGRAMAS_PATH="$(eval echo ~/PROGRAMAS)"
+REPOS_PATH="$(eval echo ~/REPOSITORIOS)"
+CONFIG_PATH="${REPOS_PATH}/configLinux"
 
 # check if the system is WSL
 isWSL=$(uname -a | grep WSL | wc -l)
@@ -63,7 +63,7 @@ function install_by_apt() {
     aptt install $@
 }
 
-function nstall_by_pgkmanager() {
+function install_by_pgkmanager() {
     if [[ -x "$(command -v apt-get)" ]]; then
         install_by_apt $@
     else
@@ -73,7 +73,7 @@ function nstall_by_pgkmanager() {
 }
 
 function install() {
-    install_by_pgkmanager
+    install_by_pgkmanager $@
 }
 function remove() {
     aptt remove $@
@@ -368,7 +368,7 @@ function install_gh()
     update
     install gh
 
-    create_symlink ${CONFIG_PATH}/.config/gh/ ~/.config/gh
+    create_symlink ${CONFIG_PATH}/.config/gh ~/.config/gh
 
     # auth
     if ! gh auth status; then
@@ -387,7 +387,6 @@ function install_gh_extensions(){
         github/gh-projects
         dlvhdr/gh-dash
         rsese/gh-actions-status
-        matt-bartel/gh-clone-org
         meiji163/gh-notify
         seachicken/gh-poi
         redraw/gh-install
@@ -397,15 +396,20 @@ function install_gh_extensions(){
         for ext in "${gh_extension[@]}"; do
             install_gh_ext "${ext}"
         done
+        
+        install_gh_ext "matt-bartel/gh-clone-org"
+        if [[ -d ~/.local/share/gh/extensions/gh-clone-org-matt ]]; then
+            mv ~/.local/share/gh/extensions/gh-clone-org{,-matt}
+        fi
 
         create_symlink ${CONFIG_PATH}/.config/gh-dash/ ~/.config/gh-dash # config for dlvhdr/gh-dash
 
         # my extension
-        gh repo clone svg153/gh-clone-org ${REPOS_PATH}/gh-clone-org
-        ln -s ${REPOS_PATH}/gh-clone-org ~/.local/share/gh/extensions/gh-clone-org-svg153
-        mv ~/.local/share/gh/extensions/gh-clone-org ~/.local/share/gh/extensions/gh-clone-org-matt
-        ln -s ~/.local/share/gh/extensions/gh-clone-org-svg153 ~/.local/share/gh/extensions/gh-clone-org
-
+        if [[ ! -d "${REPOS_PATH}/gh-clone-org" ]]; then
+            gh repo clone svg153/gh-clone-org ${REPOS_PATH}/gh-clone-org
+            ln -s ${REPOS_PATH}/gh-clone-org ~/.local/share/gh/extensions/gh-clone-org-svg153
+            ln -s ~/.local/share/gh/extensions/gh-clone-org-svg153 ~/.local/share/gh/extensions/gh-clone-org
+        fi
     else
         log warn "gh_extensions: gh is not authenticated"
     fi
@@ -573,40 +577,50 @@ fi
 # folder structure
 make_folder_structure
 
+# clone conifLinux if exist pull else clone
+if [[ -d "${CONFIG_PATH}/.git" ]]; then
+    git -C ${CONFIG_PATH} pull
+else
+    git clone git@github.com:svg153/configLinux.git ~/REPOSITORIOS/configLinux/
+fi
+
 # GIT
 # TODO: configure_git function
 log info "git"
+create_symlink ${CONFIG_PATH}/.gitconfig ~/.gitconfig
+create_symlink ${CONFIG_PATH}/.gitconfig.d ~/.gitconfig.d
 create_symlink ${CONFIG_PATH}/.git-template ~/.git-template
 git config --global init.templateDir ~/.git-template
 
-create_symlink ${CONFIG_PATH}/.gitconfig ~/.gitconfig
-create_symlink ${CONFIG_PATH}/.gitconfig.d ~/.gitconfig.d
-
-NMAE="Sergio Valverde"
+NAME="Sergio Valverde"
 
 # personal mail
 personal_mail_gitconfig="${CONFIG_PATH}/.gitconfig.d/personal-mail.gitconfig"
-if [[ -z "${PERSONAL_EMAIL}" ]]; then
-    echo "Enter your personal email: "
-    read PERSONAL_EMAIL
+if [[ ! -f "${personal_mail_gitconfig}" ]]; then
+    if [[ -z "${PERSONAL_EMAIL}" ]]; then
+        echo "Enter your personal email: "
+        read PERSONAL_EMAIL
+    fi
+    echo """
+    [user]
+        name = ${NAME}
+        email = ${PERSONAL_EMAIL}
+    """ > ${personal_mail_gitconfig}
 fi
-echo """
-[user]
-    name = ${NAME}
-    email = ${PERSONAL_EMAIL}
-""" > ${personal_mail_gitconfig}
 
 # work mail
-if [[ -z "${COMPANY_NAME}" ]]; then
-    echo "Enter your company name: "
-    read COMPANY_NAME
-fi
 work_mail_gitconfig="${CONFIG_PATH}/.gitconfig.d/work-mail.gitconfig"
-echo """
-[user]
-    name = ${NAME}
-    email = ${COMPANY_USER_EMAIL}
-""" > ${work_mail_gitconfig}
+if [[ ! -f "${work_mail_gitconfig}" ]]; then
+    if [[ -z "${COMPANY_NAME}" ]]; then
+        echo "Enter your company name: "
+        read COMPANY_NAME
+    fi
+    echo """
+    [user]
+        name = ${NAME}
+        email = ${COMPANY_USER_EMAIL}
+    """ > ${work_mail_gitconfig}
+fi
 
 log info "gh"
 install_gh
