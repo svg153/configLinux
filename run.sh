@@ -29,7 +29,8 @@ fi
 # VARS
 #
 
-USER_EMAIL=""
+USER_NAME="Sergio Valverde"
+PERSONAL_EMAIL=""
 COMPANY_NAME=""
 COMPANY_USER_NAME=""
 COMPANY_USER_EMAIL=""
@@ -616,8 +617,6 @@ create_symlink ${CONFIG_PATH}/.gitconfig.d ~/.gitconfig.d
 create_symlink ${CONFIG_PATH}/.git-template ~/.git-template
 git config --global init.templateDir ~/.git-template
 
-NAME="Sergio Valverde"
-
 # personal mail
 personal_mail_gitconfig="${CONFIG_PATH}/.gitconfig.d/personal-mail.gitconfig"
 if [[ ! -f "${personal_mail_gitconfig}" ]]; then
@@ -627,21 +626,29 @@ if [[ ! -f "${personal_mail_gitconfig}" ]]; then
     fi
     echo """
     [user]
-        name = ${NAME}
+        name = ${USER_NAME}
         email = ${PERSONAL_EMAIL}
     """ > ${personal_mail_gitconfig}
 fi
 
 # work mail
-work_mail_gitconfig="${CONFIG_PATH}/.gitconfig.d/work-mail.gitconfig"
+if [[ -z "${COMPANY_NAME}" ]]; then
+    echo "Enter your company name: "
+    read COMPANY_NAME
+fi
+work_mail_gitconfig="${CONFIG_PATH}/.gitconfig.d/work-${COMPANY_NAME}.gitconfig"
 if [[ ! -f "${work_mail_gitconfig}" ]]; then
-    if [[ -z "${COMPANY_NAME}" ]]; then
-        echo "Enter your company name: "
-        read COMPANY_NAME
+    if [[ -z "${COMPANY_USER_NAME}" ]]; then
+        echo "Enter your company user name: "
+        read COMPANY_USER_NAME
+    fi
+    if [[ -z "${COMPANY_USER_EMAIL}" ]]; then
+        echo "Enter your company user email: "
+        read COMPANY_USER_EMAIL
     fi
     echo """
     [user]
-        name = ${NAME}
+        name = ${COMPANY_USER_NAME}
         email = ${COMPANY_USER_EMAIL}
     """ > ${work_mail_gitconfig}
 fi

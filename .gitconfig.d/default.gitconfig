@@ -14,3 +14,5 @@
 	path = work-nomupay.gitconfig
 [includeIf "gitdir:~/REPOSITORIOS/0_WORK/pezaio-testing/"]
 	path = work-pezaio-testing.gitconfig
+[includeIf "gitdir:~/REPOSITORIOS/0_WORK/0_plain/"]
+	path = work-plain.gitconfig
