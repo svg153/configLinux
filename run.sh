@@ -196,7 +196,7 @@ function install_zsh()
 
         OMZsh_C_T="${ZSH_C}/themes/"
         [[ -d ${OMZsh_C_T} ]] && rm -rf ${OMZsh_C_T}
-        ln -s ${CONFIG_PATH}/.oh-my-zsh/custom/themes/ ${OMZsh_C_T}
+        ln -s ${CONFIG_PATH}/.oh-my-zsh/custom/themes/ ${OMZsh_C_T}/../
 
         cd -
     fi
@@ -529,6 +529,30 @@ function install_drivers()
         bluez
 }
 
+function clone_common_repos() {
+    local -r dw_repos=(
+        "0_PERSONAL;ythirion/knowledge-base"
+        "0_PERSONAL;svg153/notes"
+    )
+    
+    for repo in "${dw_repos[@]}"; do
+        folder=$(echo ${dw_repos} | cut -d';' -f1)
+        repo=$(echo ${dw_repos} | cut -d';' -f2)
+        repo_name=$(echo ${repo} | cut -d'/' -f2)
+        
+        [[ -d "${REPOS_PATH}/${folder}" ]] || mkdir -p "${REPOS_PATH}/${folder}"
+        [[ -d "${REPOS_PATH}/${folder}/${repo_name}" ]] && continue
+        
+        # clone
+        folder_to_clone="${REPOS_PATH}/${folder}/${repo_name}"
+        if [[ -x "$(command -v gh)" ]] && gh auth status; then
+            gh repo clone ${repo} ${folder_to_clone}
+        else
+            git clone git@github.com:${repo}.git ${folder_to_clone}
+        fi
+    done
+}
+
 #
 # BIG FUNCTIONS
 #
@@ -581,7 +605,7 @@ make_folder_structure
 if [[ -d "${CONFIG_PATH}/.git" ]]; then
     git -C ${CONFIG_PATH} pull
 else
-    git clone git@github.com:svg153/configLinux.git ~/REPOSITORIOS/configLinux/
+    git clone git@github.com:svg153/configLinux.git ${CONFIG_PATH}
 fi
 
 # GIT
@@ -835,6 +859,11 @@ fi
 #
 
 
+#
+# Automation 
+#
+
+clone_common_repos
 
 #
 # CLEAN
