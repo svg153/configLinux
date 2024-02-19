@@ -52,10 +52,3 @@ github-prcrwi(){
         --body-file \"${pr_body_temp_file}\" \
         --draft"
 }
-
-# check if the command is being installed, if so, install the alias
-# otherwise, run the command
-command -v github-copilot-cli >/dev/null 2>&1
-if [ $? -eq 0 ]; then
-    eval "$(github-copilot-cli alias -- "$0")"
-fi

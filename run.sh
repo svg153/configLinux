@@ -771,8 +771,10 @@ install_azurecli
 install_azurecli_extentions
 
 
-tools_by_webi=(k9s jq yq fd bat fzf)
-# tools+=(nerdfonts) # @TODO:
+tools_by_webi=(bat rg fd jq yq fzf)
+tools_by_webi+=(k9s)
+tools_by_webi+=(ShellCheck shfmt)
+# tools_by_webi+=(nerdfonts) # @TODO:
 for p in "${tools_by_webi[@]}"; do
     install_by_webinstall "${p}"
 done
@@ -785,7 +787,7 @@ tools_by_github=(
     wtfutil/wtf
     noahgorstein/jqp
     go-task/task
-    multiprocessio/ds
+    # multiprocessio/ds # TODO: Failed
 )
 # @TODO: interactive install...
 #    - https://github.com/redraw/gh-install/issues/5
