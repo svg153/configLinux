@@ -203,7 +203,7 @@ function install_zsh()
     fi
 }
 
-function install_fonts
+function install_fonts()
 {
     install fontconfig
 
@@ -270,11 +270,23 @@ function install_docker()
     # https://docs.docker.com/engine/install/ubuntu/
 
     if [[ ${isWSL} ]]; then
-        echo "No install docker for WSL"
-    else
         curl -fsSL https://get.docker.com -o get-docker.sh
         sudo sh ./get-docker.sh --dry-run
         rm -rf get-docker.sh
+    else
+        # Add Docker's official GPG key:
+        sudo apt-get update
+        sudo apt-get install ca-certificates curl
+        sudo install -m 0755 -d /etc/apt/keyrings
+        sudo curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc
+        sudo chmod a+r /etc/apt/keyrings/docker.asc
+        
+        # Add the repository to Apt sources:
+        echo \
+          "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu \
+          $(. /etc/os-release && echo "$VERSION_CODENAME") stable" | \
+          sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+        sudo apt-get update
     fi
 
     # TODO: test
@@ -286,13 +298,23 @@ function install_docker()
     # sudo systemctl enable docker
 }
 
+function install_podman()
+{
+    # https://podman.io/getting-started/installation
+    install podman
+}
+
 function install_minikube()
 {
     # https://minikube.sigs.k8s.io/docs/start/
-    curl -LO https://storage.googleapis.com/minikube/releases/latest/minikube_latest_amd64.deb
-    sudo dpkg -i minikube_latest_amd64.deb
-    rm minikube_latest_amd64.deb
+    # TODO: check if works
+    curl -LO https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64 \
+    && sudo apt install minikube-linux-amd64 /usr/local/bin/minikube \
+    && rm ./minikube-linux-amd64
     minikube start
+    
+    # INFO
+    # - Podman: https://minikube.sigs.k8s.io/docs/drivers/podman/
 }
 
 function install_chrome()
@@ -362,6 +384,21 @@ function install_by_webinstall()
     curl -sS https://webinstall.dev/${p} | bash
 }
 
+function install_python()
+{
+    install \
+        python3 \
+        python3-pip \
+        python3-distutils \
+        python3-apt
+}
+
+function install_node()
+{
+    curl -fsSL https://deb.nodesource.com/setup_21.x | sudo -E bash - \
+    && sudo apt-get install -y nodejs
+}
+
 function install_gh()
 {
     curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | sudo dd of=/usr/share/keyrings/githubcli-archive-keyring.gpg
@@ -424,6 +461,18 @@ function install_gh_ext()
     gh extension install "${ext}"
 }
 
+function install_gh_copilot()
+{
+    # check that node is installed
+    [[ -x "$(command -v node)" ]] || install_node
+    # check that node is more than 18
+    node_version=$(node -v | cut -d'.' -f1)
+    [[ ${node_version} -lt 18 ]] && install_node
+    
+    npm install @githubnext/github-copilot-cli
+    github-copilot-cli auth
+}
+
 function install_by_gh()
 {
     local p=$1
@@ -445,20 +494,23 @@ function install_azurecli()
     [[ -x "$(command -v az)" ]] && return 0
 
     # https://docs.microsoft.com/en-us/cli/azure/install-azure-cli-apt?view=azure-cli-latest
-    install \
-        python3-distutils \
-        python3-apt
     curl -L https://aka.ms/InstallAzureCli | bash
 }
 
-function install_minikube()
+function install_azurecli_extentions()
 {
-    # https://minikube.sigs.k8s.io/docs/start/
-    # TODO: check if works
-    curl -LO https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64
-    sudo dpkg -i minikube_latest_amd64.deb
-    rm minikube_latest_amd64.deb
-    minikube start
+    # NOTE: List https://learn.microsoft.com/en-us/cli/azure/azure-cli-extensions-list
+    local -r extensions=(
+        "azure-devops"
+    )
+    
+    if [[ -x "$(command -v az)" ]]; then
+        for ext in "${extensions[@]}"; do
+            az extension add --name ${ext}
+        done
+    else
+        log warn "install_azurecli_extentions: az is not installed"
+    fi
 }
 
 #
@@ -653,9 +705,14 @@ if [[ ! -f "${work_mail_gitconfig}" ]]; then
     """ > ${work_mail_gitconfig}
 fi
 
+log info "languages"
+install_python
+install_node
+
 log info "gh"
 install_gh
 install_gh_extensions
+install_gh_copilot
 
 log info "zsh and .oh-my-zsh"
 install_zsh
@@ -686,6 +743,12 @@ fi
 log info "docker"
 install_docker
 
+# log info "podman"
+# install_podman
+
+log info "minikube"
+install_minikube
+
 if [[ ${isWSL} ]]; then
     echo "No install chrome and telegram for WSL"
 else
@@ -705,6 +768,8 @@ install_gum
 install_ijq
 install_starship
 install_azurecli
+install_azurecli_extentions
+
 
 tools_by_webi=(k9s jq yq fd bat fzf)
 # tools+=(nerdfonts) # @TODO:
