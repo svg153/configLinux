@@ -9,6 +9,13 @@ codepr(){
     code "${files[@]}"    
 }
 
+alias conli="codeconfig"
 codeconfig(){
-    code ~/configLinux
+    if [ -d ~/REPOSITORIOS/configLinux/ ]; then
+        code ~/REPOSITORIOS/configLinux/
+    elif [ -d ~/configLinux/ ]; then
+        code ~/configLinux/
+    else
+        echo "No configLinux directory found"
+    fi
 }

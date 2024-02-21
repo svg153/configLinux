@@ -146,11 +146,16 @@ function make_folder_structure()
     mkdir -p ~/.fonts
     mkdir -p ~/.icons
 
-    create_symlink ${CONFIG_PATH}/.aliases_init ~/.aliases_init
+    create_symlink ${CONFIG_PATH}/.include_d ~/.include_d
     create_symlink ${CONFIG_PATH}/.aliases ~/.aliases
-    create_symlink ${CONFIG_PATH}/.path ~/.path
     create_symlink ${CONFIG_PATH}/.bashrc ~/.bashrc
-    create_symlink ${CONFIG_PATH}/.bash_profile ~/.bash_profile
+    create_symlink ${CONFIG_PATH}/.bash_prompt ~/.bash_prompt
+    create_symlink ${CONFIG_PATH}/.bash_aliases ~/.bash_aliases
+    create_symlink ${CONFIG_PATH}/.bash_aliases.d ~/.bash_aliases.d
+    create_symlink ${CONFIG_PATH}/.bash_completion ~/.bash_completion
+    create_symlink ${CONFIG_PATH}/.bash_completion.d ~/.bash_completion.d
+    create_symlink ${CONFIG_PATH}/.rc ~/.rc
+    create_symlink ${CONFIG_PATH}/.rc.d ~/.rc.d
     create_symlink ${CONFIG_PATH}/.profile ~/.profile
     create_symlink ${CONFIG_PATH}/SCRIPTS ~/SCRIPTS
 
@@ -160,9 +165,6 @@ function make_folder_structure()
     create_symlink ${CONFIG_PATH}/.config/terminator/ ~/.config/terminator
     create_symlink ${CONFIG_PATH}/.config/wtf/ ~/.config/wtf
     create_symlink ${CONFIG_PATH}/.config/xfce/ ~/.config/xfce
-
-
-
 }
 
 function install_zsh()
@@ -485,7 +487,9 @@ function install_starship()
 {
     sh -c "$(curl -fsSL https://starship.rs/install.sh)"
     # @TODO: ask sudo pass
-    mkdir -p ~/.config
+    if [[ ! -d ~/.config ]]; then
+        mkdir -p ~/.config
+    fi
     create_symlink ${CONFIG_PATH}/.config/starship.toml ~/.config/starship.toml
 }
 

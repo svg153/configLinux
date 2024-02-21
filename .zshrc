@@ -1,9 +1,19 @@
-# If you come from bash you might have to change your $PATH.
-export PATH=$HOME/bin:/usr/local/bin:$PATH
-# set PATH so it includes user's private ~/.local/bin if it exists
-if [ -d "$HOME/.local/bin" ] ; then
-  export PATH="$HOME/.local/bin:$PATH"
-fi
+#
+# -> functions
+#
+
+source ~/.include_d
+# export -f include_d TODO: check to do in zsh
+
+#
+# <- functions
+#
+
+
+
+#
+# -> ZSH configuration
+#
 
 # Path to your oh-my-zsh installation.
 export ZSH="/home/svg153/.oh-my-zsh"
@@ -158,7 +168,17 @@ source $ZSH/oh-my-zsh.sh
 # For a full list of active aliases, run `alias`.
 #
 # Example aliases
-. ~/.aliases_init
+
+#
+# <- ZSH configuration
+#
+
+
+
+#
+# -> My configuration
+#
+
 alias zshconfig="vi ~/.zshrc"
 alias ohmyzsh="vi ~/.oh-my-zsh"
 if [ -f ~/.bash_aliases ]; then
@@ -169,6 +189,10 @@ if [ -f ~/.aliases ]; then
     source ~/.aliases
 fi
 
+if [ -f ~/.rc ]; then
+    source ~/.rc
+fi
+
 # fonts
 # https://github.com/gabrielelana/awesome-terminal-fonts
 # TODO: fix "not matches found"
@@ -177,23 +201,12 @@ fi
 # fi
 
 # starship
+# TODO: move to .include_d and modify the include_d to take the shell and pass as a parameter to the function or take automatically from the current shell
 # https://github.com/starship/starship
 if [ -f "$HOME/.config/starship.toml" ]; then
     eval "$(starship init zsh)"
 fi
 
-# Generated for envman. Do not edit.
-[ -s "$HOME/.config/envman/load.sh" ] && source "$HOME/.config/envman/load.sh"
-
-# azure-cli
-if [ -f "$HOME/lib/azure-cli/az.completion" ]; then
-    source "$HOME/lib/azure-cli/az.completion"
-fi
-
-# pyenv
-# https://github.com/pyenv/pyenv
-if [ -d "$HOME/.pyenv" ]; then
-    export PYENV_ROOT="$HOME/.pyenv"
-    command -v pyenv 1>/dev/null 2>&1 || export PATH="$PYENV_ROOT/bin:$PATH"
-    eval "$(pyenv init -)"
-fi
+#
+# <- My configuration
+#
