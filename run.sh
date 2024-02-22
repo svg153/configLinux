@@ -167,6 +167,13 @@ function make_folder_structure()
     create_symlink ${CONFIG_PATH}/.config/xfce/ ~/.config/xfce
 }
 
+function install_git()
+{
+    sudo add-apt-repository ppa:git-core/ppa -y \
+    && sudo apt update \
+    && sudo install git
+}
+
 function install_zsh()
 {
     install zsh
@@ -228,16 +235,21 @@ function install_fonts()
     # cp awesome-terminal-fonts/config/10-symbols.conf ~/.config/fontconfig/conf.d
     # # echo "Do this 'echo "source ~/.fonts/*.sh" >> ~/.zshrc'"/
 
-    cd /tmp
     # https://github.com/ryanoasis/nerd-fonts
+    set -e
+    cd /tmp
     git clone --filter=blob:none --sparse git@github.com:ryanoasis/nerd-fonts.git
     cd nerd-fonts
-    git sparse-checkout add patched-fonts/Hack
-    ./install.sh Hack
-    ./font-patcher --complete
-    git sparse-checkout add patched-fonts/FiraCode
-    ./install.sh FiraCode
-    ./font-patcher --complete
+    fonts=(
+        "DroidSansMono"
+        "FiraCode"
+        "Hack"
+    )
+    for f in "${fonts[@]}"; do
+        git sparse-checkout add patched-fonts/${f}
+        ./install.sh ${f}
+        ./font-patcher --complete
+    done
 
     # OTHER: how to download and install fonts from the command line
     # mkdir -p ~/.local/share/fonts
@@ -245,6 +257,7 @@ function install_fonts()
 
     cd ..
     rm -rf nerd-fonts
+    set +e
 
     # https://github.com/ryanoasis/nerd-fonts#font-patcher
     docker run -v ~/.local/share/fonts/:/in -v ~/.local/share/fonts/:/out nerdfonts/patcher --powerline --powerlineextra
@@ -631,7 +644,7 @@ fi
 
 # utils
 install bash-completion
-install git
+install_git
 install curl
 install \
     zip unzip unrar \
