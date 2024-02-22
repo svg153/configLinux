@@ -214,6 +214,18 @@ function install_zsh()
 
 function install_fonts()
 {
+    install_font_nerdfonts
+    install_powerlevel10k
+}
+
+function install_powerlevel10k()
+{
+    # https://github.com/romkatv/powerlevel10k?tab=readme-ov-file#manual
+    git clone --depth=1 https://github.com/romkatv/powerlevel10k.git ~/powerlevel10k
+}
+
+function install_font_nerdfonts()
+{
     install fontconfig
 
     # # clone

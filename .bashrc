@@ -151,6 +151,10 @@ if [ -f /usr/share/autojump/autojump.sh ]; then
     . /usr/share/autojump/autojump.sh
 fi
 
+# fzf
+# https://github.com/junegunn/fzf?tab=readme-ov-file#upgrading-fzf
+[ -f ~/.fzf.bash ] && source ~/.fzf.bash
+
 #
 # <- My configuration
 #
