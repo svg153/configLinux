@@ -418,6 +418,9 @@ function install_python()
         python3-pip \
         python3-distutils \
         python3-apt
+    
+    pip3 install \
+        pre-commit
 }
 
 function install_node()
