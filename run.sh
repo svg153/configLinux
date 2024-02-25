@@ -83,6 +83,21 @@ function update() {
     aptt update $@
 }
 
+function check_if_program_is_installed() {
+    local p=$1
+    [[ $# -ne 1 ]] && echo "Usage: check_if_program_is_installed <program>" && return 1
+    [[ -z "${p}" ]] && echo "check_if_program_is_installed: program is empty" && return 1
+    [[ -x "$(command -v ${p})" ]] && return 0
+    return 1
+}
+
+function check_if_program_is_installed_in_windows() {
+    local p=$1
+    [[ $# -ne 1 ]] && echo "Usage: check_if_program_is_installed_in_windows <program>" && return 1
+    [[ -z "${p}" ]] && echo "check_if_program_is_installed_in_windows: program is empty" && return 1
+    powershell.exe -Command "Get-Command -Name ${p} -ErrorAction SilentlyContinue" > /dev/null
+}
+
 #
 # ALIASES
 #
@@ -292,14 +307,157 @@ function install_pyenv()
     curl https://pyenv.run | bash
 }
 
+
+# TODO: 
+# function install_docker_pkg()
+# {
+#     # https://docs.docker.com/engine/install/ubuntu/
+#     # Install using the repository
+#     sudo apt-get update
+#     sudo apt-get install \
+#         apt-transport-https \
+#         ca-certificates \
+#         curl \
+#         gnupg \
+#         lsb-release
+#     . /etc/os-release
+#     sudo sh -c "echo \"deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/trusted.gpg.d/docker.gpg] https://download.docker.com/linux/${ID} $(lsb_release -cs) stable\" > /etc/apt/sources.list.d/docker.list"    
+# }
+
 function install_docker()
 {
     # https://docs.docker.com/engine/install/ubuntu/
-
+    # Install Docker on Windows WSL without Docker Desktop
     if [[ ${isWSL} ]]; then
-        curl -fsSL https://get.docker.com -o get-docker.sh
-        sudo sh ./get-docker.sh --dry-run
-        rm -rf get-docker.sh
+        if check_if_program_is_installed_in_windows "docker"; then
+            # Install Docker on WSL to use Docker Desktop
+            # https://docs.docker.com/engine/install/ubuntu/#install-using-the-convenience-script
+            echo "Docker Desktop is installed in Windows"
+            curl -fsSL https://get.docker.com -o get-docker.sh
+            sudo sh ./get-docker.sh --dry-run
+            rm -rf get-docker.sh
+        else # if docker is not installed in Windows and we want to use docker WSL for Windows
+            # Install Docker on Windows WSL without Docker Desktop
+            # https://dev.to/bowmanjd/install-docker-on-windows-wsl-without-docker-desktop-34m9
+            echo "Docker Desktop is not installed in Windows"
+            echo "Install Docker on Windows WSL without Docker Desktop"
+            
+            # TODO:use this instead of mine https://github.com/bowmanjd/docker-wsl/blob/main/setup-docker.sh
+            
+            # if distro is Debian or Ubuntu, skip 
+            #   - Configure a non-root user
+            #   - Configure admin (sudo) access for the non-root user
+            #   - Set default user
+            
+            sudo apt update && sudo apt upgrade
+            # if has network problems:
+            # echo -e "[network]\ngenerateResolvConf = false" | sudo tee -a /etc/wsl.conf
+            # sudo unlink /etc/resolv.conf
+            # echo nameserver 1.1.1.1 | sudo tee /etc/resolv.conf
+            
+            # if docker is already installed, remove it
+            if check_if_program_is_installed "docker"; then
+                echo "Docker is already installed"
+                # https://docs.docker.com/engine/install/ubuntu/#uninstall-old-versions
+                # https://docs.docker.com/engine/install/ubuntu/#uninstall-docker-engine
+                # TODO: check this packages
+                # sudo apt remove \
+                #     docker \
+                #     docker-engine
+                sudo apt-get remove \
+                    docker.io \
+                    docker-doc \
+                    docker-compose \
+                    docker-compose-v2 \
+                    podman-docker \
+                    containerd \
+                    runc
+                sudo apt-get purge \
+                    docker-ce \
+                    docker-ce-cli \
+                    containerd.io \
+                    docker-buildx-plugin \
+                    docker-compose-plugin \
+                    docker-ce-rootless-extras
+                sudo rm -rf /var/lib/docker
+                sudo rm -rf /var/lib/containerd
+            else
+                echo "Docker is not installed"
+                sudo apt install --no-install-recommends apt-transport-https ca-certificates curl gnupg2
+                sudo update-alternatives --set iptables /usr/sbin/iptables-legacy
+                sudo update-alternatives --set ip6tables /usr/sbin/ip6tables-legacy
+                
+                . /etc/os-release
+                curl -fsSL https://download..docker.com/linux/${ID}/gpg | sudo tee /etc/apt/trusted.gpg.d/docker.asc
+                echo "deb [arch=amd64] https://download.docker.com/linux/${ID} ${VERSION_CODENAME} stable" | sudo tee /etc/apt/sources.list.d/docker.list
+                sudo apt update
+                sudo apt install docker-ce docker-ce-cli containerd.io
+
+                sudo usermod -aG docker $USER
+                
+                # Sharing dockerd: choose a common ID for the docker group
+                if getent group | grep 36257; then
+                    sudo sed -i -e 's/^\(docker:x\):[^:]\+/\1:36257/' /etc/group
+                else
+                    # find other common ID
+                    # get all possible ids, filter only 4 digits, from 1000 to 65535, and sort
+                    all_ids=$(seq 1000 65535)
+                    # possible_ids  all_ids unless (getent group | cut -d: -f3 | grep -E '^[0-9]{4}' | sort -g)
+                    possible_ids=$(echo ${all_ids} | grep -v -E "$(getent group | cut -d: -f3 | grep -E '^[0-9]{4}' | sort -g)")
+                    # Take the middle value of the possible_ids
+                    middle_id=$(echo ${possible_ids} | wc -l | awk '{print $1/2}')
+                    # set the middle_id as the common id
+                    # if groupmod is available
+                    if check_if_program_is_installed "groupmod"; then
+                        sudo groupmod -g ${middle_id} docker
+                    else
+                        sudo sed -i -e 's/^\(docker:x\):[^:]\+/\1:'$(echo ${middle_id})'/' /etc/group
+                    fi
+                fi
+                
+                # prepare a shared directory
+                DOCKER_DIR="/mnt/wsl/shared-docker"
+                [[ ! -d "$DOCKER_DIR" ]] && sudo mkdir -pm o=,ug=rwx "$DOCKER_DIR"
+                sudo chgrp docker "$DOCKER_DIR"
+                
+                # configure the Docker daemon to use the shared directory
+                [[ ! -d /etc/docker ]] && sudo mkdir -p /etc/docker
+                if [[ -f /etc/docker/daemon.json ]]; then
+                    if grep -q '"hosts":' /etc/docker/daemon.json; then
+                        # Docker daemon is already configured
+                        sudo sed -i -e 's/\("hosts":\s*\)\[[^]]*\]/\1["unix://'"$DOCKER_DIR"'/docker.sock"]/' /etc/docker/daemon.json
+                    else
+                        # Docker daemon is not configured
+                        # if jq is available
+                        if check_if_program_is_installed "jq"; then
+                            jq '.hosts = ["unix://'"$DOCKER_DIR"'/docker.sock"]' /etc/docker/daemon.json | sudo tee /etc/docker/daemon.json
+                        else
+                            log warn "edit /etc/docker/daemon.json and add the following line: \"hosts\": [\"unix://${DOCKER_DIR}/docker.sock\"]"
+                        fi
+                    fi
+                    
+                    # check and set ipatables=true in daemon.json
+                    # cehck if iptables is already set to false
+                    if grep -q '"iptables":\s*false' /etc/docker/daemon.json; then
+                        # set iptables to true
+                        sudo sed -i -e 's/\("iptables":\s*\)false/\1true/' /etc/docker/daemon.json
+                    elif grep -q '"iptables":\s*true' /etc/docker/daemon.json; then
+                        log info "iptables is already set to true"
+                    else # if iptables is not set
+                        if check_if_program_is_installed "jq"; then
+                            jq '.iptables = true' /etc/docker/daemon.json | sudo tee /etc/docker/daemon.json
+                        else
+                            log warn "edit /etc/docker/daemon.json and add the following line: \"iptables\": true"
+                        fi
+                    fi
+                else
+                    # create daemon.json and set the hosts and the iptables
+                    echo '{"hosts": ["unix://'"$DOCKER_DIR"'/docker.sock"], "iptables": true}' | sudo tee /etc/docker/daemon.json
+                    # https://github.com/MicrosoftDocs/WSL/issues/422
+                    #    "bip": "172.17.0.1/28",
+                fi
+            fi
+        fi
     else
         # Add Docker's official GPG key:
         sudo apt-get update
@@ -311,23 +469,28 @@ function install_docker()
         # Add the repository to Apt sources:
         echo \
           "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu \
-          $(. /etc/os-release && echo "$VERSION_CODENAME") stable" | \
+          $(. /etc/os-release && echo "${VERSION_CODENAME}") stable" | \
           sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
         sudo apt-get update
+        
+        # Install Docker
+        sudo apt install docker-ce docker-ce-cli containerd.io
+        
+        # TODO: test
+        # sudo docker run hello-world
+        # sudo groupadd docker
+        # sudo usermod -aG docker $USER
+        # newgrp docker
+        # docker run hello-world
+        # sudo systemctl enable docker
     fi
-
-    # TODO: test
-    # sudo docker run hello-world
-    # sudo groupadd docker
-    # sudo usermod -aG docker $USER
-    # newgrp docker
-    # docker run hello-world
-    # sudo systemctl enable docker
 }
 
 function install_podman()
 {
     # https://podman.io/getting-started/installation
+    # https://dev.to/bowmanjd/using-podman-on-windows-subsystem-for-linux-wsl-58ji
+    
     install podman
 }
 
@@ -403,12 +566,37 @@ function install_telegram()
     cd
 }
 
+function install_fzf()
+{
+    if [[ -x "$(command -v fzf)" ]]; then
+        git -C ~/.fzf pull
+    else
+        git clone --depth 1 https://github.com/junegunn/fzf.git ~/.fzf
+    fi
+    ~/.fzf/install --all
+}
+
+function install_termium()
+{
+    # https://codeium.com/blog/termium-codeium-in-terminal-launch
+    # https://github.com/Exafunction/codeium
+    
+    curl -L https://github.com/Exafunction/codeium/releases/download/termium-v0.2.0/install.sh | bash
+}
+
+function install_webinstall()
+{
+    [[ -x "$(command -v curl)" ]] || install curl
+    
+    curl https://webi.sh/webi | sh
+}
+
 function install_by_webinstall()
 {
     local p=$1
     [[ $# -ne 1 ]] && echo "webinstall: webinstall <program>" && return 1
     [[ -z "${p}" ]] && echo "webinstall: program is empty" && return 1
-    curl -sS https://webinstall.dev/${p} | bash
+    webi ${p}
 }
 
 function install_python()
@@ -418,9 +606,6 @@ function install_python()
         python3-pip \
         python3-distutils \
         python3-apt
-    
-    pip3 install \
-        pre-commit
 }
 
 function install_node()
@@ -802,15 +987,20 @@ install_starship
 install_azurecli
 install_azurecli_extentions
 
+pip3 install \
+    pre-commit
 
-tools_by_webi=(bat rg fd jq yq fzf)
+install_fzf
+install_termium
+
+install_webinstall
+tools_by_webi=(bat rg fd jq yq)
 tools_by_webi+=(k9s)
 tools_by_webi+=(ShellCheck shfmt)
 # tools_by_webi+=(nerdfonts) # @TODO:
 for p in "${tools_by_webi[@]}"; do
     install_by_webinstall "${p}"
 done
-
 create_symlink ${CONFIG_PATH}/.config/bat/ ~/.config/bat
 create_symlink ${CONFIG_PATH}/.config/k9s/ ~/.config/k9s
 
