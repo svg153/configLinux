@@ -1,3 +1,8 @@
+### Added by Codeium. These lines cannot be automatically removed if modified
+if command -v termium > /dev/null 2>&1; then
+  eval "$(termium shell-hook show pre)"
+fi
+### End of Codeium integration
 #
 # -> VARS
 #
@@ -142,9 +147,9 @@ fi
 plugins+=(autojump)
 
 # git clone https://github.com/zsh-users/zsh-autosuggestions ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-autosuggestions
-plugins+=(zsh-autosuggestions)
+# plugins+=(zsh-autosuggestions)
 # https://github.com/zsh-users/zsh-autosuggestions#configuration
-export ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE='fg=white'
+# export ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE='fg=white'
 
 # git clone https://github.com/zsh-users/zsh-syntax-highlighting ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-syntax-highlighting
 plugins+=(zsh-syntax-highlighting)
@@ -243,3 +248,9 @@ fi
 #
 # <- My configuration
 #
+
+### Added by Codeium. These lines cannot be automatically removed if modified
+if command -v termium > /dev/null 2>&1; then
+  eval "$(termium shell-hook show post)"
+fi
+### End of Codeium integration

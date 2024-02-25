@@ -582,6 +582,7 @@ function install_termium()
     # https://github.com/Exafunction/codeium
     
     curl -L https://github.com/Exafunction/codeium/releases/download/termium-v0.2.0/install.sh | bash
+    termium auth
 }
 
 function install_webinstall()
