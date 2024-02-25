@@ -507,6 +507,31 @@ function install_minikube()
     # - Podman: https://minikube.sigs.k8s.io/docs/drivers/podman/
 }
 
+function install_terraform()
+{
+    # https://developer.hashicorp.com/terraform/install#linux
+    sudo apt-get update \
+    && sudo apt-get install -y gnupg software-properties-common
+    
+    
+    wget -O- https://apt.releases.hashicorp.com/gpg | gpg --dearmor -o /usr/share/keyrings/hashicorp-archive-keyring.gpg
+    
+    wget -O- https://apt.releases.hashicorp.com/gpg | \
+        sudo gpg --dearmor -o /usr/share/keyrings/hashicorp-archive-keyring.gpg \
+    && gpg --no-default-keyring \
+        --keyring /usr/share/keyrings/hashicorp-archive-keyring.gpg \
+        --fingerprint
+    
+    echo "deb [signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] \
+        https://apt.releases.hashicorp.com $(lsb_release -cs) main" | \
+        sudo tee /etc/apt/sources.list.d/hashicorp.list
+    sudo apt update \
+    && sudo apt-get install terraform \
+    && terraform -help \
+    && terraform -help plan \
+    && terraform -install-autocomplete
+}
+
 function install_chrome()
 {
     deb_filename="google-chrome-stable_current_amd64.deb"
@@ -987,6 +1012,7 @@ install_ijq
 install_starship
 install_azurecli
 install_azurecli_extentions
+install_terraform
 
 pip3 install \
     pre-commit

@@ -160,6 +160,11 @@ fi
 # https://github.com/junegunn/fzf?tab=readme-ov-file#upgrading-fzf
 [ -f ~/.fzf.bash ] && source ~/.fzf.bash
 
+
+# terraform
+# https://developer.hashicorp.com/terraform/install
+complete -C /usr/bin/terraform terraform
+
 #
 # <- My configuration
 #
@@ -168,3 +173,4 @@ if command -v termium > /dev/null 2>&1; then
   eval "$(termium shell-hook show post)"
 fi
 ### End of Codeium integration
+

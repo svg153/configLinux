@@ -245,6 +245,11 @@ fi
 # https://github.com/junegunn/fzf?tab=readme-ov-file#upgrading-fzf
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
 
+# terraform
+# https://developer.hashicorp.com/terraform/install
+autoload -U +X bashcompinit && bashcompinit
+complete -o nospace -C /usr/bin/terraform terraform
+
 #
 # <- My configuration
 #
