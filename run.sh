@@ -186,7 +186,7 @@ function install_git()
 {
     sudo add-apt-repository ppa:git-core/ppa -y \
     && sudo apt update \
-    && sudo install git
+    && install_by_pgkmanager git
 }
 
 function install_zsh()
@@ -333,9 +333,10 @@ function install_docker()
             # Install Docker on WSL to use Docker Desktop
             # https://docs.docker.com/engine/install/ubuntu/#install-using-the-convenience-script
             echo "Docker Desktop is installed in Windows"
-            curl -fsSL https://get.docker.com -o get-docker.sh
-            sudo sh ./get-docker.sh --dry-run
-            rm -rf get-docker.sh
+            # TODO: remove
+            # curl -fsSL https://get.docker.com -o get-docker.sh
+            # sudo sh ./get-docker.sh --dry-run
+            # rm -rf get-docker.sh
         else # if docker is not installed in Windows and we want to use docker WSL for Windows
             # Install Docker on Windows WSL without Docker Desktop
             # https://dev.to/bowmanjd/install-docker-on-windows-wsl-without-docker-desktop-34m9
@@ -496,6 +497,11 @@ function install_podman()
 
 function install_minikube()
 {
+    if [[ -x "$(command -v minikube)" ]]; then
+        minikube version
+        return 0
+    fi
+    
     # https://minikube.sigs.k8s.io/docs/start/
     # TODO: check if works
     curl -LO https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64 \
@@ -509,13 +515,16 @@ function install_minikube()
 
 function install_terraform()
 {
+    if [[ -x "$(command -v terraform)" ]]; then
+        terraform -version
+        return 0
+    fi
+
     # https://developer.hashicorp.com/terraform/install#linux
     sudo apt-get update \
     && sudo apt-get install -y gnupg software-properties-common
-    
-    
-    wget -O- https://apt.releases.hashicorp.com/gpg | gpg --dearmor -o /usr/share/keyrings/hashicorp-archive-keyring.gpg
-    
+
+    [[ -f /usr/share/keyrings/hashicorp-archive-keyring.gpg ]] && sudo rm /usr/share/keyrings/hashicorp-archive-keyring.gpg
     wget -O- https://apt.releases.hashicorp.com/gpg | \
         sudo gpg --dearmor -o /usr/share/keyrings/hashicorp-archive-keyring.gpg \
     && gpg --no-default-keyring \
@@ -529,11 +538,21 @@ function install_terraform()
     && sudo apt-get install terraform \
     && terraform -help \
     && terraform -help plan \
-    && terraform -install-autocomplete
+    
+    stdout=$(terraform -install-autocomplete | grep "already installed" | wc -l)
+    ret=$?
+    if [[ ${ret} -ne 0 ]] && [[ ${stdout} -gt 0 ]]; then
+        echo "Terraform autocomplete is already installed"
+    fi
 }
 
 function install_chrome()
 {
+    if [[ -x "$(command -v google-chrome)" ]]; then
+        google-chrome --version
+        return 0
+    fi
+
     deb_filename="google-chrome-stable_current_amd64.deb"
     deb_filepath_dw="${PROGRAMAS_PATH}/${deb_filename}"
     wget -O ${deb_filepath_dw} https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb ${PROGRAMAS_PATH}
@@ -544,6 +563,11 @@ function install_chrome()
 
 function install_vscode()
 {
+    if [[ -x "$(command -v code)" ]]; then
+        code --version
+        return 0
+    fi
+
     curl https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor > microsoft.gpg
     sudo mv microsoft.gpg /etc/apt/trusted.gpg.d/microsoft.gpg
     sudo sh -c 'echo "deb [arch=amd64] https://packages.microsoft.com/repos/vscode stable main" > /etc/apt/sources.list.d/vscode.list'
@@ -554,7 +578,10 @@ function install_vscode()
 function install_gum()
 {
     # only install gum if it is not installed
-    [[ -x "$(command -v gum)" ]] && return 0
+    if [[ -x "$(command -v gum)" ]]; then
+        gum --version
+        return 0
+    fi
 
     sudo mkdir -p /etc/apt/keyrings
     curl -fsSL https://repo.charm.sh/apt/gpg.key | sudo gpg --dearmor -o /etc/apt/keyrings/charm.gpg
@@ -566,7 +593,10 @@ function install_gum()
 
 function install_ijq()
 {
-    [[ -x "$(command -v ijq)" ]] && return 0
+    if [[ -x "$(command -v ijq)" ]]; then
+        ijq -V
+        return 0
+    fi    
 
     version=0.4.1
     wget "https://git.sr.ht/~gpanders/ijq/refs/download/v${version}/ijq-${version}-linux-amd64.tar.gz"
@@ -583,18 +613,29 @@ function install_ijq()
 
 function install_telegram()
 {
+    if [[ -x "$(command -v telegram)" ]]; then
+        telegram --version
+        return 0
+    fi
+    
     wget -O ${PROGRAMAS_PATH}/tsetup.tar.xz https://telegram.org/dl/desktop/linux
     cd ${PROGRAMAS_PATH}
     tar xvf tsetup.tar.xz
     sudo ln -s ${PROGRAMAS_PATH}/Telegram/Telegram ~/bin/telegram
     rm -rf tsetup.tar.xz
-    cd
+    cd -
 }
 
 function install_fzf()
 {
+    
     if [[ -x "$(command -v fzf)" ]]; then
-        git -C ~/.fzf pull
+        
+        if [[ -d ~/.fzf ]]; then
+            git -C ~/.fzf pull
+        else 
+            echo "fzf is already installed, but not by repository"
+        fi
     else
         git clone --depth 1 https://github.com/junegunn/fzf.git ~/.fzf
     fi
@@ -606,12 +647,22 @@ function install_termium()
     # https://codeium.com/blog/termium-codeium-in-terminal-launch
     # https://github.com/Exafunction/codeium
     
+    if [[ -x "$(command -v termium)" ]]; then
+        termium --help
+        return 0
+    fi
+    
     curl -L https://github.com/Exafunction/codeium/releases/download/termium-v0.2.0/install.sh | bash
     termium auth
 }
 
 function install_webinstall()
-{
+{    
+    if [[ -x "$(command -v webi)" ]]; then
+        webi --version
+        return 0
+    fi
+
     [[ -x "$(command -v curl)" ]] || install curl
     
     curl https://webi.sh/webi | sh
@@ -642,6 +693,11 @@ function install_node()
 
 function install_gh()
 {
+    if [[ -x "$(command -v gh)" ]]; then
+        gh --version
+        return 0
+    fi
+    
     curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | sudo dd of=/usr/share/keyrings/githubcli-archive-keyring.gpg
     echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" | sudo tee /etc/apt/sources.list.d/github-cli.list > /dev/null
     update
@@ -675,19 +731,21 @@ function install_gh_extensions(){
         for ext in "${gh_extension[@]}"; do
             install_gh_ext "${ext}"
         done
-        
-        install_gh_ext "matt-bartel/gh-clone-org"
-        if [[ -d ~/.local/share/gh/extensions/gh-clone-org-matt ]]; then
-            mv ~/.local/share/gh/extensions/gh-clone-org{,-matt}
-        fi
 
-        create_symlink ${CONFIG_PATH}/.config/gh-dash/ ~/.config/gh-dash # config for dlvhdr/gh-dash
+        if ! gh extension list | grep "matt-bartel/gh-clone-org" && ! gh extension list | grep "svg153/gh-clone-org"; then
+            install_gh_ext "matt-bartel/gh-clone-org"
+            if [[ -d ~/.local/share/gh/extensions/gh-clone-org-matt ]]; then
+                mv ~/.local/share/gh/extensions/gh-clone-org{,-matt}
+            fi
 
-        # my extension
-        if [[ ! -d "${REPOS_PATH}/gh-clone-org" ]]; then
-            gh repo clone svg153/gh-clone-org ${REPOS_PATH}/gh-clone-org
-            ln -s ${REPOS_PATH}/gh-clone-org ~/.local/share/gh/extensions/gh-clone-org-svg153
-            ln -s ~/.local/share/gh/extensions/gh-clone-org-svg153 ~/.local/share/gh/extensions/gh-clone-org
+            create_symlink ${CONFIG_PATH}/.config/gh-dash/ ~/.config/gh-dash # config for dlvhdr/gh-dash
+
+            # my extension
+            if [[ ! -d "${REPOS_PATH}/gh-clone-org" ]]; then
+                gh repo clone svg153/gh-clone-org ${REPOS_PATH}/gh-clone-org
+                ln -s ${REPOS_PATH}/gh-clone-org ~/.local/share/gh/extensions/gh-clone-org-svg153
+                ln -s ~/.local/share/gh/extensions/gh-clone-org-svg153 ~/.local/share/gh/extensions/gh-clone-org
+            fi
         fi
     else
         log warn "gh_extensions: gh is not authenticated"
@@ -704,13 +762,20 @@ function install_gh_ext()
 
 function install_gh_copilot()
 {
+    if [[ -x "$(command -v github-copilot-cli)" ]]; then
+        github-copilot-cli --version
+        return 0
+    fi
+    
     # check that node is installed
     [[ -x "$(command -v node)" ]] || install_node
     # check that node is more than 18
-    node_version=$(node -v | cut -d'.' -f1)
+    node_version=$(node -v | cut -d'.' -f1 | cut -d'v' -f2)
     [[ ${node_version} -lt 18 ]] && install_node
     
-    npm install @githubnext/github-copilot-cli
+    sudo npm install -g npm
+    sudo npm install -g @githubnext/github-copilot-cli
+    
     github-copilot-cli auth
 }
 
@@ -832,8 +897,8 @@ function clone_common_repos() {
     )
     
     for repo in "${dw_repos[@]}"; do
-        folder=$(echo ${dw_repos} | cut -d';' -f1)
-        repo=$(echo ${dw_repos} | cut -d';' -f2)
+        folder=$(echo ${repo} | cut -d';' -f1)
+        repo=$(echo ${repo} | cut -d';' -f2)
         repo_name=$(echo ${repo} | cut -d'/' -f2)
         
         [[ -d "${REPOS_PATH}/${folder}" ]] || mkdir -p "${REPOS_PATH}/${folder}"
@@ -927,25 +992,27 @@ if [[ ! -f "${personal_mail_gitconfig}" ]]; then
 fi
 
 # work mail
-if [[ -z "${COMPANY_NAME}" ]]; then
-    echo "Enter your company name: "
-    read COMPANY_NAME
-fi
-work_mail_gitconfig="${CONFIG_PATH}/.gitconfig.d/work-${COMPANY_NAME}.gitconfig"
-if [[ ! -f "${work_mail_gitconfig}" ]]; then
-    if [[ -z "${COMPANY_USER_NAME}" ]]; then
-        echo "Enter your company user name: "
-        read COMPANY_USER_NAME
+if [[ -z $(ls ${CONFIG_PATH}/.gitconfig.d/work-*.gitconfig) ]]; then
+    if [[ -z "${COMPANY_NAME}" ]]; then
+        echo "Enter your company name: "
+        read COMPANY_NAME
     fi
-    if [[ -z "${COMPANY_USER_EMAIL}" ]]; then
-        echo "Enter your company user email: "
-        read COMPANY_USER_EMAIL
+    work_mail_gitconfig="${CONFIG_PATH}/.gitconfig.d/work-${COMPANY_NAME}.gitconfig"
+    if [[ ! -f "${work_mail_gitconfig}" ]]; then
+        if [[ -z "${COMPANY_USER_NAME}" ]]; then
+            echo "Enter your company user name: "
+            read COMPANY_USER_NAME
+        fi
+        if [[ -z "${COMPANY_USER_EMAIL}" ]]; then
+            echo "Enter your company user email: "
+            read COMPANY_USER_EMAIL
+        fi
+        echo """
+        [user]
+            name = ${COMPANY_USER_NAME}
+            email = ${COMPANY_USER_EMAIL}
+        """ > ${work_mail_gitconfig}
     fi
-    echo """
-    [user]
-        name = ${COMPANY_USER_NAME}
-        email = ${COMPANY_USER_EMAIL}
-    """ > ${work_mail_gitconfig}
 fi
 
 log info "languages"
