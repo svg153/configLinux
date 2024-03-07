@@ -546,6 +546,16 @@ function install_terraform()
     fi
 }
 
+function install_terraform_tools()
+{
+    # tflint
+    if [[ -x "$(command -v tflint)" ]]; then
+        tflint -v
+    else
+        curl -s https://raw.githubusercontent.com/terraform-linters/tflint/master/install_linux.sh | bash
+    fi
+}
+
 function install_chrome()
 {
     if [[ -x "$(command -v google-chrome)" ]]; then
@@ -1080,6 +1090,7 @@ install_starship
 install_azurecli
 install_azurecli_extentions
 install_terraform
+install_terraform_tools
 
 pip3 install \
     pre-commit
