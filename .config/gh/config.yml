@@ -17,25 +17,31 @@ aliases:
     aliases: alias list
     wi: |-
         !(
-            work_item_id=$1
-            gh pezaio-new-branch ${work_item_id}
+            if [ $# -eq 0 ]; then
+                gh wif
+            else
+                work_item_id=$1
+                gh plain-wi ${work_item_id}
+            fi
         )
-    # TODO: use fzf with az board to checkout a work item which is in the current sprint and his status is in progress
-    wif: "!(\n    project=PaymentPlatform\n    IterationPath=\"${project}\\Sprint $(date +%Y-%V)\"\n    azdo_web=\"https://dev.azure.com/pezaio\"\n    az boards query --org ${azdo_web} --project ${project} \\\n        --wiql \"SELECT [System.Id] FROM workitems WHERE [System.WorkItemType] = 'User Story' AND ([System.State] = 'ToDo' OR [System.State] = 'Active') AND [System.IterationPath] = \\\"${IterationPath}\\\"\"  \\\n        --query '[*].{id:id}' \\\n        --output tsv \\\n    | xargs --max-args 1 --max-procs 8 -I '%' sh -c \\\n        \"az boards work-item show --id '%' --org ${azdo_web} --output json | jq -r '.fields | {id: .\\\"System.Id\\\", title: .\\\"System.Title\\\", state: .\\\"System.State\\\", assigned: .\\\"System.AssignedTo.displayName\\\" } | [.id, .title, .state, .assigned] | @tsv'\" \\\n    | fzf --delimiter '\\t' \\\n        --preview \"az boards work-item show --id {1} --org ${azdo_web} --output json | jq -r '.fields.\\\"System.Description\\\"' | w3m -dump -T text/html\" \\\n    | awk '{print $1}'\n    \n    # | xargs gh pezaio-new-branch\n)"
+    wif: |-
+        !(
+            gh wif-simple
+        )
     wif-simple: |-
         !(
-            project=PaymentPlatform
-            IterationPath="${project}\Sprint $(date +%Y-%V)"
-            azdo_web="https://dev.azure.com/pezaio"
-            az boards query --org ${azdo_web} --project ${project} \
-                --wiql "SELECT [System.Id] FROM workitems WHERE [System.WorkItemType] = 'User Story' AND ([System.State] = 'ToDo' OR [System.State] = 'Active') AND [System.IterationPath] = \"${IterationPath}\""  \
-                --query "[*].{id:id,url:url}" \
-                --output json \
-            | jq -r '.[].id' \
-            | fzf --preview 'az boards work-item show --id {1} --org https://dev.azure.com/pezaio --output table'
-
-            # fzf --preview "az boards work-item show --id {1} --org https://dev.azure.com/pezaio --output json | jq -r '.fields | {id: ."System.Id", title: ."System.Title", state: ."System.State", iteration: ."System.IterationPath", assignedTo: ."System.AssignedTo.displayName", description: ."System.Description"}'" \
-            # xargs gh pezaio-new-branch {1}
+            gh azdo-get-active-wi-info \
+            | fzf --delimiter '\t' \
+            | awk '{print $1}' \
+            | xargs -I '%' gh plain-new-branch '%'
+        )   
+    wif-prev: |-
+        !(
+            gh azdo-get-active-wi-info \
+            | fzf --delimiter '\t' \
+                --preview "az boards work-item show --id {1} --output json | jq -r '.fields.\"System.Description\"  ' | w3m -dump -T text/html" \
+            | awk '{print $1}' \
+            | xargs -I '%' gh plain-new-branch '%'
         )
     prs: |-
         !(
@@ -86,16 +92,24 @@ aliases:
         !(
             gh __prcr
         )
-    __prcr: "!(\n    root_dir=$(git rev-parse --show-toplevel)\n    branch_name=$(gh __branch-name)\n    title=$(echo ${branch_name} | tr '-' ' ')\n    \n    pr_title=\"${1:-${title}}\"\n    pr_body=\"${2:-${title}}\"\n    \n    # TODO: Remove next line when https://github.com/cli/cli/issues/1718 is fixed\n    git push -u origin HEAD\n    gh prcr \\\n        --title \"${pr_title}\" \\\n        --body \"${pr_body}\" \\\n        --draft\n)"
-    # prcrwi: "!(\n    set -x\n    root_dir=$(git rev-parse --show-toplevel)\n    branch_name=$(gh __branch-name)\n    wi_id=$(echo ${branch_name} | awk -F'_' '{print $1}')\n    wi_title=$(echo ${branch_name} | awk -F'_' '{print $2}')\n\n    wi_id_azdo=$(echo ${wi_id} | tr '-' '#')\n    wi_title_azdo=$(echo ${wi_title} | tr '-' ' ')\n\n    pr_title=\"${wi_id_azdo} ${wi_title_azdo}\"\n    \n    # if there is pull_request_template.md file in the .github folder, use it as pr body\n    # pr_tmpl=${root_dir}/.github/pull_request_template.md\n    # Force not enter\n    pr_tmpl=${root_dir}/.github/pull_request_template.md\n    if [ -f \"${pr_tmpl}\" ]; then\n        pr_body_temp_file=$(mktemp)\n        # trap \"rm -f ${pr_body_temp_file}\" EXIT\n        \n        pr_body=$(sed '/<!--/,/-->/d' ${pr_tmpl} > ${pr_body_temp_file})\n        sed -i \"s/### User Stories\\/Bugs affected\\n\\n/### User Stories\\/Bugs affected\\n\\nAB#${wi_id_azdo}\\n/\" ${pr_body_temp_file}\n        \n        pr_body_arg=\"--body-file ${pr_body_temp_file}\"\n    else\n        pr_body=\"${wi_id_azdo}\"\n        pr_body_arg=\"--body ${pr_body}\"\n    fi\n    \n    # Remove next line when https://github.com/cli/cli/issues/1718 is fixed\n    git push -u origin HEAD\n    \n    echo gh prcr \\\n        --title \"${pr_title}\" \\\n        ${pr_body_arg} \\\n        --draft\n)"
+    __prcr: |-
+        !(
+            branch_name=$(gh __branch-name)
+            title=$(echo ${branch_name} | tr '-' ' ')
+            
+            pr_title="${1:-${title}}"
+            pr_body="${2:-${title}}"
+            
+            # TODO: Remove next line when https://github.com/cli/cli/issues/1718 is fixed
+            git push -u origin HEAD
+            gh prcr --title "${pr_title}" --body "${pr_body}" --draft
+        )
     prcrewi: prcrwi
-    # prcrwi: "!(\n    # set -x\n    root_dir=$(git rev-parse --show-toplevel)\n    branch_name=$(gh __branch-name)\n    wi_id=$(echo ${branch_name} | awk -F'_' '{print $1}')\n    wi_title=$(echo ${branch_name} | awk -F'_' '{print $2}')\n\n    wi_id_azdo=$(echo ${wi_id} | tr '-' '#')\n    wi_id_azdo_num=$(echo ${wi_id_azdo} | awk -F'#' '{print $2}')\n    wi_title_azdo=$(echo ${wi_title} | tr '-' ' ')\n\n    pr_title=\"${wi_id_azdo} ${wi_title_azdo}\"\n    \n    # if there is pull_request_template.md file in the .github folder, use it as pr body\n    # pr_tmpl=${root_dir}/.github/pull_request_template.md\n    # Force not enter\n    pr_tmpl=${root_dir}/.github/pull_request_template.md\n    pr_body_temp_file=$(mktemp -t pr_body_XXXXX.md)\n    chmod 666 ${pr_body_temp_file}\n    #trap \"rm -f ${pr_body_temp_file}\" EXIT\n\n    if [ -f \"${pr_tmpl}\" ]; then\n        # Modify the template using sed\n        modified_template=$(cat \"${pr_tmpl}\")\n        modified_template=$(echo \"${modified_template}\" | sed '/<!--/,/-->/d')\n        modified_template=$(echo \"${modified_template}\" | sed \"s@### User Stories/Bugs affected@### User Stories/Bugs affected\\n\\nRelated ${wi_id_azdo}@\")\n        modified_template=$(echo \"${modified_template}\" | sed 's@### Other systems impacted@### Other systems impacted\\n\\n- N/A@')\n        modified_template=$(echo \"${modified_template}\" | sed 's@- \\[ \\] No@- [x] No@')\n        # Remplace double empty lines with one empty line\n        modified_template=$(echo \"${modified_template}\" | sed ':L;N;s/^\\n$//;t L')\n        echo \"${modified_template}\" > ${pr_body_temp_file}\n        \n        pr_body=\"${pr_body_temp_file}\"\n    else\n        pr_body=\"${wi_id_azdo}\"\n    fi\n    \n    # TODO: Remove next line when https://github.com/cli/cli/issues/1718 is fixed\n    git push -u origin HEAD\n\n    bash -c \"gh prcr \\\n        --title \\\"${pr_title}\\\" \\\n        --body-file \\\"${pr_body_temp_file}\\\" \\\n        --draft\"\n)"
     # TODO: fix
-    prcrwi: "!(\n    root_dir=$(git rev-parse --show-toplevel)\n    branch_name=$(gh __branch-name)\n    wi_id=$(echo ${branch_name} | awk -F'_' '{print $1}')\n    wi_title=$(echo ${branch_name} | awk -F'_' '{print $2}')\n\n    wi_id_azdo=$(echo ${wi_id} | tr '-' '#')\n    wi_id_azdo_num=$(echo ${wi_id_azdo} | awk -F'#' '{print $2}')\n    wi_title_azdo=$(echo ${wi_title} | tr '-' ' ')\n\n    pr_title=\"${wi_id_azdo} ${wi_title_azdo}\"\n\n    # if there is pull_request_template.md file in the .github folder, use it as pr body\n    # pr_tmpl=${root_dir}/.github/pull_request_template.md\n    # Force not enter\n    pr_tmpl=${root_dir}/.github/pull_request_template.md\n    pr_body_temp_file=$(mktemp -t pr_body_XXXXX.md)\n    chmod 666 ${pr_body_temp_file}\n    #trap \"rm -f ${pr_body_temp_file}\\\" EXIT\n\n    if [ -f \"${pr_tmpl}\" ]; then\n        # Modify the template using sed\n        modified_template=$(cat \"${pr_tmpl}\")\n        modified_template=$(echo \"${modified_template}\" | sed '/<!--/,/-->/d')\n        modified_template=$(echo \"${modified_template}\" | sed \"s@### User Stories/Bugs affected@### User Stories/Bugs affected\\\\n\\\\nRelated ${wi_id_azdo}@\")\n        modified_template=$(echo \"${modified_template}\" | sed 's@### Other systems impacted@### Other systems impacted\\\\n\\\\n- N/A@')\n        modified_template=$(echo \"${modified_template}\" | sed 's@- \\\\[ \\\\] No@- [x] No@')\n        # Remplace double empty lines with one empty line\n        modified_template=$(echo \"${modified_template}\" | sed ':L;N;s/^\\\\\\\\n$//;t L')\n        echo \"${modified_template}\" > ${pr_body_temp_file}\n        \n        pr_body=\"${pr_body_temp_file}\"\n    else\n        pr_body=\"${wi_id_azdo}\"\n    fi\n\n    # TODO: Remove next line when https://github.com/cli/cli/issues/1718 is fixed\n    git push -u origin HEAD\n\n    bash -c \"gh prcr \\\n        --title \\\"${pr_title}\\\" \\\n        --body-file \\\"${pr_body_temp_file}\\\" \\\n        --draft\"\n)"
-    # prcrwi: |-
-    #     !(
-    #         github-prcrwi
-    #     )
+    prcrwi: |-
+        !(
+            gh plain-prcrwi
+        )
     prcrwir: |-
         !(
             gh prcrwi
@@ -300,9 +314,161 @@ aliases:
             | jq -r '(["LIMIT","USED","REMAINING","RESET"] | (., map(length*"-"))), (.[] | [.limit, .used, .remaining, .reset]) | @tsv'
         )
     ####
+    # Tools
+    ####
+    new-branch-azdo: |-
+        !(
+            wi_id="$1"
+            wi_title="$2"
+            
+            git sw -c "AB-${wi_id}_${wi_title}"
+        )
+    new-branch-from-azdo-wi: |-
+        !(
+            wi_id="$1"
+            wi_title="$(gh azdo-item-title "${wi_id}")"
+            
+            gh new-branch-azdo "${wi_id}" "${wi_title}"
+        )
+    # TODO: remove this, duplicated into bash_aliases, use bash commands intead of run gh commands for all. Create branches better from bash aliases and with the branch name, take the info for the next commands.
+    azdo-item-title: |-
+        !(
+            wi_id="$1"
+            az boards work-item show \
+                --id "${wi_id}" \
+                --output json \
+                --query 'fields."System.Title"' \
+                | tr '[:upper:]' '[:lower:]' \
+                | tr -d '!"#$%&'"'"'()*+,./:;<=>?@[\\]^_`{|}~-' \
+                | sed -e 's/[ \t]*$//' \
+                | tr ' ' '-'
+        )
+    azdo-get-active-wi-ids: |-
+        !(
+            az boards query  \
+                --wiql "SELECT [System.Id] FROM workitems WHERE [System.WorkItemType] = 'User Story' AND ([System.State] = 'ToDo' OR [System.State] = 'Active')" \
+                --query "[*].id" \
+                --output tsv
+        )
+    azdo-get-active-wi-info: |-
+        !(
+            gh azdo-get-active-wi-ids \
+            | xargs --max-procs 8 -I '%' sh -c \
+                "az boards work-item show --id '%' --output json | jq -r '.fields | {id: .\"System.Id\"  , title: .\"System.Title\"  , state: .\"System.State\"  , assigned: .\"System.AssignedTo.displayName\"   } | [.id, .title, .state, .assigned] | @tsv'"
+        )
+    ####
     # Company
     ####
-    pezaio-new-branch: "!(\n    wi_id=\"$1\"\n    wi_title=\"$(azdo-item-title \"${wi_id}\")\"\n    \n    git sw -c \"AB-${wi_id}_${wi_title}\"\n)"
+    # plain
+    plain-wi: |-
+        !(
+            wi_id="$1"
+            gh plain-new-branch ${wi_id}
+        )
+    plain-new-branch: |-
+        !(
+            wi_id="$1"
+            gh new-branch-from-azdo-wi ${wi_id}
+        )
+    plain-prcrwi: |-
+        !(
+            branch_name=$(gh __branch-name)
+    
+            ab_id=$(echo ${branch_name} | awk -F'_' '{print $1}')
+            wi_id=${ab_id}
+            if [[ ${ab_id} == "AB-"* ]]; then
+                azdo_wi=$(echo ${wi_id} | sed 's/AB-//')
+            else
+                azdo_wi=${wi_id}
+            fi
+            wi_title=$(echo ${branch_name} | awk -F'_' '{print $2}')
+            
+            pr_title="${azdo_wi} ${wi_title}"
+            pr_body='#'"${azdo_wi}"
+            
+            # get the default branch of the repository from az devops
+            repository_name=$(git remote get-url origin | awk -F'/' '{print $3}')
+            repository_name_decoded=$(echo ${repository_name} | sed 's/%20/ /g' | sed 's/%2F/\//g')
+            default_branch=$(az repos show --repository "${repository_name_decoded}" --query "defaultBranch" -o tsv)
+            default_branch=$(echo ${default_branch} | sed 's/refs\/heads\///')
+            
+            git push -u origin HEAD
+            
+            az repos pr create \
+                --title "${pr_title}" \
+                --description "${pr_body}" \
+                --source-branch "${branch_name}" \
+                --target-branch "${default_branch}" \
+                --work-items "${azdo_wi}"
+        )
+    # pezaio
+    pezaio-wi: |-
+        !(
+            wi_id="$1"
+            gh pezaio-new-branch ${wi_id}
+        )
+    pezaio-new-branch: |-
+        !(
+            wi_id="$1"
+            gh new-branch-from-azdo-wi ${wi_id}
+        )
+    pezaio-wif: |-
+        !(
+            project=PaymentPlatform
+            IterationPath="${project}\Sprint $(date +%Y-%V)"
+            azdo_web="https://dev.azure.com/pezaio"
+            az boards query --org ${azdo_web} --project ${project} \
+                --wiql "SELECT [System.Id] FROM workitems WHERE [System.WorkItemType] = 'User Story' AND ([System.State] = 'ToDo' OR [System.State] = 'Active') AND [System.IterationPath] = \"${IterationPath}\""  \
+                --query "[*].{id:id,url:url}" \
+                --output json \
+            | jq -r '.[].id' \
+            | fzf --preview 'az boards work-item show --id {1} --org https://dev.azure.com/pezaio --output table'
+        )
+    pezaio-prcrwi: |-
+        !(
+            root_dir=$(git rev-parse --show-toplevel)
+            branch_name=$(gh __branch-name)
+            wi_id=$(echo ${branch_name} | awk -F'_' '{print $1}')
+            wi_title=$(echo ${branch_name} | awk -F'_' '{print $2}')
+
+            wi_id_azdo=$(echo ${wi_id} | tr '-' '#')
+            wi_id_azdo_num=$(echo ${wi_id_azdo} | awk -F'#' '{print $2}')
+            wi_title_azdo=$(echo ${wi_title} | tr '-' ' ')
+
+            pr_title="${wi_id_azdo} ${wi_title_azdo}"
+
+            # if there is pull_request_template.md file in the .github folder, use it as pr body
+            # pr_tmpl=${root_dir}/.github/pull_request_template.md
+            # Force not enter
+            pr_tmpl=${root_dir}/.github/pull_request_template.md
+            pr_body_temp_file=$(mktemp -t pr_body_XXXXX.md)
+            chmod 666 ${pr_body_temp_file}
+            #trap "rm -f ${pr_body_temp_file}\" EXIT
+
+            if [ -f "${pr_tmpl}" ]; then
+                # Modify the template using sed
+                modified_template=$(cat "${pr_tmpl}")
+                modified_template=$(echo "${modified_template}" | sed '/<!--/,/-->/d')
+                modified_template=$(echo "${modified_template}" | sed "s@### User Stories/Bugs affected@### User Stories/Bugs affected\\n\\nRelated ${wi_id_azdo}@")
+                modified_template=$(echo "${modified_template}" | sed 's@### Other systems impacted@### Other systems impacted\\n\\n- N/A@')
+                modified_template=$(echo "${modified_template}" | sed 's@- \\[ \\] No@- [x] No@')
+                # Remplace double empty lines with one empty line
+                modified_template=$(echo "${modified_template}" | sed ':L;N;s/^\\\\n$//;t L')
+                echo "${modified_template}" > ${pr_body_temp_file}
+                
+                pr_body="${pr_body_temp_file}"
+            else
+                pr_body="${wi_id_azdo}"
+            fi
+
+            # TODO: Remove next line when https://github.com/cli/cli/issues/1718 is fixed
+            git push -u origin HEAD
+
+            bash -c "gh prcr \
+                --title \"${pr_title}\" \
+                --body-file \"${pr_body}\" \
+                --draft"
+        )
     pezaio-dependabot-merge: |-
         !(
             git stash

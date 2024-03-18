@@ -1028,6 +1028,7 @@ fi
 log info "languages"
 install_python
 install_node
+install_by_pgkmanager golang-go
 
 log info "gh"
 install_gh
@@ -1084,6 +1085,7 @@ else
 fi
 
 # Tools
+install_by_pgkmanager w3m
 install_gum
 install_ijq
 install_starship

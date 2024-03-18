@@ -1,0 +1,5 @@
+# vim: ft=gitconfig
+[alias]
+	default-branch = !git symbolic-ref refs/remotes/origin/HEAD | sed 's@^refs/remotes/origin/@@'
+	# Other way to get the default branch
+	# __default-branch = "!git remote show origin | grep 'HEAD branch' | cut -d':' -f2 | xargs"

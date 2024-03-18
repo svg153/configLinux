@@ -204,3 +204,25 @@ azdo-item-open(){
         --open \
     > /dev/null
 }
+
+azdo-prs(){
+    # """
+    # Get all PRs from the repository
+    #
+    # Returns:
+    #     str: The url to the work item
+    # """
+
+    az repos pr list --output json \
+        | jq -r '.[] | "\(.pullRequestId) - \(.title)"' \
+        | fzf
+}
+
+azdo-prcrwi(){
+    # """
+    # Create a PR from a work item taken from the current branch name
+    #
+    # """
+
+    echo "implented in gh alias"
+}

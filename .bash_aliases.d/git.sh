@@ -6,7 +6,7 @@ alias gswm="g switch main"
 alias gps="g push"
 alias gplp="g pull --prune"
 alias gci="g commit"
-alias gco="g checkout"
+alias gco="git-checkout-scm"
 alias gst="g status"
 alias gres="g unstage"
 alias gunstage="gres"
@@ -47,3 +47,62 @@ alias gri="g"
 alias gti="g"
 alias gir="g"
 alias igt="g"
+
+git-checkout-scm(){
+    # """
+    # checkout a branch or list all branches to select one
+    #
+    # Args:
+    #     branch_name (str): The name of the branch
+    #
+    # Returns:
+    #     str: The name of the branch
+    # """
+    
+    local branch_name="$1"
+    if [ "$#" -eq 1 ]; then        # list all branches to select one
+        g co "$branch_name"
+    else
+        # list all branches local and remotes to select one
+        branch_selected=$(g branch -a | fzf)
+        if [ -z "$branch_selected" ]; then
+            echo "No branch selected" >&2
+            return 1
+        fi
+        if [[ "$branch_selected" =~ ^remotes/ ]]; then
+            branch_selected=$(echo "$branch_selected" | awk -F'/' '{print $3}')
+        fi
+        g co "$branch_selected"
+    fi
+}
+
+git-checkout-prs(){
+    # """
+    # checkout PRs
+    # """
+    
+    # Get all PRs from the repository depending of the SCM that is being used
+    # get remote URL to determine the SCM
+    remote_url=$(g remote get-url origin)
+    case "$remote_url" in
+        *github.com*)
+            prs=$(gh pr list -s all | fzf)
+            ;;
+        *dev.azure.com*)
+            prs=$(azdo-prs)
+            ;;
+        *)
+            prs=$(g pr list -s all | fzf)
+            ;;
+    esac
+    # list all branches local and remotes to select one
+    branch_selected=$(g branch -a | fzf)
+    if [ -z "$branch_selected" ]; then
+        echo "No branch selected" >&2
+        return 1
+    fi
+    if [[ "$branch_selected" =~ ^remotes/ ]]; then
+        branch_selected=$(echo "$branch_selected" | awk -F'/' '{print $3}')
+    fi
+    g co "$branch_selected"
+}
