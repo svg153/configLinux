@@ -1,4 +1,7 @@
 #!/bin/bash
+# fzf wrapper for selecting from a list of items passed by pipe or file argument
+# if there is only one item, print it directly
+# if there are multiple items, print them as a list and pipe to fzf
 
 # read lines passes by pipe into an array
 lines=()

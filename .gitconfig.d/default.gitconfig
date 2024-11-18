@@ -3,16 +3,10 @@
 [include]
 	path = diff.gitconfig
 [include]
+	path = alias.gitconfig
+[include]
 	path = alias-typos.gitconfig
 [include]
-	path = alias-gh.gitconfig
-[includeIf "gitdir:~/REPOSITORIOS/0_WORK/0_PEZA/"]
-	path = work-peza.gitconfig
-[includeIf "gitdir:~/REPOSITORIOS/0_WORK/0_PEZA_ACTIONS/"]
-	path = work-peza.gitconfig
-[includeIf "gitdir:~/REPOSITORIOS/0_WORK/NomuPay/"]
-	path = work-nomupay.gitconfig
-[includeIf "gitdir:~/REPOSITORIOS/0_WORK/pezaio-testing/"]
-	path = work-pezaio-testing.gitconfig
-[includeIf "gitdir:~/REPOSITORIOS/0_WORK/0_plain/"]
-	path = work-plain.gitconfig
+	path = gh.gitconfig
+[include]
+	path = ./work/work.gitconfig

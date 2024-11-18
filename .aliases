@@ -133,7 +133,7 @@ alias dockviz="docker run -it --rm -v /var/run/docker.sock:/var/run/docker.sock 
 # Personal aliases
 ######
 
-alias branch="pezaio-new-branch"
+alias branch="azdo-new-branch"
 alias us="pezaio-new-us-from-us"
 
 #
@@ -142,6 +142,7 @@ alias us="pezaio-new-us-from-us"
 new-repo() {
   fullRepoPath="$1"; repoNameGit=$(basename "$fullRepoPath"); repoName="${repoNameGit%.*}"; mkdir -p ~/REPOSITORIOS/$repoName
 };
+
 alias git-clone='git-clone() { fullRepoPath="$1"; repoNameGit=$(basename "$fullRepoPath"); repoName="${repoNameGit%.*}"; mkdir -p ~/REPOSITORIOS/$repoName; git clone "$1"}; git-clone'
 alias git-new='git-new() { fullRepoPath="$1"; repoNameGit=$(basename "$fullRepoPath"); repoName="${repoNameGit%.*}"; mkdir -p ~/REPOSITORIOS/$repoName; echo "# $repoName" >> README.md; git init; git add README.md; git commit -m "first commit"; git remote add origin $1; git push -u origin master}; git-new'
 alias git-update-branch-from-dev="git pull origin develop"

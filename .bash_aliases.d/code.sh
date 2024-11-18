@@ -19,3 +19,16 @@ codeconfig(){
         echo "No configLinux directory found"
     fi
 }
+
+alias notes="codenotes"
+codenotes(){
+    if [ -d ~/REPOSITORIOS/0_PERSONAL/notes/ ]; then
+        code ~/REPOSITORIOS/0_PERSONAL/notes/
+    elif [ -d ~/REPOSITORIOS/notes/ ]; then
+        code ~/REPOSITORIOS/notes/
+    elif [ -d ~/notes/ ]; then
+        code ~/notes/
+    else
+        echo "No notes directory found"
+    fi
+}

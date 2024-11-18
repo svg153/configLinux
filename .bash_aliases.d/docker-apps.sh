@@ -99,3 +99,13 @@ alias diagrams="docker run -it --rm -v \"$PWD:/diagrams/scripts/\" -w /diagrams/
 # testssl
 # https://github.com/drwetter/testssl.sh
 alias testssl="docker run --rm -it docker.io/drwetter/testssl.sh"
+
+# plantuml
+# https://plantuml.com/es/
+#   - https://paregov.net/setup-plantuml-with-docker-and-visual-studio-code-locally/
+# alias plantuml="docker run --rm -v \"$PWD:/workdir\" plantuml/plantuml -tsvg"
+alias plantuml="docker run -d -p 8080:8080 plantuml/plantuml-server:jetty"
+
+# dasel
+# https://daseldocs.tomwright.me/installation#docker
+alias dasel="docker run -i --rm ghcr.io/tomwright/dasel:latest"

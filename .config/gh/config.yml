@@ -15,6 +15,24 @@ pager:
 #  * https://campusvirtual.ull.es/ocw/pluginfile.php/19489/mod_resource/content/3/_site/pages/gh.html
 aliases:
     aliases: alias list
+    accounts: auth status
+    rmarchive: |-
+        !(
+            repo_owner=$(git remote get-url origin | sed -n 's/.*github.com[:\/]\(.*\)\/.*/\1/p')
+            owner=${1:-$repo_owner}
+            gh api --paginate graphql -f owner="${owner}" -f query='
+                query($owner: String!, $per_page: Int = 100, $endCursor: String) {
+                    repositoryOwner(login: $owner) {
+                        repositories(first: $per_page, after: $endCursor, isArchived: true) {
+                            nodes { name }
+                            pageInfo { hasNextPage endCursor }
+                        }
+                    }
+                }' \
+            | jq -r '.data.repositoryOwner.repositories.nodes[].name' | sort \
+            | fzf --multi \
+            | xargs -I '%' gh repo delete ${owner}/% --yes
+        )
     wi: |-
         !(
             if [ $# -eq 0 ]; then
@@ -102,13 +120,21 @@ aliases:
             
             # TODO: Remove next line when https://github.com/cli/cli/issues/1718 is fixed
             git push -u origin HEAD
-            gh prcr --title "${pr_title}" --body "${pr_body}" --draft
+            gh prcr --title "${pr_title}" --body "${pr_body}"
         )
     prcrewi: prcrwi
     # TODO: fix
     prcrwi: |-
         !(
             gh plain-prcrwi
+        )
+    prcrwim: |-
+        !(
+            if [ $# -eq 0 ]; then
+                gh plain-prcrwim
+            else
+                gh plain-prcrwim "$1"
+            fi
         )
     prcrwir: |-
         !(
@@ -256,6 +282,16 @@ aliases:
         !(
             gh run list --branch=$(git branch --show)
         )
+    exec-watch-workflow-branch: |-
+        !(
+            if [ $# -lt 1 ]; then
+                echo "Usage: gh exec-watch-workflow-branch <workflow_filerelpath> [workflow_args]"
+                exit 1
+            fi
+            gh execute-workflow-branch $@
+            sleep 10 # wait for the workflow to start
+            gh watch-last-run-execution
+        )
     execute-workflow-branch: |-
         !(
             if [ $# -lt 1 ]; then
@@ -271,6 +307,19 @@ aliases:
             workflow_name_to_run=$(yq '.name' ${workflow_filepath})
             branch_name=$(gh __branch-name)
             gh workflow run "${workflow_name_to_run}" --ref "${branch_name}" ${workflow_args}
+        )
+    watch-last-run-execution: |- 
+        !(
+            last_run_id=$(gh __get-last-run-execution-id)
+            gh run watch ${last_run_id}
+            if [ $? -eq 0 ]; then
+                gh run view --log ${last_run_id}
+            fi
+        )
+    view-last-run-execution: |-
+        !(
+            last_run_id=$(gh __get-last-run-execution-id)
+            gh run view ${last_run_id}
         )
     secrets: secret list
     ssh-keys: ssh-key list
@@ -311,13 +360,25 @@ aliases:
                 -H "Accept: application/vnd.github.v3+json" \
                 /rate_limit \
             | jq '.resources' \
-            | jq -r '(["LIMIT","USED","REMAINING","RESET"] | (., map(length*"-"))), (.[] | [.limit, .used, .remaining, .reset]) | @tsv'
+            | jq -r '(["LIMIT","USED","REMAINING","RESET"] | (., map(length*"-"))), (.[] | [.limit, .used, .remaining, (.reset | todate)]) | @tsv'
+        )
+    rate-limit-table-new: |-
+        !(
+            gh api \
+                -H "Accept: application/vnd.github.v3+json" \
+                /rate_limit \
+            | jq -r '(["id", "limit", "used", "remaining", "reset"] | (., map(length*"-"))), (.resources | to_entries[] | [.key, .value.limit, .value.used, .value.remaining, (.value.reset | todate)]) | @tsv'
         )
     ####
     # Tools
     ####
     new-branch-azdo: |-
         !(
+            if [ $# -ne 2 ]; then
+                echo "Usage: gh new-branch-azdo <wi_id> <wi_title>"
+                exit 1
+            fi
+            
             wi_id="$1"
             wi_title="$2"
             
@@ -325,14 +386,28 @@ aliases:
         )
     new-branch-from-azdo-wi: |-
         !(
-            wi_id="$1"
-            wi_title="$(gh azdo-item-title "${wi_id}")"
+            if [ $# -ne 1 ]; then
+                echo "Usage: gh new-branch-from-azdo-wi <wi_id>"
+                exit 1
+            fi
             
+            wi_id="$1"
+            
+            wi_title="$(gh azdo-item-title "${wi_id}")"
+            if [ -z "${wi_title}" ]; then
+                echo "Error: Work item not found"
+                exit 1
+            fi
+                        
             gh new-branch-azdo "${wi_id}" "${wi_title}"
         )
     # TODO: remove this, duplicated into bash_aliases, use bash commands intead of run gh commands for all. Create branches better from bash aliases and with the branch name, take the info for the next commands.
     azdo-item-title: |-
         !(
+            if [ $# -ne 1 ]; then
+                echo "Usage: gh azdo-item-title <wi_id>"
+                exit 1
+            fi
             wi_id="$1"
             az boards work-item show \
                 --id "${wi_id}" \
@@ -499,8 +574,13 @@ aliases:
                 --squash \
                 --delete-branch
         )
+    __get-last-run-execution-id: |-
+        !(
+            gh run list --limit 1 --json "databaseId" --jq ".[0].databaseId"
+        )
 # The path to a unix socket through which send HTTP connections. If blank, HTTP traffic will be handled by net/http.DefaultTransport.
 http_unix_socket:
 # What web browser gh should use when opening URLs. If blank, will refer to environment.
-browser:
+browser: 
+# if are in WSL, use the windows browser explorer.exe, setting `export GH_BROWSER=explorer.exe`
 version: "1"

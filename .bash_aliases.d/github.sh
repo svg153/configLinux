@@ -1,3 +1,4 @@
+export GH_BROWSER=explorer.exe
 
 github-clone-all(){
     user="$1"

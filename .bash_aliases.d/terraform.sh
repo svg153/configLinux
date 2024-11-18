@@ -57,6 +57,43 @@ terraform_provider_azurerm_install() {
   terraform_provider_install "${provider_name}" "${provider_version}"
 }
 
+terraform_apply_targets() {
+  if [[ $# -eq 0 ]]; then
+    echo "Usage: terraform_apply_targets [--auto-approve] <target1> [<target2> ...] "
+    return 1
+  fi
+
+  local auto_approve=""
+  if [[ "$1" == "--auto-approve" ]]; then
+    auto_approve="--auto-approve"
+    shift
+  fi
+
+  local -r targets=("$@")
+  local -r targets_str=$(IFS=","; echo "${targets[*]}" | sed 's/,/ --target=/g')
+
+  echo terraform apply ${auto_approve} --target="${targets_str}"
+}
+
+tf_summarize() {
+  docker run -v $PWD:/workspace -w /workspace ghcr.io/dineshba/tf-summarize $@
+}
+
+tfsec() {
+  docker run -v $PWD:/workspace -w /workspace ghcr.io/dineshba/tfsec $@
+}
+
+tfnotify() {
+  docker run -v $PWD:/workspace -w /workspace ghcr.io/dineshba/tfnotify $@
+}
+
 ### Tools
 
-alias tf-summarize="docker run -v $PWD:/workspace -w /workspace ghcr.io/dineshba/tf-summarize"
+# tfautomove installed use tfautomv
+
+alias tfaat="terraform_apply_targets --auto-approve"
+alias tfat="terraform_apply_targets"
+
+alias tf-summarize="tf_summarize"
+
+alias tfnotify-plan="tfnotify plan"

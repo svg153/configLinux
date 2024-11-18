@@ -57,3 +57,18 @@ if [ $? -eq 0 ]; then
     # # alias 'gh?'='copilot_gh-assist';
     # # alias 'wts'='copilot_what-the-shell';
 fi
+
+command -v gh >/dev/null 2>&1
+if [ $? -eq 0 ]; then
+    if gh extension list | grep -q "gh copilot"; then
+        shell_actual=$(basename $SHELL)
+        if [ "$shell_actual" = "bash" ] || [ "$shell_actual" = "zsh" ]; then
+            eval "$(gh copilot alias -- "$shell_actual")"
+        fi
+    fi
+fi
+
+alias '??'='copilot_what-the-shell'
+# alias '??'='ghcs' # new alias
+
+# TODO: https://gist.github.com/Pl8tinium/3702c356a83b7363f3ab769d6ec47e2a

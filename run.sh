@@ -513,6 +513,35 @@ function install_minikube()
     # - Podman: https://minikube.sigs.k8s.io/docs/drivers/podman/
 }
 
+function install_tfenv()
+{
+    # tfenv
+    # https://github.com/tfutils/tfenv#terraform-version-file
+    if [[ -x "$(command -v tfenv)" ]]; then
+        tfenv -v
+    else
+        git clone --depth=1 https://github.com/tfutils/tfenv.git ~/.tfenv
+        # added to path in .rc.d/terraform.sh
+        mkdir -p ~/.local/bin/
+        ln -s ~/.tfenv/bin/* ~/.local/bin
+        which tfenv
+        tfenv -v
+    fi
+}
+
+function install_terraform_with_tfenv()
+{
+    if [[ -x "$(command -v terraform)" ]]; then
+        terraform -version
+        return 0
+    else
+        install_tfenv
+    fi
+
+    tfenv install latest
+    tfenv use latest
+}
+
 function install_terraform()
 {
     if [[ -x "$(command -v terraform)" ]]; then
@@ -549,10 +578,43 @@ function install_terraform()
 function install_terraform_tools()
 {
     # tflint
+    # https://github.com/tighten/tlint
     if [[ -x "$(command -v tflint)" ]]; then
         tflint -v
     else
         curl -s https://raw.githubusercontent.com/terraform-linters/tflint/master/install_linux.sh | bash
+    fi
+
+    # tfswitch
+    # https://github.com/warrensbox/terraform-switcher
+    if [[ -x "$(command -v tfswitch)" ]]; then
+        tfswitch -v
+    else
+        curl -L https://raw.githubusercontent.com/warrensbox/terraform-switcher/master/install.sh | bash
+    fi
+    
+    # tfsec
+    # https://github.com/aquasecurity/tfsec
+    if [[ -x "$(command -v tfsec)" ]]; then
+        tfsec -v
+    else
+        go install github.com/aquasecurity/tfsec/cmd/tfsec@latest
+    fi
+    
+    # checkcov
+    # https://github.com/bridgecrewio/checkov
+    if [[ -x "$(command -v checkov)" ]]; then
+        checkov -v
+    else
+        pip3 install checkov
+    fi
+    
+    # tfautomv
+    # https://github.com/busser/tfautomv
+    if [[ -x "$(command -v tfautomv)" ]]; then
+        tfautomv -v
+    else
+        curl -sSfL https://raw.githubusercontent.com/busser/tfautomv/main/install.sh | sh
     fi
 }
 
@@ -666,6 +728,20 @@ function install_termium()
     termium auth
 }
 
+function install_taskfalcon()
+{
+    if [[ -x "$(command -v taskfalcon)" ]]; then
+        taskfalcon --version
+        return 0
+    fi
+
+    curl -L https://taskfalcon.org/bin/TaskFalcon-Linux.tgz | tar xz \
+        && sudo mv falcon /usr/local/bin/falcon \
+        && sudo chmod +x /usr/local/bin/falcon \
+        && sudo ln -s /usr/local/bin/falcon /usr/local/bin/taskfalcon \
+        && falcon --version
+}
+
 function install_webinstall()
 {    
     if [[ -x "$(command -v webi)" ]]; then
@@ -746,6 +822,7 @@ function install_gh_extensions(){
             install_gh_ext "matt-bartel/gh-clone-org"
             if [[ -d ~/.local/share/gh/extensions/gh-clone-org-matt ]]; then
                 mv ~/.local/share/gh/extensions/gh-clone-org{,-matt}
+                mv ~/.local/share/gh/extensions/gh-clone-org-matt/gh-clone-org{,-matt}
             fi
 
             create_symlink ${CONFIG_PATH}/.config/gh-dash/ ~/.config/gh-dash # config for dlvhdr/gh-dash
@@ -787,6 +864,13 @@ function install_gh_copilot()
     sudo npm install -g @githubnext/github-copilot-cli
     
     github-copilot-cli auth
+}
+
+function install_github_tools()
+{
+    # ghorg
+    # https://github.com/gabrie30/ghorg
+    go install github.com/gabrie30/ghorg@latest
 }
 
 function install_by_gh()
@@ -1002,12 +1086,17 @@ if [[ ! -f "${personal_mail_gitconfig}" ]]; then
 fi
 
 # work mail
-if [[ -z $(ls ${CONFIG_PATH}/.gitconfig.d/work-*.gitconfig) ]]; then
+# if work folder exists
+if [[ ! -d "${CONFIG_PATH}/.gitconfig.d/work" ]]; then
+    mkdir -p ${CONFIG_PATH}/.gitconfig.d/work    
+fi
+
+if [[ -z "$(ls ${CONFIG_PATH}/.gitconfig.d/work/work-*.gitconfig)" ]]; then
     if [[ -z "${COMPANY_NAME}" ]]; then
         echo "Enter your company name: "
         read COMPANY_NAME
     fi
-    work_mail_gitconfig="${CONFIG_PATH}/.gitconfig.d/work-${COMPANY_NAME}.gitconfig"
+    work_mail_gitconfig="${CONFIG_PATH}/.gitconfig.d/work/work-${COMPANY_NAME}.gitconfig"
     if [[ ! -f "${work_mail_gitconfig}" ]]; then
         if [[ -z "${COMPANY_USER_NAME}" ]]; then
             echo "Enter your company user name: "
@@ -1030,10 +1119,11 @@ install_python
 install_node
 install_by_pgkmanager golang-go
 
-log info "gh"
+log info "github tools"
 install_gh
 install_gh_extensions
 install_gh_copilot
+install_github_tools
 
 log info "zsh and .oh-my-zsh"
 install_zsh
@@ -1089,9 +1179,14 @@ install_by_pgkmanager w3m
 install_gum
 install_ijq
 install_starship
+
+# Azure
 install_azurecli
 install_azurecli_extentions
-install_terraform
+
+# Terraform 
+install_tfenv
+install_terraform_with_tfenv # use tfenv to install terraform instead of install_terraform
 install_terraform_tools
 
 pip3 install \
@@ -1099,6 +1194,7 @@ pip3 install \
 
 install_fzf
 install_termium
+install_taskfalcon
 
 install_webinstall
 tools_by_webi=(bat rg fd jq yq)
@@ -1116,8 +1212,10 @@ tools_by_github=(
     wtfutil/wtf
     noahgorstein/jqp
     go-task/task
-    # multiprocessio/ds # TODO: Failed
+    altsem/gitu
 )
+# multiprocessio/ds # TODO: Failed
+
 # @TODO: interactive install...
 #    - https://github.com/redraw/gh-install/issues/5
 #        - https://github.com/wimpysworld/deb-get
@@ -1128,6 +1226,7 @@ tools_by_github=(
 for p in "${tools_by_github[@]}"; do
     install_by_gh "${p}"
 done
+create_symlink ${CONFIG_PATH}/.config/gitu/ ~/.config/gitu
 
 #
 # PROGRAMS

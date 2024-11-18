@@ -1,3 +1,3 @@
 [alias]
 	# gh alias, do not use the bash alias... so, need to wrap it here
-	prcrwi = !. ~/configLinux/.config/gh/github-prcrwi.sh && github-prcrwi
+	prcrwi = !. ~/REPOSITORIOS/configLinux/.config/gh/github-plain-prcrwi.sh && github_plain_prcrwi

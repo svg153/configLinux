@@ -39,12 +39,12 @@ github_plain_prcrwi() {
         --work-items "${wi_id_azdo}"
 }
 
-function __get_default_branch_git() {
+__get_default_branch_git() {
     default_branch=$(git remote show origin | grep 'HEAD branch' | cut -d':' -f2 | xargs)
     echo "${default_branch}"
 }
 
-function __get_default_branch_azdo() {
+__get_default_branch_azdo() {
     # get the default branch of the repository from az devops
     repository_name=$(git remote get-url origin | awk -F'/' '{print $3}')
     repository_name_decoded=$(echo "${repository_name}" | sed 's/%20/ /g' | sed 's/%2F/\//g')

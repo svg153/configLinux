@@ -34,6 +34,9 @@ esac
 # See bash(1) for more options
 HISTCONTROL=ignoreboth
 
+# add timestampts to history
+HISTTIMEFORMAT="%F %T "
+
 # append to the history file, don't overwrite it
 shopt -s histappend
 
@@ -164,6 +167,15 @@ fi
 # terraform
 # https://developer.hashicorp.com/terraform/install
 complete -C /usr/bin/terraform terraform
+
+# # ssh agent
+# # https://www.ssh.com/ssh/agent
+# if [ -z "$SSH_AUTH_SOCK" ] ; then
+#     eval "$(ssh-agent -s)"
+#     ssh-add
+#     ssh-add ~/.ssh/id_ed25519_wizink
+#     ssh-add ~/.ssh/id_rsa_azdo
+# fi
 
 #
 # <- My configuration

@@ -1,6 +1,7 @@
-
-
 alias g="git"
+
+alias dw="g pull"
+alias pu="g push"
 
 alias gswm="g switch main"
 alias gps="g push"
@@ -105,4 +106,31 @@ git-checkout-prs(){
         branch_selected=$(echo "$branch_selected" | awk -F'/' '{print $3}')
     fi
     g co "$branch_selected"
+}
+
+get-my-commits(){
+    if [ "$#" -lt 2 ]; then
+        echo "Usage: get-my-commits AUTHOR_NAME FOLDER_PATH [OUTPUT_FILE]"
+        return 1
+    fi
+    
+    local AUTHOR_NAME="${1}"
+    local FOLDER_PATH="${2}"
+    local OUTPUT_FILE="${3:-commits.json}"
+
+    echo "[" > "$OUTPUT_FILE"
+
+    for folder in $(ls -d "$FOLDER_PATH"/*/); do
+        cd "$folder" || continue
+        git log \
+            --author="$AUTHOR_NAME" \
+            --pretty=format:'{%n  "commit": "%H",%n  "title": "%s",%n  "message": "%b",%n  "repository": "'$folder'"%n},' \
+            >> "../$OUTPUT_FILE"
+        
+        cd ..
+    done
+
+    sed -i '' -e '$ s/,$//' "$OUTPUT_FILE"
+    echo "]" >> "$OUTPUT_FILE"
+    echo "Commits are saved in $OUTPUT_FILE"
 }
