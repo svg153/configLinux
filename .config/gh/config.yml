@@ -445,28 +445,36 @@ aliases:
             wi_id="$1"
             gh new-branch-from-azdo-wi ${wi_id}
         )
-    plain-prcrwi: |-
+    plain-prcrwim: |-
         !(
+            # Usage: gh plain-prcrwim [pr_title]
+
             branch_name=$(gh __branch-name)
-    
-            ab_id=$(echo ${branch_name} | awk -F'_' '{print $1}')
-            wi_id=${ab_id}
-            if [[ ${ab_id} == "AB-"* ]]; then
-                azdo_wi=$(echo ${wi_id} | sed 's/AB-//')
-            else
-                azdo_wi=${wi_id}
-            fi
-            wi_title=$(echo ${branch_name} | awk -F'_' '{print $2}')
             
-            pr_title="${azdo_wi} ${wi_title}"
-            pr_body='#'"${azdo_wi}"
+            issue_id=$(echo "${branch_name}" | awk -F'_' '{print $1}')
+            branch_issue_title=$(echo "${branch_name}" | awk -F'_' '{print $2}')
             
-            # get the default branch of the repository from az devops
-            repository_name=$(git remote get-url origin | awk -F'/' '{print $3}')
-            repository_name_decoded=$(echo ${repository_name} | sed 's/%20/ /g' | sed 's/%2F/\//g')
-            default_branch=$(az repos show --repository "${repository_name_decoded}" --query "defaultBranch" -o tsv)
-            default_branch=$(echo ${default_branch} | sed 's/refs\/heads\///')
+            wi_id="${issue_id}"
+            # if the issue id is in the format of AB-1234, then remove the prefix
+            case "${wi_id}" in
+                AB-*) 
+                    wi_id_azdo="${wi_id#AB-}" # remove the prefix
+                    pr_body='#'"${wi_id_azdo}"
+                    ;;
+                *)
+                    wi_id_azdo=${wi_id}
+                    pr_body="${wi_id_azdo}"
+                    ;;
+            esac
             
+            wi_title="${branch_issue_title}"
+            wi_title_azdo=$(echo "${wi_title}" | tr '-' ' ')
+            
+            pr_title="${wi_id_azdo} ${wi_title_azdo}"
+            
+            default_branch="main"
+            default_branch=$(git symbolic-ref refs/remotes/origin/HEAD | sed 's@^refs/remotes/origin/@@')
+
             git push -u origin HEAD
             
             az repos pr create \
@@ -474,7 +482,47 @@ aliases:
                 --description "${pr_body}" \
                 --source-branch "${branch_name}" \
                 --target-branch "${default_branch}" \
-                --work-items "${azdo_wi}"
+                --work-items "${wi_id_azdo}"
+        )
+    plain-prcrwi: |-
+        !(
+            set -x
+            # Usage: gh plain-prcrwi
+            
+            branch_name=$(gh __branch-name)
+    
+            issue_id=$(echo "${branch_name}" | awk -F'_' '{print $1}')
+            branch_issue_title=$(echo "${branch_name}" | awk -F'_' '{print $2}')
+            
+            wi_id="${issue_id}"
+            if [[ "${issue_id}" == "AB-"* ]]; then
+                wi_id_azdo="${wi_id#AB-}" # remove the prefix
+                pr_body='#'"${wi_id_azdo}"
+            else
+                wi_id_azdo=${wi_id}
+                pr_body="${wi_id_azdo}"
+            fi
+            
+            wi_title="${branch_issue_title}"
+            wi_title_azdo=$(echo "${wi_title}" | tr '-' ' ')
+            
+            pr_title="${wi_id_azdo} ${wi_title_azdo}"
+            
+            default_branch="main"
+            if command -v "git default-branch" &> /dev/null; then
+                default_branch=$(git default-branch)
+            else
+                default_branch=$(git symbolic-ref refs/remotes/origin/HEAD | sed 's@^refs/remotes/origin/@@')
+            fi
+
+            git push -u origin HEAD
+            
+            az repos pr create \
+                --title "${pr_title}" \
+                --description "${pr_body}" \
+                --source-branch "${branch_name}" \
+                --target-branch "${default_branch}" \
+                --work-items "${wi_id_azdo}"
         )
     # pezaio
     pezaio-wi: |-
@@ -506,11 +554,11 @@ aliases:
             wi_id=$(echo ${branch_name} | awk -F'_' '{print $1}')
             wi_title=$(echo ${branch_name} | awk -F'_' '{print $2}')
 
-            wi_id_azdo=$(echo ${wi_id} | tr '-' '#')
-            wi_id_azdo_num=$(echo ${wi_id_azdo} | awk -F'#' '{print $2}')
+            wi_id_azdo_gh=$(echo ${wi_id} | tr '-' '#')
+            wi_id_azdo=$(echo ${wi_id_azdo_gh} | awk -F'#' '{print $2}')
             wi_title_azdo=$(echo ${wi_title} | tr '-' ' ')
 
-            pr_title="${wi_id_azdo} ${wi_title_azdo}"
+            pr_title="${wi_id_azdo_gh} ${wi_title_azdo}"
 
             # if there is pull_request_template.md file in the .github folder, use it as pr body
             # pr_tmpl=${root_dir}/.github/pull_request_template.md
@@ -524,7 +572,7 @@ aliases:
                 # Modify the template using sed
                 modified_template=$(cat "${pr_tmpl}")
                 modified_template=$(echo "${modified_template}" | sed '/<!--/,/-->/d')
-                modified_template=$(echo "${modified_template}" | sed "s@### User Stories/Bugs affected@### User Stories/Bugs affected\\n\\nRelated ${wi_id_azdo}@")
+                modified_template=$(echo "${modified_template}" | sed "s@### User Stories/Bugs affected@### User Stories/Bugs affected\\n\\nRelated ${wi_id_azdo_gh}@")
                 modified_template=$(echo "${modified_template}" | sed 's@### Other systems impacted@### Other systems impacted\\n\\n- N/A@')
                 modified_template=$(echo "${modified_template}" | sed 's@- \\[ \\] No@- [x] No@')
                 # Remplace double empty lines with one empty line
@@ -533,7 +581,7 @@ aliases:
                 
                 pr_body="${pr_body_temp_file}"
             else
-                pr_body="${wi_id_azdo}"
+                pr_body="${wi_id_azdo_gh}
             fi
 
             # TODO: Remove next line when https://github.com/cli/cli/issues/1718 is fixed
