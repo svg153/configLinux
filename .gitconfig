@@ -107,9 +107,19 @@
 [init]
 	defaultBranch = main
 	templateDir = /home/svg153/.git-template
+[credential]
+	helper = 
+	credentialStore = cache
+[credential "https://dev.azure.com"]
+	useHttpPath = true
 [credential "https://github.com"]
 	helper = 
 	helper = !/home/svg153/.local/bin/gh auth git-credential
+# [credential "https://github.com/wz-aplazame"]
+# 	helper = 
+# 	helper = /usr/local/bin/git-credential-manager
+# 	credentialStore = cache
+# 	cacheOptions = "--timeout 360000"
 [credential "https://gist.github.com"]
 	helper = 
 	helper = !/home/svg153/.local/bin/gh auth git-credential
@@ -118,3 +128,9 @@
 	smudge = git-lfs smudge -- %f
 	process = git-lfs filter-process
 	required = true
+# [credential]
+# 	helper = 
+# 	credentialStore = cache
+# 	cacheOptions = "--timeout 360000"
+# 	helper = 
+# 	helper = /usr/local/bin/git-credential-manager
