@@ -115,7 +115,7 @@
 	useHttpPath = true
 [credential "https://github.com"]
 	helper = 
-	helper = !/home/svg153/.local/bin/gh auth git-credential
+	helper = !~/.local/bin/gh auth git-credential
 # [credential "https://github.com/wz-aplazame"]
 # 	helper = 
 # 	helper = /usr/local/bin/git-credential-manager
@@ -123,7 +123,7 @@
 # 	cacheOptions = "--timeout 360000"
 [credential "https://gist.github.com"]
 	helper = 
-	helper = !/home/svg153/.local/bin/gh auth git-credential
+	helper = !~/.local/bin/gh auth git-credential
 [filter "lfs"]
 	clean = git-lfs clean -- %f
 	smudge = git-lfs smudge -- %f
