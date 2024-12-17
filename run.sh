@@ -1029,6 +1029,29 @@ function clone_common_repos() {
     done
 }
 
+
+function create_sshkey_github() {
+    mkdir -p ~/.ssh
+    
+    # PERSONAL
+    sshkeyfile="~/.ssh/id_ed25519_github-com"
+    ssh-keygen -t ed25519 -C "${PERSONAL_EMAIL}" -f "${sshkeyfile}"
+    echo "Host github.com
+    HostName github.com
+    IdentityFile ${sshkeyfile}
+    AddKeysToAgent yes
+    User git" >> ~/.ssh/config
+    
+    # WORK
+    sshkeyfile="~/.ssh/id_ed25519_github-internal"
+    ssh-keygen -t ed25519 -C "${COMPANY_USER_EMAIL}" -f "${sshkeyfile}"
+    echo "Host git.internal.com # TODO: ask for this
+    HostName git.internal.com # TODO: ask for this
+    IdentityFile ${sshkeyfile}
+    AddKeysToAgent yes
+    User git" >> ~/.ssh/config    
+}
+
 #
 # BIG FUNCTIONS
 #
@@ -1044,9 +1067,11 @@ function clone_common_repos() {
 if [[ ${isWSL} ]]; then
     echo "No install drivers for WSL"
 else
+    # TODO: only if not Virtual Machine
     install_drivers
 fi
 
+create_sshkey_github
 
 # utils
 install bash-completion
