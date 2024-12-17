@@ -18,6 +18,7 @@ aliases:
     accounts: auth status
     rmarchive: |-
         !(
+            # TODO: change the sed to support other github servers, change to regex uri pattern 
             repo_owner=$(git remote get-url origin | sed -n 's/.*github.com[:\/]\(.*\)\/.*/\1/p')
             owner=${1:-$repo_owner}
             gh api --paginate graphql -f owner="${owner}" -f query='
@@ -208,6 +209,7 @@ aliases:
                 git commit -m "first commit"
             fi
 
+            # TODO: Change to other github server
             git remote add origin git@github.com:${owner_name}/${repo_name}.git
 
             git push -u origin main
