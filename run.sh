@@ -64,9 +64,15 @@ function install_by_apt() {
     aptt install $@
 }
 
+function install_by_yum() {
+   sudo yum -y install $@
+}
+
 function install_by_pgkmanager() {
     if [[ -x "$(command -v apt-get)" ]]; then
         install_by_apt $@
+    elif [[ -x "$(command -v yum)" ]]; then
+        install_by_yum $@
     else
         echo "Package manager not found"
         return 1
@@ -194,20 +200,22 @@ function install_zsh()
     install zsh
 
     if [[ ${SHELL} != *"zsh"* ]]; then
-        sh -c "$(wget https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh -O -)"
+        # TODO: check if already installed
+        # sh -c "$(wget https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh -O -)"
 
         # configure zsh
         rm ~/.zshrc; ln -s ${CONFIG_PATH}/.zshrc ~/.zshrc
 
-        ZSH_C="${ZSH_CUSTOM:-~/.oh-my-zsh/custom}"
+        # ZSH_C="${ZSH_CUSTOM:-~/.oh-my-zsh/custom}"
+        ZSH_C="~/.oh-my-zsh/custom"
 
         # install zsh plugins
         OMZsh_C_P="${ZSH_C}/plugins/"
 
-        cd ${OMZsh_C_P}
+        cd "${OMZsh_C_P}"
         git clone https://github.com/zsh-users/zsh-autosuggestions
         git clone https://github.com/zsh-users/zsh-completions
-        git clone https://github.com/zsh-users/zsh-navigation-tools
+        git clone https://github.com/z-shell/zsh-navigation-tools
         git clone https://github.com/zsh-users/zsh-syntax-highlighting
         git clone https://github.com/zsh-users/zsh-history-substring-search
         git clone https://github.com/djui/alias-tips.git
@@ -1079,9 +1087,9 @@ if [[ ! -f "${personal_mail_gitconfig}" ]]; then
         read PERSONAL_EMAIL
     fi
     echo """
-    [user]
-        name = ${USER_NAME}
-        email = ${PERSONAL_EMAIL}
+[user]
+    name = ${USER_NAME}
+    email = ${PERSONAL_EMAIL}
     """ > ${personal_mail_gitconfig}
 fi
 
@@ -1107,9 +1115,9 @@ if [[ -z "$(ls ${CONFIG_PATH}/.gitconfig.d/work/work-*.gitconfig)" ]]; then
             read COMPANY_USER_EMAIL
         fi
         echo """
-        [user]
-            name = ${COMPANY_USER_NAME}
-            email = ${COMPANY_USER_EMAIL}
+[user]
+    name = ${COMPANY_USER_NAME}
+    email = ${COMPANY_USER_EMAIL}
         """ > ${work_mail_gitconfig}
     fi
 fi
