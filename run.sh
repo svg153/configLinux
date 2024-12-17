@@ -22,8 +22,20 @@ if [[ -x "$(command -v apt-get)" ]]; then
     && sudo apt-get upgrade \
     && sudo apt-get dist-upgrade \
     && sudo apt-get autoremove
+elif [[ -x "$(command -v dnf)" ]]; then
+    sudo dnf update \
+    && sudo dnf upgrade
+elif [[ -x "$(command -v yum)" ]]; then
+    sudo yum update \
+    && sudo yum upgrade
+elif [[ -x "$(command -v pacman)" ]]; then
+    sudo pacman -Syu
+elif [[ -x "$(command -v zypper)" ]]; then
+    sudo zypper update \
+    && sudo zypper upgrade
+else
+    echo "No package manager found"
 fi
-
 
 #
 # VARS
