@@ -181,11 +181,12 @@ function make_folder_structure()
     create_symlink ${CONFIG_PATH}/SCRIPTS ~/SCRIPTS
 
     # .config
-    create_symlink ${CONFIG_PATH}/.config/flameshot/ ~/.config/flameshot
-    create_symlink ${CONFIG_PATH}/.config/envman/ ~/.config/envman
-    create_symlink ${CONFIG_PATH}/.config/terminator/ ~/.config/terminator
-    create_symlink ${CONFIG_PATH}/.config/wtf/ ~/.config/wtf
-    create_symlink ${CONFIG_PATH}/.config/xfce/ ~/.config/xfce
+    create_symlink ${CONFIG_PATH}/.config ~/.config
+    # create_symlink ${CONFIG_PATH}/.config/flameshot/ ~/.config/flameshot
+    # create_symlink ${CONFIG_PATH}/.config/envman/ ~/.config/envman
+    # create_symlink ${CONFIG_PATH}/.config/terminator/ ~/.config/terminator
+    # create_symlink ${CONFIG_PATH}/.config/wtf/ ~/.config/wtf
+    # create_symlink ${CONFIG_PATH}/.config/xfce/ ~/.config/xfce
 }
 
 function install_git()
@@ -797,7 +798,7 @@ function install_gh()
     update
     install gh
 
-    create_symlink ${CONFIG_PATH}/.config/gh ~/.config/gh
+    # create_symlink ${CONFIG_PATH}/.config/gh ~/.config/gh
 
     # auth
     if ! gh auth status; then
@@ -833,7 +834,7 @@ function install_gh_extensions(){
                 mv ~/.local/share/gh/extensions/gh-clone-org-matt/gh-clone-org{,-matt}
             fi
 
-            create_symlink ${CONFIG_PATH}/.config/gh-dash/ ~/.config/gh-dash # config for dlvhdr/gh-dash
+            # create_symlink ${CONFIG_PATH}/.config/gh-dash/ ~/.config/gh-dash # config for dlvhdr/gh-dash
 
             # my extension
             if [[ ! -d "${REPOS_PATH}/gh-clone-org" ]]; then
@@ -896,7 +897,7 @@ function install_starship()
     if [[ ! -d ~/.config ]]; then
         mkdir -p ~/.config
     fi
-    create_symlink ${CONFIG_PATH}/.config/starship.toml ~/.config/starship.toml
+    # create_symlink ${CONFIG_PATH}/.config/starship.toml ~/.config/starship.toml
 }
 
 function install_azurecli()
@@ -1212,8 +1213,8 @@ tools_by_webi+=(ShellCheck shfmt)
 for p in "${tools_by_webi[@]}"; do
     install_by_webinstall "${p}"
 done
-create_symlink ${CONFIG_PATH}/.config/bat/ ~/.config/bat
-create_symlink ${CONFIG_PATH}/.config/k9s/ ~/.config/k9s
+# create_symlink ${CONFIG_PATH}/.config/bat/ ~/.config/bat
+# create_symlink ${CONFIG_PATH}/.config/k9s/ ~/.config/k9s
 
 # tools that are not in webinstall, and his package is in github
 tools_by_github=(
@@ -1234,7 +1235,7 @@ tools_by_github=(
 for p in "${tools_by_github[@]}"; do
     install_by_gh "${p}"
 done
-create_symlink ${CONFIG_PATH}/.config/gitu/ ~/.config/gitu
+# create_symlink ${CONFIG_PATH}/.config/gitu/ ~/.config/gitu
 
 #
 # PROGRAMS
