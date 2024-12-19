@@ -763,6 +763,16 @@ function install_fzf()
     ~/.fzf/install --all
 }
 
+function install_gotask()
+{
+  # https://taskfile.dev/installation/#install-script
+  if [[ -x "$(command -v task)" ]]; then
+    echo "task is already installed"
+  else
+    sh -c "$(curl --location <https://taskfile.dev/install.sh>)" -- -d -b ~/.local/bin
+  fi
+}
+
 function install_termium()
 {
     # https://codeium.com/blog/termium-codeium-in-terminal-launch
@@ -822,8 +832,31 @@ function install_python()
 
 function install_node()
 {
+  local os_distribution=$(get_os_distribution)
+  
+  if [ $os_distribution == "Debian" || $os_distribution == "Ubuntu" ]; then
     curl -fsSL https://deb.nodesource.com/setup_21.x | sudo -E bash - \
     && sudo apt-get install -y nodejs
+  elif [ $os_distribution == "CentOS Linux" ]; then
+    curl -fsSL https://rpm.nodesource.com/setup_18.x | sudo -E bash - \
+    &&  sudo yum install nodejs -y --skip-broken && sudo yum install nsolid -y --skip-broken
+  else
+    echo "OS distribution not supported"
+  fi
+}
+
+function install_golang()
+{
+  local -r go_version="1.23.4"
+  
+  
+  wget https://go.dev/dl/go${go_version}.linux-amd64.tar.gz
+  sudo tar -C /usr/local -xzf go${go_version}.linux-amd64.tar.gz
+  # if go not in the path
+  if ! command -v go &> /dev/null; then
+    echo "export PATH=$PATH:/usr/local/go/bin" >> ~/.bashrc
+    source ~/.bashrc
+  fi   
 }
 
 function install_gh()
@@ -1193,6 +1226,7 @@ log info "languages"
 install_python
 install_node
 install_by_pgkmanager golang-go
+# OR install_golang
 
 log info "github tools"
 install_gh
@@ -1268,6 +1302,7 @@ pip3 install \
     pre-commit
 
 install_fzf
+install_gotask
 install_termium
 install_taskfalcon
 
@@ -1289,6 +1324,7 @@ tools_by_github=(
     go-task/task
     altsem/gitu
 )
+# NOTE: go-task/task move to install_gotask
 # multiprocessio/ds # TODO: Failed
 
 # @TODO: interactive install...
