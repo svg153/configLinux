@@ -165,7 +165,7 @@ fi
 
 # z
 # https://github.com/rupa/z
-[ -f ~/.z/z.sh ] && source ~/.z/z.sh
+[ -f ~/.z ] && source ~/.z
 
 
 # terraform

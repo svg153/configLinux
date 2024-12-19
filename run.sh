@@ -223,7 +223,10 @@ function make_folder_structure()
 
 function install_bash_tools()
 {
-    git clone https://github.com/rupa/z ~/.z
+    # z
+    git clone https://github.com/rupa/z ~/.z.tmp
+    mv ~/.z.tmp/z.sh ~/.z
+    rm -rf ~/.z.tmp
 }
 
 function install_git()
