@@ -216,6 +216,8 @@ function install_git()
 function install_zsh()
 {
     install zsh
+    
+    sh -c "$(wget -O- https://install.ohmyz.sh/)"
 
     if [[ ${SHELL} != *"zsh"* ]]; then
         # TODO: check if already installed
