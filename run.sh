@@ -1141,7 +1141,7 @@ create_sshkey_github
 install bash-completion
 install_bash_tools
 install_git
-install curl
+install curl vim
 install \
     zip unzip unrar \
     xclip \
