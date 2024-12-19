@@ -91,6 +91,26 @@ function install_by_pgkmanager() {
     fi
 }
 
+function get_os_distribution() {
+  if [ -f /etc/os-release ]; then
+    . /etc/os-release
+    echo $NAME
+  elif type lsb_release >/dev/null 2>&1; then
+    echo $(lsb_release -si)
+  elif [ -f /etc/lsb-release ]; then
+    . /etc/lsb-release
+    echo $DISTRIB_ID
+  elif [ -f /etc/debian_version ]; then
+    echo Debian
+  elif [ -f /etc/SuSe-release ]; then
+    echo SuSe
+  elif [ -f /etc/redhat-release ]; then
+    echo RedHat
+  else
+    echo "Unknown"
+  fi
+}
+
 function install() {
     install_by_pgkmanager $@
 }
