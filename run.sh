@@ -201,6 +201,11 @@ function make_folder_structure()
     # create_symlink ${CONFIG_PATH}/.config/xfce/ ~/.config/xfce
 }
 
+function install_bash_tools()
+{
+    git clone https://github.com/rupa/z ~/.z
+}
+
 function install_git()
 {
     sudo add-apt-repository ppa:git-core/ppa -y \
@@ -1076,6 +1081,7 @@ create_sshkey_github
 
 # utils
 install bash-completion
+install_bash_tools
 install_git
 install curl
 install \
