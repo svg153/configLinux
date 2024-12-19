@@ -137,11 +137,7 @@ plugins+=(httpie)
 plugins+=(jq) # https://github.com/reegnz/jq-zsh-plugin
 
 # include Z
-plugins+=(z)
-if [ -f ${ZSH}/plugins/z/z.sh ]; then
-    . ${ZSH}/plugins/z/z.sh
-fi
-
+plugins+=(zsh-z)
 
 # sudo apt-get isntall autojump
 plugins+=(autojump)

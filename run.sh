@@ -236,6 +236,7 @@ function install_zsh()
         git clone https://github.com/ptavares/zsh-terraform
         git clone https://github.com/dmakeienko/azcli.git
         git clone https://github.com/reegnz/jq-zsh-plugin ./jq
+        git clone https://github.com/agkozak/zsh-z
         cd -
 
         install autojump
