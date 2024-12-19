@@ -719,7 +719,7 @@ function install_ijq()
         return 0
     fi    
 
-    version=0.4.1
+    version=1.1.2
     wget "https://git.sr.ht/~gpanders/ijq/refs/download/v${version}/ijq-${version}-linux-amd64.tar.gz"
     tar xf ijq-${version}-linux-amd64.tar.gz
     cd ijq-${version}
