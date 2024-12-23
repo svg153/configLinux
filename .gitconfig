@@ -117,7 +117,7 @@
 [credential "https://github.com"]
 	helper = 
 	helper = !~/.local/bin/gh auth git-credential
-# [credential "https://github.com/wz-aplazame"]
+# [credential "https://github.com/"]
 # 	helper = 
 # 	helper = /usr/local/bin/git-credential-manager
 # 	credentialStore = cache
