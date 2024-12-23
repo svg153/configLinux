@@ -49,18 +49,11 @@ aliases:
         )
     wif-simple: |-
         !(
-            gh azdo-get-active-wi-info \
-            | fzf --delimiter '\t' \
-            | awk '{print $1}' \
-            | xargs -I '%' gh plain-new-branch '%'
-        )   
+            gh azdo-wif-simple
+        )
     wif-prev: |-
         !(
-            gh azdo-get-active-wi-info \
-            | fzf --delimiter '\t' \
-                --preview "az boards work-item show --id {1} --output json | jq -r '.fields.\"System.Description\"  ' | w3m -dump -T text/html" \
-            | awk '{print $1}' \
-            | xargs -I '%' gh plain-new-branch '%'
+            gh azdo-wif-simple-prev
         )
     prs: |-
         !(
@@ -127,7 +120,7 @@ aliases:
     # TODO: fix
     prcrwi: |-
         !(
-            gh plain-prcrwi
+            gh common-prcrwi
         )
     prcrwim: |-
         !(
@@ -374,6 +367,70 @@ aliases:
     ####
     # Tools
     ####
+    # Jira
+    jira-wi: |-
+        !(
+            wi_id="$1"
+            gh jira-new-branch ${wi_id}
+        )
+    jira-new-branch: |-
+        !(
+            wi_id="$1"
+            gh new-branch-from-jira-wi ${wi_id}
+        )
+    jira-wif: |-
+        !(
+            # TODO:
+            echo "Not implemented"
+        )
+    new-branch-from-jira-wi: |-
+        !(
+            if [ $# -ne 1 ]; then
+                echo "Usage: gh new-branch-from-jira-wi <wi_id>"
+                exit 1
+            fi
+            
+            wi_id="$1"
+
+            wi_project=$(echo "${wi_id}" | awk -F'-' '{print $1}')
+            
+            wi_title="$(gh jira-item-title "${wi_id}")"
+            if [ -z "${wi_title}" ]; then
+                echo "Error: Work item not found"
+                exit 1
+            fi
+          
+            gh new-branch-wi-jira "${wi_project}" "${wi_id}" "${wi_title}"
+        )
+    new-branch-wi-jira: |-
+        !(
+            if [ $# -ne 3 ]; then
+                echo "Usage: gh new-branch-wi-jira <wi_project> <wi_id> <wi_title>"
+                exit 1
+            fi
+            
+            wi_project="$1"
+            wi_id="$2"
+            wi_title="$3"
+            
+            git sw -c "${wi_project}-${wi_id}_${wi_title}"
+        )
+    jira-item-title: |-
+        !(
+            if [ $# -ne 1 ]; then
+                echo "Usage: gh jira-item-title <wi_id>"
+                exit 1
+            fi
+            wi_id="$1"
+            
+            # if jira cli not installed install it
+            if ! command -v "jira" &> /dev/null; then
+                echo "jira cli not found, installing it"
+                exit 1
+            fi
+            jira issue get "${wi_id}" --fields summary | jq -r '.fields.summary'
+        )
+    # Azure DevOps
     new-branch-azdo: |-
         !(
             if [ $# -ne 2 ]; then
@@ -403,6 +460,21 @@ aliases:
                         
             gh new-branch-azdo "${wi_id}" "${wi_title}"
         )
+    azdo-wif-simple: |-
+        !(
+            gh azdo-get-active-wi-info \
+            | fzf --delimiter '\t' \
+            | awk '{print $1}' \
+            | xargs -I '%' gh plain-new-branch '%'
+        )
+    azdo-wif-prev: |-
+        !(
+            gh azdo-get-active-wi-info \
+            | fzf --delimiter '\t' \
+                --preview "az boards work-item show --id {1} --output json | jq -r '.fields.\"System.Description\"  ' | w3m -dump -T text/html" \
+            | awk '{print $1}' \
+            | xargs -I '%' gh plain-new-branch '%'
+        )
     # TODO: remove this, duplicated into bash_aliases, use bash commands intead of run gh commands for all. Create branches better from bash aliases and with the branch name, take the info for the next commands.
     azdo-item-title: |-
         !(
@@ -411,6 +483,18 @@ aliases:
                 exit 1
             fi
             wi_id="$1"
+            
+            if ! command -v "az" &> /dev/null; then
+                echo "az cli not found, installing it"
+                exit 1
+            fi
+            
+            # cehck az boards extension
+            if ! az extension show --name boards &> /dev/null; then
+                echo "az boards extension not found, installing it"
+                exit 1
+            fi
+            
             az boards work-item show \
                 --id "${wi_id}" \
                 --output json \
@@ -436,6 +520,29 @@ aliases:
     ####
     # Company
     ####
+    # common
+    common-prcrwi: |-
+        !(
+            branch_name=$(gh __branch-name)
+            wi_id=$(echo ${branch_name} | awk -F'_' '{print $1}')
+            wi_title=$(echo ${branch_name} | awk -F'_' '{print $2}')
+
+            wi_id_gh=$(echo ${wi_id} | tr '-' '#')
+            wi_id_=$(echo ${wi_id_gh} | awk -F'#' '{print $2}')
+            wi_title=$(echo ${wi_title} | tr '-' ' ')
+
+            pr_title="${wi_id_gh} ${wi_title}"
+
+            pr_body="${wi_id_gh}"
+
+            # TODO: Remove next line when https://github.com/cli/cli/issues/1718 is fixed
+            git push -u origin HEAD
+
+            bash -c "gh prcr \
+                --title \"${pr_title}\" \
+                --body-file \"${pr_body}\" \
+                --draft"
+        )
     # plain
     plain-wi: |-
         !(
