@@ -23,7 +23,9 @@
 	pulll = !git stash -u && git pull --prune && git stash pop
 	s = stash
 	su = stash -u
-	swm = switch main
+	sw = "!f() { git switch $1 >/dev/null 2>&1 || git checkout $1; }; f"
+	swc = "!f() { git switch -c $1 >/dev/null 2>&1 || git checkout -b $1; }; f"
+	swm = sw main
 	swmp = "!git swm && git pull --prune"
 	f = !git stash -u && git pull --prune && git stash pop
 	fm = !git stash -u && git swmp && git stash pop
@@ -35,7 +37,6 @@
 	code-wi-fast = !git af && git ciwi && gh prcrwi
 	# code-wi-fast
 	lg = log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit --date=relative
-	sw = switch
 	st = status
 	x-stn = !git status --porcelain | grep -E '^[MADRC]' | wc -l
 	add-fzf = "!f() { git add $(git status -s | fzf -m | awk '{print $2}'); }; f"
