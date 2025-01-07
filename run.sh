@@ -642,7 +642,10 @@ function install_terraform_tools()
     if [[ -x "$(command -v tfswitch)" ]]; then
         tfswitch -v
     else
-        curl -L https://raw.githubusercontent.com/warrensbox/terraform-switcher/master/install.sh | bash
+        curl -L https://raw.githubusercontent.com/warrensbox/terraform-switcher/master/install.sh > install.sh
+        chmod +x install.sh
+        ./install.sh
+        rm install.sh                
     fi
     
     # tfsec
