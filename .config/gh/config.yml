@@ -207,6 +207,7 @@ aliases:
 
             git push -u origin main
         )
+    rc: repo clone
     clo: repo clone "$1"/"$2"
     repos: repo list
     repos-name-all: |-
