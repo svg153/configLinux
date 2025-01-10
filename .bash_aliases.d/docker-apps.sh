@@ -1,4 +1,29 @@
 
+#
+# Func
+#
+
+
+__run_docker_app() {
+  if [[ $# -lt 2 ]]; then
+    echo "Usage: run_docker_app <app_command> <docker_app_command>"
+    return 1
+  fi
+  
+  app_command=$1; shift
+  docker_app_command=$1; shift
+  
+  if command -v ${app_command} &> /dev/null ; then
+    command ${app_command}
+  else
+    eval ${docker_app_command} $@
+  fi
+}
+
+#
+# APPS
+#
+
 # htpasswd
 htpasswd_docker() { docker run --rm httpd:2.4-alpine htpasswd -nbB ${1} ${2} ;};
 
@@ -79,6 +104,13 @@ yq() {
     docker run --rm -i -v "${PWD}":/workdir mikefarah/yq "$@"
   fi
 }
+
+yq_new() {
+  __run_docker_app \
+    "yq" \
+    "docker run --rm -i -v \"${PWD}\":/workdir mikefarah/yq"
+}
+
 # json2yaml
 alias json2yaml="jq -r yamlify2"
 
