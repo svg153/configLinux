@@ -9,26 +9,19 @@ codepr(){
     code "${files[@]}"    
 }
 
-alias conli="codeconfig"
-codeconfig(){
-    if [ -d ~/REPOSITORIOS/configLinux/ ]; then
-        code ~/REPOSITORIOS/configLinux/
-    elif [ -d ~/configLinux/ ]; then
-        code ~/configLinux/
+codefolder(){
+    f=$1
+    if [ -d ~/REPOSITORIOS/0_PERSONAL/${f}/ ]; then
+        code ~/REPOSITORIOS/0_PERSONAL/${f}/
+    elif [ -d ~/REPOSITORIOS/${f}/ ]; then
+        code ~/REPOSITORIOS/${f}/
+    elif [ -d ~/${f}/ ]; then
+        code ~/${f}/
     else
-        echo "No configLinux directory found"
+        echo "No ${f} directory found"
     fi
 }
 
-alias notes="codenotes"
-codenotes(){
-    if [ -d ~/REPOSITORIOS/0_PERSONAL/notes/ ]; then
-        code ~/REPOSITORIOS/0_PERSONAL/notes/
-    elif [ -d ~/REPOSITORIOS/notes/ ]; then
-        code ~/REPOSITORIOS/notes/
-    elif [ -d ~/notes/ ]; then
-        code ~/notes/
-    else
-        echo "No notes directory found"
-    fi
-}
+alias conli="codefolder configLinux"
+alias notes="codefolder notes"
+alias work="codefolder work"
