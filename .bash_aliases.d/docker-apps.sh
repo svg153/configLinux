@@ -72,7 +72,12 @@ kubescape() {
 # yq
 # https://github.com/mikefarah/yq
 yq() {
-  docker run --rm -i -v "${PWD}":/workdir mikefarah/yq "$@"
+  # if yq is not in the path
+  if command -v yq &> /dev/null ; then
+    command yq "$@"
+  else
+    docker run --rm -i -v "${PWD}":/workdir mikefarah/yq "$@"
+  fi
 }
 # json2yaml
 alias json2yaml="jq -r yamlify2"
