@@ -70,16 +70,17 @@
 	cits = cit --no-verify
 	citsp = !git cits && git push
 	x-get-branch-name-to-commit-message = "!f() { msg=\"$(git branch --show | tr '-' ' ')\" && echo \"${msg}\"; }; f"
-	x-get-branch-name-with-wi-to-commit-message = "!f() { msg=\"$(git branch --show | tr '_' ' ' | sed 's/AB-/AB#/g' | tr '-' ' ')\" && echo \"${msg}\"; }; f"
+	x-get-branch-name-with-azdo-wi-to-commit-message = "!f() { msg=\"$(git branch --show | tr '_' ' ' | sed 's/AB-/AB#/g' | tr '-' ' ')\" && echo \"${msg}\"; }; f"
+	x-get-branch-name-with-ticket-id-to-commit-message = "!f() { msg=\"$(git branch --show | tr '_' ' ' | sed -E 's/([A-Z]+-[0-9]+)/\\1/g' | tr '-' ' ')\" && echo \"${msg}\"; }; f"
 	x-get-wiid-from-branch-name = "!f() { wiid=\"$(git branch --show | awk -F'_' '{print $1}' | sed 's/AB-/AB#/g')\" && echo \"${wiid}\"; }; f"
 	cib = "!f() { msg=\"$(git x-get-branch-name-to-commit-message)\" && git commit -m \"${msg}\"; }; f"
 	cibap = "!f() { msg=\"$(git x-get-branch-name-to-commit-message)\" && git add . && git commit -m \"${msg}\" --no-verify; git push; }; f"
 	cibs = "!f() { msg=\"$(git x-get-branch-name-to-commit-message)\" && git commit -m \"${msg}\" --no-verify; }; f"
 	cii = "!f() { msg=\"$(git branch --show | awk -F'_' '{print $2}' | tr '-' ' ')\" && git commit -m \"${msg}\"; }; f"
 	ciwim = "!f() { local custmsg=\"$1\" && local wiid=\"$(git x-get-wiid-from-branch-name)\" && local msg=\"${wiid} ${custmsg}\" && git commit -m \"${msg}\"; }; f"
-	ciwi = "!f() { msg=\"$(git x-get-branch-name-with-wi-to-commit-message)\" && git commit -m \"${msg}\"; }; f"
-	ciwis = "!f() { msg=\"$(git x-get-branch-name-with-wi-to-commit-message)\" && git commit -m \"${msg}\" --no-verify; }; f"
-	ciwisp = "!f() { msg=\"$(git x-get-branch-name-with-wi-to-commit-message)\" && git commit -m \"${msg}\" --no-verify; git push; }; f"
+	ciwi = "!f() { msg=\"$(git x-get-branch-name-with-ticket-id-to-commit-message)\" && git commit -m \"${msg}\"; }; f"
+	ciwis = "!f() { msg=\"$(git x-get-branch-name-with-ticket-id-to-commit-message)\" && git commit -m \"${msg}\" --no-verify; }; f"
+	ciwisp = "!f() { msg=\"$(git x-get-branch-name-with-ticket-id-to-commit-message)\" && git commit -m \"${msg}\" --no-verify; git push; }; f"
 	am = amend
 	amend = ci --amend --no-edit
 	amend-ne = amend
