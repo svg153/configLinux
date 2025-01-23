@@ -16,7 +16,7 @@ This folder contains work related files for git configuration.
 The `work.gitconfig` file can include the following configuration:
 
 ```gitconfig
-[includeIf "gitdir:~/work/"] # "/" at the end important
+[includeIf "gitdir:~/REPOSITORIOS/0_WORK/"]
     path = work.gitconfig
 ```
 

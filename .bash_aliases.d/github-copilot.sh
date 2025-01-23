@@ -58,6 +58,7 @@ if [ $? -eq 0 ]; then
     # # alias 'wts'='copilot_what-the-shell';
 fi
 
+# Enable the Copilot shell integration for the current shell
 command -v gh >/dev/null 2>&1
 if [ $? -eq 0 ]; then
     if gh extension list | grep -q "gh copilot"; then

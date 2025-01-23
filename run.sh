@@ -52,9 +52,13 @@ MODE=${1:-desktop}
 MODE_DESKTOP="desktop"
 MODE_LAPTOP="laptop"
 
-PROGRAMAS_PATH="$(eval echo ~/PROGRAMAS)"
-REPOS_PATH="$(eval echo ~/REPOSITORIOS)"
-CONFIG_PATH="${REPOS_PATH}/configLinux"
+# env paths
+. .env.paths.env
+
+if [[ -z "${PROGRAMAS_PATH}" ]] || [[ -z "${REPOS_PATH}" ]] || [[ -z "${WORK_REPOS_PATH}" ]] || [[ -z "${PERSONAL_REPOS_PATH}" ]] || [[ -z "${CONFIG_PATH}" ]]; then
+    echo "Some variables are empty"
+    return 1
+fi
 
 # check if the system is WSL
 isWSL=$(uname -a | grep WSL | wc -l)
@@ -196,6 +200,8 @@ function create_symlink()
 function make_folder_structure()
 {
     mkdir -p ${PROGRAMAS_PATH}
+    mkdir -p ${WORK_REPOS_PATH}
+    mkdir -p ${PERSONAL_REPOS_PATH}
     mkdir -p ~/.fonts
     mkdir -p ~/.icons
 
@@ -211,6 +217,7 @@ function make_folder_structure()
     create_symlink ${CONFIG_PATH}/.rc.d ~/.rc.d
     create_symlink ${CONFIG_PATH}/.profile ~/.profile
     create_symlink ${CONFIG_PATH}/SCRIPTS ~/SCRIPTS
+    create_symlink ${CONFIG_PATH}/.env.paths.env ~/.env.paths.env
 
     # .config
     create_symlink ${CONFIG_PATH}/.config ~/.config
@@ -1225,6 +1232,15 @@ if [[ -z "$(ls ${CONFIG_PATH}/.gitconfig.d/work/work-*.gitconfig)" ]]; then
     name = ${COMPANY_USER_NAME}
     email = ${COMPANY_USER_EMAIL}
         """ > ${work_mail_gitconfig}
+    fi
+
+    # create the work.gitconfig to include the work mail
+    work_gitconfig="${CONFIG_PATH}/.gitconfig.d/work/work.gitconfig"
+    if [[ ! -f "${work_gitconfig}" ]]; then
+        echo """
+[inlcudeIf "gitdir:${REPOS_PATH}/0_WORK/"]
+    path = work-${COMPANY_NAME}.gitconfig
+        """ > ${work_gitconfig}
     fi
 fi
 

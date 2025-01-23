@@ -190,3 +190,5 @@ if command -v termium > /dev/null 2>&1; then
 fi
 ### End of Codeium integration
 
+# env paths
+. ~/.env.paths.env
