@@ -572,6 +572,19 @@ function install_minikube()
     # - Podman: https://minikube.sigs.k8s.io/docs/drivers/podman/
 }
 
+function install_kubectx()
+{
+    # https://github.com/ahmetb/kubectx/?tab=readme-ov-file#manual-installation-macos-and-linux
+    sudo git clone https://github.com/ahmetb/kubectx /opt/kubectx
+    sudo ln -s /opt/kubectx/kubectx /usr/local/bin/kubectx
+    sudo ln -s /opt/kubectx/kubens /usr/local/bin/kubens
+    
+    mkdir -p ~/.oh-my-zsh/custom/completions
+    chmod -R 755 ~/.oh-my-zsh/custom/completions
+    ln -s /opt/kubectx/completion/_kubectx.zsh ~/.oh-my-zsh/custom/completions/_kubectx.zsh
+    ln -s /opt/kubectx/completion/_kubens.zsh ~/.oh-my-zsh/custom/completions/_kubens.zsh
+}
+
 function install_tfenv()
 {
     # tfenv

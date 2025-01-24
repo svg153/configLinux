@@ -213,6 +213,10 @@ if [ -f ~/.rc ]; then
     source ~/.rc
 fi
 
+if [ -d "$ZSH/custom/completions" ]; then
+    fpath=($ZSH/custom/completions $fpath)
+fi
+
 # fonts
 # https://github.com/gabrielelana/awesome-terminal-fonts
 # TODO: fix "not matches found"
