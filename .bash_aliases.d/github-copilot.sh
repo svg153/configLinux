@@ -67,9 +67,7 @@ if [ $? -eq 0 ]; then
             eval "$(gh copilot alias -- "$shell_actual")"
         fi
     fi
+    alias '??'='ghcs' # alias created in the prov eval command
 fi
-
-alias '??'='copilot_what-the-shell'
-# alias '??'='ghcs' # new alias
 
 # TODO: https://gist.github.com/Pl8tinium/3702c356a83b7363f3ab769d6ec47e2a
