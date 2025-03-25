@@ -146,3 +146,15 @@ alias plantuml="docker run -d -p 8080:8080 plantuml/plantuml-server:jetty"
 # dasel
 # https://daseldocs.tomwright.me/installation#docker
 alias dasel="docker run -i --rm ghcr.io/tomwright/dasel:latest"
+
+# chart-testing (ct)
+# https://github.com/helm/chart-testing
+__ct() {
+  docker run -it \
+    --user $(id -u):$(id -g) \
+    -v $(pwd):$(pwd) \
+    -w $(pwd) \
+    quay.io/helmpack/chart-testing \
+    ct "$@"
+}
+alias ct="__ct"
