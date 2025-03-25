@@ -12,4 +12,6 @@
 	psuh = push
 	tpush = push
 	phush = push
+	pushg = push
+	pussh = pushº
 	lcone = clone
