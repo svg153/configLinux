@@ -119,6 +119,20 @@ HIST_STAMPS="yyyy-mm-dd"
 # Example format: plugins=(rails git textmate ruby lighthouse)
 # Add wisely, as too many plugins slow down shell startup
 # TO Check all the alias: https://github.com/ohmyzsh/ohmyzsh/tree/master/plugins/<PLUGIN>
+
+# Function to check if a tool is installed and add its plugins (a list) to the plugins array
+add_tool_plugin() {
+    local tool_cmd="$1"
+    shift
+    if command -v "$tool_cmd" >/dev/null 2>&1; then
+        if [ "$#" -eq 0 ]; then
+            plugins+=("$tool_cmd")
+        else
+            plugins+=("$@")
+        fi
+    fi
+}
+
 plugins=(gnu-utils history)
 plugins+=(colored-man-pages colorize extract)
 plugins+=(git git-auto-fetch git-extras git-prompt)
@@ -130,10 +144,13 @@ plugins+=(perl jsontools)
 # plugins+=(ruby rails rake)
 plugins+=(python pip)
 plugins+=(golang)
-plugins+=(docker docker-compose kubectl helm minikube) # https://github.com/ohmyzsh/ohmyzsh/tree/master/plugins/kubectl
-plugins+=(azcli) # https://github.com/dmakeienko/azcli
+plugins+=(docker docker-compose)
+plugins+=(kubectl helm minikube) # https://github.com/ohmyzsh/ohmyzsh/tree/master/plugins/kubectl
 plugins+=(zsh-terraform) # https://github.com/ptavares/zsh-terraform
-plugins+=(httpie)
+add_tool_plugin "ansible"
+add_tool_plugin "vault"
+add_tool_plugin "azcli" # https://github.com/dmakeienko/azcli
+add_tool_plugin "httpie"
 plugins+=(jq) # https://github.com/reegnz/jq-zsh-plugin
 
 # include Z
