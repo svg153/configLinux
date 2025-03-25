@@ -287,4 +287,5 @@ fi
 ### End of Codeium integration
 
 # env paths
-. ~/.env.paths.env
+[ -f ~/.env.paths.env ] && source ~/.env.paths.env
+[ -f ~/.env.org.env ] && source ~/.env.org.env
