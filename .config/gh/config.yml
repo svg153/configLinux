@@ -117,15 +117,19 @@ aliases:
             gh prcr --title "${pr_title}" --body "${pr_body}"
         )
     prcrewi: prcrwi
-    # TODO: fix
     prcrwi: |-
         !(
-            gh common-prcrwi
+            if [[ "$(git remote get-url origin)" != *github.com* ]]; then
+                gh prcrwim-lunik "$@"
+            else
+                gh common-prcrwi
+            fi
         )
-    prcrwim: |-
+        )
+    prcrwim-plain: |-
         !(
             if [ $# -eq 0 ]; then
-                gh plain-prcrwim
+                gh plain-prcrwi
             else
                 gh plain-prcrwim "$1"
             fi
@@ -529,7 +533,7 @@ aliases:
             wi_title=$(echo ${branch_name} | awk -F'_' '{print $2}')
 
             wi_id_gh=$(echo ${wi_id} | tr '-' '#')
-            wi_id_=$(echo ${wi_id_gh} | awk -F'#' '{print $2}')
+            wi_id=$(echo ${wi_id_gh} | awk -F'#' '{print $2}')
             wi_title=$(echo ${wi_title} | tr '-' ' ')
 
             pr_title="${wi_id_gh} ${wi_title}"
