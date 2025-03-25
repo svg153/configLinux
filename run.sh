@@ -246,7 +246,7 @@ function install_git()
 function install_zsh()
 {
     install zsh
-    
+
     sh -c "$(wget -O- https://install.ohmyz.sh/)"
 
     if [[ ${SHELL} != *"zsh"* ]]; then
@@ -257,31 +257,36 @@ function install_zsh()
         rm ~/.zshrc; ln -s ${CONFIG_PATH}/.zshrc ~/.zshrc
 
         # ZSH_C="${ZSH_CUSTOM:-~/.oh-my-zsh/custom}"
-        ZSH_C="~/.oh-my-zsh/custom"
+        ZSH_C="${HOME}/.oh-my-zsh/custom"
 
         # install zsh plugins
         OMZsh_C_P="${ZSH_C}/plugins/"
 
         cd "${OMZsh_C_P}"
-        git clone https://github.com/zsh-users/zsh-autosuggestions
-        git clone https://github.com/zsh-users/zsh-completions
-        git clone https://github.com/z-shell/zsh-navigation-tools
-        git clone https://github.com/zsh-users/zsh-syntax-highlighting
-        git clone https://github.com/zsh-users/zsh-history-substring-search
-        git clone https://github.com/djui/alias-tips.git
-        git clone https://github.com/chrissicool/zsh-256color
-        git clone https://github.com/ptavares/zsh-terraform
-        git clone https://github.com/dmakeienko/azcli.git
-        git clone https://github.com/reegnz/jq-zsh-plugin ./jq
-        git clone https://github.com/agkozak/zsh-z
+        [[ ! -d ${OMZsh_C_P}/zsh-autosuggestions ]] && git clone https://github.com/zsh-users/zsh-autosuggestions
+        [[ ! -d ${OMZsh_C_P}/zsh-completions ]] && git clone https://github.com/zsh-users/zsh-completions
+        [[ ! -d ${OMZsh_C_P}/zsh-navigation-tools ]] && git clone https://github.com/z-shell/zsh-navigation-tools
+        [[ ! -d ${OMZsh_C_P}/zsh-syntax-highlighting ]] && git clone https://github.com/zsh-users/zsh-syntax-highlighting
+        [[ ! -d ${OMZsh_C_P}/zsh-history-substring-search ]] && git clone https://github.com/zsh-users/zsh-history-substring-search
+        [[ ! -d ${OMZsh_C_P}/alias-tips ]] && git clone https://github.com/djui/alias-tips.git
+        [[ ! -d ${OMZsh_C_P}/zsh-256color ]] && git clone https://github.com/chrissicool/zsh-256color
+        [[ ! -d ${OMZsh_C_P}/zsh-terraform ]] && git clone https://github.com/ptavares/zsh-terraform
+        [[ ! -d ${OMZsh_C_P}/azcli ]] && git clone https://github.com/dmakeienko/azcli.git
+        [[ ! -d ${OMZsh_C_P}/jq ]] && git clone https://github.com/reegnz/jq-zsh-plugin ./jq
+        [[ ! -d ${OMZsh_C_P}/zsh-z ]] && git clone https://github.com/agkozak/zsh-z
         cd -
 
         install autojump
 
         OMZsh_C_T="${ZSH_C}/themes/"
-        [[ -d ${OMZsh_C_T} ]] && rm -rf ${OMZsh_C_T}
-        ln -s ${CONFIG_PATH}/.oh-my-zsh/custom/themes/ ${OMZsh_C_T}/../
-
+        if ! [[ -L "${OMZsh_C_T}" ]]; then
+            # If it exists as a directory, remove it
+            [[ -d "${OMZsh_C_T}" ]] && rm -rf "${OMZsh_C_T}"
+            # Create parent directory if it doesn't exist
+            mkdir -p "$(dirname "${OMZsh_C_T}")"
+            # Create the symlink
+            ln -s "${CONFIG_PATH}/.oh-my-zsh/custom/themes/" "${OMZsh_C_T}"
+        fi
         cd -
     fi
 }
@@ -367,7 +372,7 @@ function install_pyenv()
 }
 
 
-# TODO: 
+# TODO:
 # function install_docker_pkg()
 # {
 #     # https://docs.docker.com/engine/install/ubuntu/
@@ -380,7 +385,7 @@ function install_pyenv()
 #         gnupg \
 #         lsb-release
 #     . /etc/os-release
-#     sudo sh -c "echo \"deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/trusted.gpg.d/docker.gpg] https://download.docker.com/linux/${ID} $(lsb_release -cs) stable\" > /etc/apt/sources.list.d/docker.list"    
+#     sudo sh -c "echo \"deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/trusted.gpg.d/docker.gpg] https://download.docker.com/linux/${ID} $(lsb_release -cs) stable\" > /etc/apt/sources.list.d/docker.list"
 # }
 
 function install_docker()
@@ -401,20 +406,20 @@ function install_docker()
             # https://dev.to/bowmanjd/install-docker-on-windows-wsl-without-docker-desktop-34m9
             echo "Docker Desktop is not installed in Windows"
             echo "Install Docker on Windows WSL without Docker Desktop"
-            
+
             # TODO:use this instead of mine https://github.com/bowmanjd/docker-wsl/blob/main/setup-docker.sh
-            
-            # if distro is Debian or Ubuntu, skip 
+
+            # if distro is Debian or Ubuntu, skip
             #   - Configure a non-root user
             #   - Configure admin (sudo) access for the non-root user
             #   - Set default user
-            
+
             sudo apt update && sudo apt upgrade
             # if has network problems:
             # echo -e "[network]\ngenerateResolvConf = false" | sudo tee -a /etc/wsl.conf
             # sudo unlink /etc/resolv.conf
             # echo nameserver 1.1.1.1 | sudo tee /etc/resolv.conf
-            
+
             # if docker is already installed, remove it
             if check_if_program_is_installed "docker"; then
                 echo "Docker is already installed"
@@ -446,7 +451,7 @@ function install_docker()
                 sudo apt install --no-install-recommends apt-transport-https ca-certificates curl gnupg2
                 sudo update-alternatives --set iptables /usr/sbin/iptables-legacy
                 sudo update-alternatives --set ip6tables /usr/sbin/ip6tables-legacy
-                
+
                 . /etc/os-release
                 curl -fsSL https://download..docker.com/linux/${ID}/gpg | sudo tee /etc/apt/trusted.gpg.d/docker.asc
                 echo "deb [arch=amd64] https://download.docker.com/linux/${ID} ${VERSION_CODENAME} stable" | sudo tee /etc/apt/sources.list.d/docker.list
@@ -454,7 +459,7 @@ function install_docker()
                 sudo apt install docker-ce docker-ce-cli containerd.io
 
                 sudo usermod -aG docker $USER
-                
+
                 # Sharing dockerd: choose a common ID for the docker group
                 if getent group | grep 36257; then
                     sudo sed -i -e 's/^\(docker:x\):[^:]\+/\1:36257/' /etc/group
@@ -474,12 +479,12 @@ function install_docker()
                         sudo sed -i -e 's/^\(docker:x\):[^:]\+/\1:'$(echo ${middle_id})'/' /etc/group
                     fi
                 fi
-                
+
                 # prepare a shared directory
                 DOCKER_DIR="/mnt/wsl/shared-docker"
                 [[ ! -d "$DOCKER_DIR" ]] && sudo mkdir -pm o=,ug=rwx "$DOCKER_DIR"
                 sudo chgrp docker "$DOCKER_DIR"
-                
+
                 # configure the Docker daemon to use the shared directory
                 [[ ! -d /etc/docker ]] && sudo mkdir -p /etc/docker
                 if [[ -f /etc/docker/daemon.json ]]; then
@@ -495,7 +500,7 @@ function install_docker()
                             log warn "edit /etc/docker/daemon.json and add the following line: \"hosts\": [\"unix://${DOCKER_DIR}/docker.sock\"]"
                         fi
                     fi
-                    
+
                     # check and set ipatables=true in daemon.json
                     # cehck if iptables is already set to false
                     if grep -q '"iptables":\s*false' /etc/docker/daemon.json; then
@@ -525,17 +530,17 @@ function install_docker()
         sudo install -m 0755 -d /etc/apt/keyrings
         sudo curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc
         sudo chmod a+r /etc/apt/keyrings/docker.asc
-        
+
         # Add the repository to Apt sources:
         echo \
           "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu \
           $(. /etc/os-release && echo "${VERSION_CODENAME}") stable" | \
           sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
         sudo apt-get update
-        
+
         # Install Docker
         sudo apt install docker-ce docker-ce-cli containerd.io
-        
+
         # TODO: test
         # sudo docker run hello-world
         # sudo groupadd docker
@@ -550,7 +555,7 @@ function install_podman()
 {
     # https://podman.io/getting-started/installation
     # https://dev.to/bowmanjd/using-podman-on-windows-subsystem-for-linux-wsl-58ji
-    
+
     install podman
 }
 
@@ -560,16 +565,18 @@ function install_minikube()
         minikube version
         return 0
     fi
-    
+
     # https://minikube.sigs.k8s.io/docs/start/
     # TODO: check if works
     curl -LO https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64 \
-    && sudo apt install minikube-linux-amd64 /usr/local/bin/minikube \
-    && rm ./minikube-linux-amd64
-    minikube start
-    
+    && sudo mv minikube-linux-amd64 /usr/local/bin/minikube \
+    && sudo chmod +x /usr/local/bin/minikube \
+    && minikube start
+
     # INFO
     # - Podman: https://minikube.sigs.k8s.io/docs/drivers/podman/
+
+    minikube version
 }
 
 function install_kubectx()
@@ -578,7 +585,7 @@ function install_kubectx()
     sudo git clone https://github.com/ahmetb/kubectx /opt/kubectx
     sudo ln -s /opt/kubectx/kubectx /usr/local/bin/kubectx
     sudo ln -s /opt/kubectx/kubens /usr/local/bin/kubens
-    
+
     mkdir -p ~/.oh-my-zsh/custom/completions
     chmod -R 755 ~/.oh-my-zsh/custom/completions
     ln -s /opt/kubectx/completion/_kubectx.zsh ~/.oh-my-zsh/custom/completions/_kubectx.zsh
@@ -631,7 +638,7 @@ function install_terraform()
     && gpg --no-default-keyring \
         --keyring /usr/share/keyrings/hashicorp-archive-keyring.gpg \
         --fingerprint
-    
+
     echo "deb [signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] \
         https://apt.releases.hashicorp.com $(lsb_release -cs) main" | \
         sudo tee /etc/apt/sources.list.d/hashicorp.list
@@ -639,7 +646,7 @@ function install_terraform()
     && sudo apt-get install terraform \
     && terraform -help \
     && terraform -help plan \
-    
+
     stdout=$(terraform -install-autocomplete | grep "already installed" | wc -l)
     ret=$?
     if [[ ${ret} -ne 0 ]] && [[ ${stdout} -gt 0 ]]; then
@@ -662,12 +669,9 @@ function install_terraform_tools()
     if [[ -x "$(command -v tfswitch)" ]]; then
         tfswitch -v
     else
-        curl -L https://raw.githubusercontent.com/warrensbox/terraform-switcher/master/install.sh > install.sh
-        chmod +x install.sh
-        ./install.sh
-        rm install.sh                
+        curl -L https://raw.githubusercontent.com/warrensbox/terraform-switcher/master/install.sh | bash
     fi
-    
+
     # tfsec
     # https://github.com/aquasecurity/tfsec
     if [[ -x "$(command -v tfsec)" ]]; then
@@ -675,21 +679,21 @@ function install_terraform_tools()
     else
         go install github.com/aquasecurity/tfsec/cmd/tfsec@latest
     fi
-    
+
     # checkcov
     # https://github.com/bridgecrewio/checkov
     if [[ -x "$(command -v checkov)" ]]; then
         checkov -v
     else
-        pip3 install checkov
+        pipx install checkov
     fi
-    
+
     # tfautomv
     # https://github.com/busser/tfautomv
     if [[ -x "$(command -v tfautomv)" ]]; then
         tfautomv -v
     else
-        curl -sSfL https://raw.githubusercontent.com/busser/tfautomv/main/install.sh | sh
+        curl -sSfL https://raw.githubusercontent.com/busser/tfautomv/main/install.sh | sudo sh
     fi
 }
 
@@ -743,7 +747,7 @@ function install_ijq()
     if [[ -x "$(command -v ijq)" ]]; then
         ijq -V
         return 0
-    fi    
+    fi
 
     version=1.1.2
     wget "https://git.sr.ht/~gpanders/ijq/refs/download/v${version}/ijq-${version}-linux-amd64.tar.gz"
@@ -764,7 +768,7 @@ function install_telegram()
         telegram --version
         return 0
     fi
-    
+
     wget -O ${PROGRAMAS_PATH}/tsetup.tar.xz https://telegram.org/dl/desktop/linux
     cd ${PROGRAMAS_PATH}
     tar xvf tsetup.tar.xz
@@ -775,12 +779,12 @@ function install_telegram()
 
 function install_fzf()
 {
-    
+
     if [[ -x "$(command -v fzf)" ]]; then
-        
+
         if [[ -d ~/.fzf ]]; then
             git -C ~/.fzf pull
-        else 
+        else
             echo "fzf is already installed, but not by repository"
         fi
     else
@@ -795,7 +799,7 @@ function install_gotask()
   if [[ -x "$(command -v task)" ]]; then
     echo "task is already installed"
   else
-    sh -c "$(curl --location <https://taskfile.dev/install.sh>)" -- -d -b ~/.local/bin
+    sh -c "$(curl --location https://taskfile.dev/install.sh)" -- -d -b ~/.local/bin
   fi
 }
 
@@ -803,12 +807,12 @@ function install_termium()
 {
     # https://codeium.com/blog/termium-codeium-in-terminal-launch
     # https://github.com/Exafunction/codeium
-    
+
     if [[ -x "$(command -v termium)" ]]; then
         termium --help
         return 0
     fi
-    
+
     curl -L https://github.com/Exafunction/codeium/releases/download/termium-v0.2.0/install.sh | bash
     termium auth
 }
@@ -816,7 +820,7 @@ function install_termium()
 function install_taskfalcon()
 {
     if [[ -x "$(command -v taskfalcon)" ]]; then
-        taskfalcon --version
+        taskfalcon --help
         return 0
     fi
 
@@ -824,18 +828,18 @@ function install_taskfalcon()
         && sudo mv falcon /usr/local/bin/falcon \
         && sudo chmod +x /usr/local/bin/falcon \
         && sudo ln -s /usr/local/bin/falcon /usr/local/bin/taskfalcon \
-        && falcon --version
+        && taskfalcon --help
 }
 
 function install_webinstall()
-{    
+{
     if [[ -x "$(command -v webi)" ]]; then
         webi --version
         return 0
     fi
 
     [[ -x "$(command -v curl)" ]] || install curl
-    
+
     curl https://webi.sh/webi | sh
 }
 
@@ -849,23 +853,26 @@ function install_by_webinstall()
 
 function install_python()
 {
+    # python3-distutils-extra new name of python3-distutils
+
     install \
         python3 \
         python3-pip \
-        python3-distutils \
-        python3-apt
+        python3-distutils-extra \
+        python3-apt \
+        pipx
 }
 
 function install_node()
 {
   local os_distribution=$(get_os_distribution)
-  
-  if [ $os_distribution == "Debian" || $os_distribution == "Ubuntu" ]; then
-    curl -fsSL https://deb.nodesource.com/setup_21.x | sudo -E bash - \
+
+  if [ "$os_distribution" == "Debian" ] || [ "$os_distribution" == "Ubuntu" ]; then
+    curl -fsSL https://deb.nodesource.com/setup_23.x | sudo -E bash - \
     && sudo apt-get install -y nodejs
-  elif [ $os_distribution == "CentOS Linux" ]; then
+  elif [ "$os_distribution" == "CentOS Linux" ]; then
     curl -fsSL https://rpm.nodesource.com/setup_18.x | sudo -E bash - \
-    &&  sudo yum install nodejs -y --skip-broken && sudo yum install nsolid -y --skip-broken
+    && sudo yum install nodejs -y --skip-broken && sudo yum install nsolid -y --skip-broken
   else
     echo "OS distribution not supported"
   fi
@@ -874,15 +881,15 @@ function install_node()
 function install_golang()
 {
   local -r go_version="1.23.4"
-  
-  
+
+
   wget https://go.dev/dl/go${go_version}.linux-amd64.tar.gz
   sudo tar -C /usr/local -xzf go${go_version}.linux-amd64.tar.gz
   # if go not in the path
   if ! command -v go &> /dev/null; then
     echo "export PATH=$PATH:/usr/local/go/bin" >> ~/.bashrc
     source ~/.bashrc
-  fi   
+  fi
 }
 
 function install_gh()
@@ -891,7 +898,7 @@ function install_gh()
         gh --version
         return 0
     fi
-    
+
     curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | sudo dd of=/usr/share/keyrings/githubcli-archive-keyring.gpg
     echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" | sudo tee /etc/apt/sources.list.d/github-cli.list > /dev/null
     update
@@ -903,7 +910,7 @@ function install_gh()
     if ! gh auth status; then
         gh auth login
     fi
-    
+
     # Add fingerprint to known_hosts
     ssh-keyscan -t ed25519 github.com >> ~/.ssh/known_hosts # ssh-ed25519
     ssh-keyscan -t ecdsa-sha2-nistp256 github.com  >> ~/.ssh/known_hosts
@@ -961,16 +968,16 @@ function install_gh_copilot()
         github-copilot-cli --version
         return 0
     fi
-    
+
     # check that node is installed
     [[ -x "$(command -v node)" ]] || install_node
     # check that node is more than 18
     node_version=$(node -v | cut -d'.' -f1 | cut -d'v' -f2)
     [[ ${node_version} -lt 18 ]] && install_node
-    
+
     sudo npm install -g npm
     sudo npm install -g @githubnext/github-copilot-cli
-    
+
     github-copilot-cli auth
 }
 
@@ -991,6 +998,11 @@ function install_by_gh()
 
 function install_starship()
 {
+    if [[ -x "$(command -v starship)" ]]; then
+        starship --version
+        return 0
+    fi
+
     sh -c "$(curl -fsSL https://starship.rs/install.sh)"
     # @TODO: ask sudo pass
     if [[ ! -d ~/.config ]]; then
@@ -1001,10 +1013,18 @@ function install_starship()
 
 function install_azurecli()
 {
-    [[ -x "$(command -v az)" ]] && return 0
+    if [[ -x "$(command -v az)" ]]; then
+        az --version
+        return 0
+    fi
 
     # https://docs.microsoft.com/en-us/cli/azure/install-azure-cli-apt?view=azure-cli-latest
-    curl -L https://aka.ms/InstallAzureCli | bash
+    local os_distribution=$(get_os_distribution)
+    if [ "$os_distribution" == "Debian" ] || [ "$os_distribution" == "Ubuntu" ]; then
+        curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
+    else
+        curl -L https://aka.ms/InstallAzureCli | bash
+    fi
 }
 
 function install_azurecli_extentions()
@@ -1013,7 +1033,7 @@ function install_azurecli_extentions()
     local -r extensions=(
         "azure-devops"
     )
-    
+
     if [[ -x "$(command -v az)" ]]; then
         for ext in "${extensions[@]}"; do
             az extension add --name ${ext}
@@ -1097,15 +1117,15 @@ function clone_common_repos() {
         "0_PERSONAL;ythirion/knowledge-base"
         "0_PERSONAL;svg153/notes"
     )
-    
+
     for repo in "${dw_repos[@]}"; do
         folder=$(echo ${repo} | cut -d';' -f1)
         repo=$(echo ${repo} | cut -d';' -f2)
         repo_name=$(echo ${repo} | cut -d'/' -f2)
-        
+
         [[ -d "${REPOS_PATH}/${folder}" ]] || mkdir -p "${REPOS_PATH}/${folder}"
         [[ -d "${REPOS_PATH}/${folder}/${repo_name}" ]] && continue
-        
+
         # clone
         folder_to_clone="${REPOS_PATH}/${folder}/${repo_name}"
         if [[ -x "$(command -v gh)" ]] && gh auth status; then
@@ -1117,27 +1137,6 @@ function clone_common_repos() {
 }
 
 
-function create_sshkey_github() {
-    mkdir -p ~/.ssh
-    
-    # PERSONAL
-    sshkeyfile="~/.ssh/id_ed25519_github-com"
-    ssh-keygen -t ed25519 -C "${PERSONAL_EMAIL}" -f "${sshkeyfile}"
-    echo "Host github.com
-    HostName github.com
-    IdentityFile ${sshkeyfile}
-    AddKeysToAgent yes
-    User git" >> ~/.ssh/config
-    
-    # WORK
-    sshkeyfile="~/.ssh/id_ed25519_github-internal"
-    ssh-keygen -t ed25519 -C "${COMPANY_USER_EMAIL}" -f "${sshkeyfile}"
-    echo "Host git.internal.com # TODO: ask for this
-    HostName git.internal.com # TODO: ask for this
-    IdentityFile ${sshkeyfile}
-    AddKeysToAgent yes
-    User git" >> ~/.ssh/config    
-}
 
 #
 # BIG FUNCTIONS
@@ -1158,7 +1157,100 @@ else
     install_drivers
 fi
 
-create_sshkey_github
+# folder structure
+mkdir -p "${HOME}/.ssh"
+make_folder_structure
+
+# clone configLinux if exist pull else clone
+if [[ -d "${CONFIG_PATH}/.git" ]]; then
+    git -C ${CONFIG_PATH} pull
+else
+    git clone git@github.com:svg153/configLinux.git ${CONFIG_PATH}
+fi
+
+# GIT
+# TODO: configure_git function
+log info "git"
+create_symlink ${CONFIG_PATH}/.gitconfig ~/.gitconfig
+create_symlink ${CONFIG_PATH}/.gitconfig.d ~/.gitconfig.d
+create_symlink ${CONFIG_PATH}/.git-template ~/.git-template
+git config --global init.templateDir ~/.git-template
+
+# personal mail
+personal_mail_gitconfig="${CONFIG_PATH}/.gitconfig.d/personal-mail.gitconfig"
+if [[ ! -f "${personal_mail_gitconfig}" ]]; then
+    if [[ -z "${PERSONAL_EMAIL}" ]]; then
+        echo "Enter your personal email: "
+        read P_EMAIL
+        PERSONAL_EMAIL=${P_EMAIL}
+    fi
+    echo """
+[user]
+    name = ${USER_NAME}
+    email = ${PERSONAL_EMAIL}
+    """ > ${personal_mail_gitconfig}
+
+    # Create the ssh key for the personal
+    sshkeyfile="${HOME}/.ssh/id_ed25519_github-com"
+    if [[ ! -f "${sshkeyfile}" ]]; then
+        ssh-keygen -t ed25519 -C "${personal_email}" -f "${sshkeyfile}"
+        echo "Host github.com
+        HostName github.com
+        IdentityFile ${sshkeyfile}
+        AddKeysToAgent yes
+        User git" >> ${HOME}/.ssh/config
+    fi
+fi
+
+# work mail
+# if work folder exists
+if [[ ! -d "${CONFIG_PATH}/.gitconfig.d/work" ]]; then
+    mkdir -p ${CONFIG_PATH}/.gitconfig.d/work
+fi
+
+if [[ -z "$(ls ${CONFIG_PATH}/.gitconfig.d/work/work-*.gitconfig)" ]]; then
+    if [[ -z "${COMPANY_NAME}" ]]; then
+        echo "Enter your company name: "
+        read COMPANY_NAME
+    fi
+    work_mail_gitconfig="${CONFIG_PATH}/.gitconfig.d/work/work-${COMPANY_NAME}.gitconfig"
+    if [[ ! -f "${work_mail_gitconfig}" ]]; then
+        if [[ -z "${COMPANY_USER_NAME}" ]]; then
+            echo "Enter your company user name: "
+            read COMPANY_USER_NAME
+        fi
+        if [[ -z "${COMPANY_USER_EMAIL}" ]]; then
+            echo "Enter your company user email: "
+            read C_EMAIL
+            COMPANY_USER_EMAIL=${C_EMAIL}
+        fi
+        echo """
+[user]
+    name = ${COMPANY_USER_NAME}
+    email = ${COMPANY_USER_EMAIL}
+        """ > ${work_mail_gitconfig}
+    fi
+
+    # create the work.gitconfig to include the work mail
+    work_gitconfig="${CONFIG_PATH}/.gitconfig.d/work/work.gitconfig"
+    if [[ ! -f "${work_gitconfig}" ]]; then
+        echo """
+[includeIf \"gitdir:${REPOS_PATH}/0_WORK/\"]
+    path = work-${COMPANY_NAME}.gitconfig
+        """ > ${work_gitconfig}
+    fi
+
+    # Create the ssh key for the work
+    sshkeyfile="${HOME}/.ssh/id_ed25519_github-internal"
+    if [[ ! -f "${sshkeyfile}" ]]; then
+        ssh-keygen -t ed25519 -C "${company_user_email}" -f "${sshkeyfile}"
+        echo "Host github.internal.com # TODO: ask for this
+        HostName github.internal.com # TODO: ask for this
+        IdentityFile ${sshkeyfile}
+        AddKeysToAgent yes
+        User git" >> ${HOME}/.ssh/config
+    fi
+fi
 
 # utils
 install bash-completion
@@ -1186,77 +1278,6 @@ else
     #     gksu
 fi
 
-
-# folder structure
-make_folder_structure
-
-# clone conifLinux if exist pull else clone
-if [[ -d "${CONFIG_PATH}/.git" ]]; then
-    git -C ${CONFIG_PATH} pull
-else
-    git clone git@github.com:svg153/configLinux.git ${CONFIG_PATH}
-fi
-
-# GIT
-# TODO: configure_git function
-log info "git"
-create_symlink ${CONFIG_PATH}/.gitconfig ~/.gitconfig
-create_symlink ${CONFIG_PATH}/.gitconfig.d ~/.gitconfig.d
-create_symlink ${CONFIG_PATH}/.git-template ~/.git-template
-git config --global init.templateDir ~/.git-template
-
-# personal mail
-personal_mail_gitconfig="${CONFIG_PATH}/.gitconfig.d/personal-mail.gitconfig"
-if [[ ! -f "${personal_mail_gitconfig}" ]]; then
-    if [[ -z "${PERSONAL_EMAIL}" ]]; then
-        echo "Enter your personal email: "
-        read PERSONAL_EMAIL
-    fi
-    echo """
-[user]
-    name = ${USER_NAME}
-    email = ${PERSONAL_EMAIL}
-    """ > ${personal_mail_gitconfig}
-fi
-
-# work mail
-# if work folder exists
-if [[ ! -d "${CONFIG_PATH}/.gitconfig.d/work" ]]; then
-    mkdir -p ${CONFIG_PATH}/.gitconfig.d/work    
-fi
-
-if [[ -z "$(ls ${CONFIG_PATH}/.gitconfig.d/work/work-*.gitconfig)" ]]; then
-    if [[ -z "${COMPANY_NAME}" ]]; then
-        echo "Enter your company name: "
-        read COMPANY_NAME
-    fi
-    work_mail_gitconfig="${CONFIG_PATH}/.gitconfig.d/work/work-${COMPANY_NAME}.gitconfig"
-    if [[ ! -f "${work_mail_gitconfig}" ]]; then
-        if [[ -z "${COMPANY_USER_NAME}" ]]; then
-            echo "Enter your company user name: "
-            read COMPANY_USER_NAME
-        fi
-        if [[ -z "${COMPANY_USER_EMAIL}" ]]; then
-            echo "Enter your company user email: "
-            read COMPANY_USER_EMAIL
-        fi
-        echo """
-[user]
-    name = ${COMPANY_USER_NAME}
-    email = ${COMPANY_USER_EMAIL}
-        """ > ${work_mail_gitconfig}
-    fi
-
-    # create the work.gitconfig to include the work mail
-    work_gitconfig="${CONFIG_PATH}/.gitconfig.d/work/work.gitconfig"
-    if [[ ! -f "${work_gitconfig}" ]]; then
-        echo """
-[inlcudeIf "gitdir:${REPOS_PATH}/0_WORK/"]
-    path = work-${COMPANY_NAME}.gitconfig
-        """ > ${work_gitconfig}
-    fi
-fi
-
 log info "languages"
 install_python
 install_node
@@ -1266,7 +1287,7 @@ install_by_pgkmanager golang-go
 log info "github tools"
 install_gh
 install_gh_extensions
-install_gh_copilot
+# install_gh_copilot NOTE: do not install old version
 install_github_tools
 
 log info "zsh and .oh-my-zsh"
@@ -1328,17 +1349,19 @@ install_starship
 install_azurecli
 install_azurecli_extentions
 
-# Terraform 
+# Terraform
 install_tfenv
 install_terraform_with_tfenv # use tfenv to install terraform instead of install_terraform
 install_terraform_tools
 
-pip3 install \
-    pre-commit
+pipx install \
+    pre-commit \
+    ansible-lint \
+    black
 
 install_fzf
 install_gotask
-install_termium
+# install_termium # NOTE: evaluar si la instalamos o no
 install_taskfalcon
 
 install_webinstall
@@ -1508,7 +1531,7 @@ fi
 
 
 #
-# Automation 
+# Automation
 #
 
 clone_common_repos
