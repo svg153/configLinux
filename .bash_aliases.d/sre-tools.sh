@@ -12,6 +12,3 @@ pwgen() {
     length=${1:-16}
     openssl rand -base64 $length | tr -d "=+/" | cut -c1-$length
 }
-
-## hashicorp vault
-alias vault="source ~/.vault-env; vault"
