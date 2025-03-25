@@ -71,7 +71,8 @@
 	citsp = !git cits && git push
 	x-get-branch-name-to-commit-message = "!f() { msg=\"$(git branch --show | tr '-' ' ')\" && echo \"${msg}\"; }; f"
 	x-get-branch-name-with-azdo-wi-to-commit-message = "!f() { msg=\"$(git branch --show | tr '_' ' ' | sed 's/AB-/AB#/g' | tr '-' ' ')\" && echo \"${msg}\"; }; f"
-	x-get-branch-name-with-ticket-id-to-commit-message = "!f() { msg=\"$(git branch --show | tr '_' ' ' | sed -E 's/([A-Z]+-[0-9]+)/\\1/g' | tr '-' ' ')\" && echo \"${msg}\"; }; f"
+	# x-get-branch-name-with-ticket-id-to-commit-message = "!f() { msg=\"$(git branch --show | tr '_' ' ' | sed -E 's/([A-Z]+-[0-9]+)/\\1/g' | tr '-' ' ')\" && echo \"${msg}\"; }; f"
+	x-get-branch-name-with-ticket-id-to-commit-message = "!f() { branch=$(git rev-parse --abbrev-ref HEAD); ticket=$(echo $branch | cut -d\"_\" -f1); message=$(echo $branch | cut -d\"_\" -f2- | tr \"-\" \" \"); echo \"$ticket $message\"; }; f"
 	x-get-wiid-from-branch-name = "!f() { wiid=\"$(git branch --show | awk -F'_' '{print $1}' | sed 's/AB-/AB#/g')\" && echo \"${wiid}\"; }; f"
 	cib = "!f() { msg=\"$(git x-get-branch-name-to-commit-message)\" && git commit -m \"${msg}\"; }; f"
 	cibap = "!f() { msg=\"$(git x-get-branch-name-to-commit-message)\" && git add . && git commit -m \"${msg}\" --no-verify; git push; }; f"
@@ -102,6 +103,9 @@
 	fame = !docker run --rm -v $(pwd):/repo casperdcl/git-fame
 	sw-remote-ssh = remote set-url origin \"$(git remote get-url origin | sed \"s/https:\\/\\/\\([^@]*@\\)\\?\\([^/]*\\)\\//git@\\2:/\")\"
 	root = rev-parse --show-toplevel
+	# TODO: check if works
+	# clean = remove-branch-merged
+	# remove-branch-merged = git branch --merged | grep -v '\*\|main\|master' | xargs -n 1 git branch -d
 [include]
 	path = .gitconfig.d/default.gitconfig
 [pager]
