@@ -15,6 +15,7 @@ github-clone-all(){
     # gh clone-org -p "${user}" -y "${user}"
 }
 
+alias prcrwi=github-prcrwi
 github-prcrwi(){
     set -x
     root_dir=$(git rev-parse --show-toplevel)
