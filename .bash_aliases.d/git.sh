@@ -26,9 +26,8 @@ alias gu='git-update'
 alias git-update-branch-from-main="g pull origin main"
 alias git-update-branch-from-dev="g pull origin develop"
 
-alias mas="gswm"
-alias mas="g stash && gswm && g pull && g stash pop"
-# "git stash && git sw main && git pull && git sw - && git rebase main && git stash pop"
+alias mas="g stash && g switch main && g pull && g stash pop"
+# alias mas=s"git stash && git sw main && git pull && git sw - && git rebase main && git stash pop"
 
 # git gui
 alias ggui="g gui &> /dev/null &"
