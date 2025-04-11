@@ -13,5 +13,8 @@
 	tpush = push
 	phush = push
 	pushg = push
-	pussh = pushº
+	pussh = push
 	lcone = clone
+	cloen = clone
+	clon = clone
+	clonr = clone
