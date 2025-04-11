@@ -125,6 +125,13 @@ aliases:
                 gh common-prcrwi
             fi
         )
+    prcrwim-lunik: |-
+       !(
+            if [ $# -eq 0 ]; then
+                gh lunik-prcrwi
+            else
+                gh lunik-prcrwim "$1"
+            fi
         )
     prcrwim-plain: |-
         !(
@@ -558,6 +565,33 @@ aliases:
         !(
             wi_id="$1"
             gh new-branch-from-azdo-wi ${wi_id}
+        )
+    lunik-prcrwi: |-
+        !(
+            # Usage: gh lunik-prcrwi
+            
+            branch_name=$(gh __branch-name)
+    
+            issue_id=$(echo "${branch_name}" | awk -F'_' '{print $1}')
+            branch_issue_title=$(echo "${branch_name}" | awk -F'_' '{print $2}')
+            
+            wi_id="${issue_id}"            
+            wi_title=$(echo "${branch_issue_title}" | tr '-' ' ')
+
+            git push -u origin HEAD
+            
+            pr_body_temp_file=$(mktemp -t pr_body_XXXXX.md)
+            chmod 666 ${pr_body_temp_file}
+            trap "rm -f ${pr_body_temp_file}" EXIT
+
+            echo "# Description" >> ${pr_body_temp_file}
+            echo -e "\n${wi_title}" >> ${pr_body_temp_file}
+            echo -e "\nJira Issue: ${wi_id}" >> ${pr_body_temp_file}
+
+            bash -c "gh prcr \
+                --body-file \"${pr_body_temp_file}\" \
+                --fill \
+                --draft"
         )
     plain-prcrwim: |-
         !(
