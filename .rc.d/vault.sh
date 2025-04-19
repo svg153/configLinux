@@ -1,2 +1,2 @@
 ## hashicorp vault
-. ~/.vault-env
+[[ -f ~/.vault-env ]] && source ~/.vault-env
