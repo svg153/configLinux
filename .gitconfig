@@ -10,6 +10,7 @@
 	# to push to the same branch name in the remote
 	default = upstream
 	# default = current
+	autoSetupRemote = true
 [alias]
 	# lista all alias
 	aliases = alias
