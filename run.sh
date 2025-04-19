@@ -1326,7 +1326,8 @@ log info "minikube"
 install_minikube
 
 if [[ ${isWSL} ]]; then
-    echo "No install chrome and telegram for WSL"
+    install wslu # to redirect to use the hosted browser
+    echo "No install telegram for WSL"
 else
     install_chrome
     install_telegram
