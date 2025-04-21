@@ -276,10 +276,6 @@ if [ -d "$HOME/.asdf" ]; then
     autoload -Uz compinit && compinit
 fi
 
-#
-# <- My configuration
-#
-
 ### Added by Codeium. These lines cannot be automatically removed if modified
 if command -v termium > /dev/null 2>&1; then
   eval "$(termium shell-hook show post)"
@@ -289,3 +285,7 @@ fi
 # env paths
 [ -f ~/.env.paths.env ] && source ~/.env.paths.env
 [ -f ~/.env.org.env ] && source ~/.env.org.env
+
+#
+# <- My configuration
+#
