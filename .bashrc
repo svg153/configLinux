@@ -163,11 +163,6 @@ fi
 # https://github.com/junegunn/fzf?tab=readme-ov-file#upgrading-fzf
 [ -f ~/.fzf.bash ] && source ~/.fzf.bash
 
-# z
-# https://github.com/rupa/z
-[ -f ~/.z ] && source ~/.z
-
-
 # terraform
 # https://developer.hashicorp.com/terraform/install
 complete -C /usr/bin/terraform terraform
