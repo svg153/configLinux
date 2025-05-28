@@ -2,31 +2,30 @@
 # sources.list
 ###
 
-# deb cdrom:[Official Debian GNU/Linux Live 10.3.0 xfce 2020-02-08T12:43]/ bullseye main
+# cdrom
+#deb cdrom:[Debian GNU/Linux 12.9.0 _Bookworm_ - Official amd64 NETINST with firmware 20250111-10:54]/ bookworm contrib main non-free-firmware
 
-#
-# redimadrid
-#
+# internet
+deb http://debian.redimadrid.es/debian/ bookworm main non-free-firmware
+deb-src http://debian.redimadrid.es/debian/ bookworm main non-free-firmware
+deb https://deb.debian.org/debian bookworm main non-free-firmware
+deb-src https://deb.debian.org/debian bookworm main non-free-firmware
+deb https://deb.debian.org/debian bookworm main non-free
+deb-src https://deb.debian.org/debian bookworm main non-free
 
-deb http://debian.redimadrid.es/debian/ bullseye main
-deb-src http://debian.redimadrid.es/debian/ bullseye main
+# security
+deb http://security.debian.org/debian-security bookworm-security main non-free-firmware
+deb-src http://security.debian.org/debian-security bookworm-security main non-free-firmware
 
-#deb http://debian.redimadrid.es/debian-security/ bullseye-security main contrib
-#deb-src http://debian.redimadrid.es/debian-security/ bullseye-security main contrib
+# bookworm-updates, to get updates before a point release is made;
+# see https://www.debian.org/doc/manuals/debian-reference/ch02.en.html#_updates_and_backports
+deb http://debian.redimadrid.es/debian/ bookworm-updates main non-free-firmware
+deb-src http://debian.redimadrid.es/debian/ bookworm-updates main non-free-firmware
+deb https://deb.debian.org/debian bookworm-updates main non-free-firmware
+deb-src https://deb.debian.org/debian bookworm-updates main non-free-firmware
 
-deb http://debian.redimadrid.es/debian/ bullseye-updates main
-deb-src http://debian.redimadrid.es/debian/ bullseye-updates main
-
-
-#
-# debian.org
-#
-
-deb http://deb.debian.org/debian/ bullseye main
-deb-src http://deb.debian.org/debian/ bullseye main
-
-deb http://security.debian.org/debian-security/ bullseye-security main contrib
-deb-src http://security.debian.org/debian-security/ bullseye-security main contrib
-
-deb http://deb.debian.org/debian/ bullseye-updates main
-deb-src http://deb.debian.org/debian/ bullseye-updates main
+# This system was installed using small removable media
+# (e.g. netinst, live or single CD). The matching "deb cdrom"
+# entries were disabled at the end of the installation process.
+# For information about how to configure apt package sources,
+# see the sources.list(5) manual.

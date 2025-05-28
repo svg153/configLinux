@@ -1,7 +1,7 @@
 __GH_BROWSER=""
 get_gh_browser(){
     isWSL=$(uname -a | grep WSL | wc -l)
-    if [ ${isWSL} ]; then
+    if [[ ${isWSL} -gt 0 ]]; then
          __GH_BROWSER=explorer.exe
     fi
 }

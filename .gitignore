@@ -6,3 +6,5 @@
 # AUTOMATICALLY GENERATED from run.sh
 .config/xfce4/xfconf/xfce-perchannel-xml/xfce4-power-manager.xml
 # AUTOMATICALLY GENERATED from run.sh
+.config/warp-terminal/user_preferences.json
+.config/pulse/

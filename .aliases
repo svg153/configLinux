@@ -25,7 +25,19 @@ alias folder_size='folder_size() { du -sh "$1" ;}; folder_size'
 alias t=' && echo yes || echo no'
 alias crontablog="sudo grep CRON /var/log/syslog"
 
-install_pkg_manager="yum"
+
+if [[ -f /usr/bin/apt-get ]]; then
+  install_pkg_manager="apt-get"
+elif [[ -f /usr/bin/dnf ]]; then
+  install_pkg_manager="dnf"
+elif [[ -f /usr/bin/yum ]]; then
+  install_pkg_manager="yum"
+elif [[ -f /usr/bin/pacman ]]; then
+  install_pkg_manager="pacman"
+else
+  echo "No package manager found."
+  return 1
+fi
 alias install="sudo ${install_pkg_manager} install"
 alias installdeb="sudo dpkg -i"
 alias update="sudo ${install_pkg_manager} update"

@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash -x
 
 set -e
 set -u
@@ -62,6 +62,12 @@ fi
 
 # check if the system is WSL
 isWSL=$(uname -a | grep WSL | wc -l)
+if [[ ${isWSL} -gt 0 ]]; then
+    isWSL="true"
+else
+    isWSL="false"
+fi
+
 
 #
 # VARS
@@ -238,20 +244,19 @@ function install_bash_tools()
 
 function install_git()
 {
-    sudo add-apt-repository ppa:git-core/ppa -y \
-    && sudo apt update \
+    sudo apt update \
     && install_by_pgkmanager git
 }
 
 function install_zsh()
 {
-    install zsh
-
-    sh -c "$(wget -O- https://install.ohmyz.sh/)"
-
     if [[ ${SHELL} != *"zsh"* ]]; then
-        # TODO: check if already installed
-        # sh -c "$(wget https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh -O -)"
+        if ! command -v zsh > /dev/null 2>&1; then
+            install zsh
+            sh -c "$(wget -O- https://install.ohmyz.sh/)"
+            # TODO: check if already installed
+            # sh -c "$(wget https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh -O -)"
+        fi
 
         # configure zsh
         rm ~/.zshrc; ln -s ${CONFIG_PATH}/.zshrc ~/.zshrc
@@ -289,6 +294,7 @@ function install_zsh()
         fi
         cd -
     fi
+
 }
 
 function install_fonts()
@@ -392,15 +398,11 @@ function install_docker()
 {
     # https://docs.docker.com/engine/install/ubuntu/
     # Install Docker on Windows WSL without Docker Desktop
-    if [[ ${isWSL} ]]; then
+    if [[ ${isWSL} == "true" ]]; then
         if check_if_program_is_installed_in_windows "docker"; then
             # Install Docker on WSL to use Docker Desktop
             # https://docs.docker.com/engine/install/ubuntu/#install-using-the-convenience-script
             echo "Docker Desktop is installed in Windows"
-            # TODO: remove
-            # curl -fsSL https://get.docker.com -o get-docker.sh
-            # sudo sh ./get-docker.sh --dry-run
-            # rm -rf get-docker.sh
         else # if docker is not installed in Windows and we want to use docker WSL for Windows
             # Install Docker on Windows WSL without Docker Desktop
             # https://dev.to/bowmanjd/install-docker-on-windows-wsl-without-docker-desktop-34m9
@@ -524,30 +526,37 @@ function install_docker()
             fi
         fi
     else
-        # Add Docker's official GPG key:
-        sudo apt-get update
-        sudo apt-get install ca-certificates curl
-        sudo install -m 0755 -d /etc/apt/keyrings
-        sudo curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc
-        sudo chmod a+r /etc/apt/keyrings/docker.asc
+    
+        # TODO: remove
+        curl -fsSL https://get.docker.com -o get-docker.sh
+        sudo sh ./get-docker.sh --dry-run
+        rm -rf get-docker.sh
+    
+        # OLD WAY 
+            # # Add Docker's official GPG key:
+            # sudo apt-get update
+            # sudo apt-get install ca-certificates curl
+            # sudo install -m 0755 -d /etc/apt/keyrings
+            # dist=$(lsb_release -is | tr '[:upper:]' '[:lower:]')
+            # sudo curl -fsSL https://download.docker.com/linux/${dist}/gpg -o /etc/apt/keyrings/docker.asc
+            # sudo chmod a+r /etc/apt/keyrings/docker.asc
 
-        # Add the repository to Apt sources:
-        echo \
-          "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu \
-          $(. /etc/os-release && echo "${VERSION_CODENAME}") stable" | \
-          sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
-        sudo apt-get update
-
-        # Install Docker
-        sudo apt install docker-ce docker-ce-cli containerd.io
-
+            # # Add the repository to Apt sources:
+            # echo \
+            # "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/${dist} \
+            # $(. /etc/os-release && echo "$VERSION_CODENAME") stable" | \
+            # sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+            # sudo apt-get update
+            
+            # # Install Docker
+            # sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+            
         # TODO: test
-        # sudo docker run hello-world
-        # sudo groupadd docker
-        # sudo usermod -aG docker $USER
-        # newgrp docker
-        # docker run hello-world
-        # sudo systemctl enable docker
+        sudo docker run hello-world
+        sudo groupadd docker || true
+        sudo usermod -aG docker $USER
+        docker run hello-world
+        sudo systemctl enable docker
     fi
 }
 
@@ -572,7 +581,6 @@ function install_minikube()
     && sudo mv minikube-linux-amd64 /usr/local/bin/minikube \
     && sudo chmod +x /usr/local/bin/minikube \
     && minikube start
-
     # INFO
     # - Podman: https://minikube.sigs.k8s.io/docs/drivers/podman/
 
@@ -586,10 +594,13 @@ function install_kubectx()
     sudo ln -s /opt/kubectx/kubectx /usr/local/bin/kubectx
     sudo ln -s /opt/kubectx/kubens /usr/local/bin/kubens
 
-    mkdir -p ~/.oh-my-zsh/custom/completions
-    chmod -R 755 ~/.oh-my-zsh/custom/completions
-    ln -s /opt/kubectx/completion/_kubectx.zsh ~/.oh-my-zsh/custom/completions/_kubectx.zsh
-    ln -s /opt/kubectx/completion/_kubens.zsh ~/.oh-my-zsh/custom/completions/_kubens.zsh
+    # TODO: change the omzsh completion path to use the vars
+    if [[ -d ~/.oh-my-zsh/custom/completions ]]; then
+        mkdir -p ~/.oh-my-zsh/custom/completions
+        chmod -R 755 ~/.oh-my-zsh/custom/completions
+        ln -s /opt/kubectx/completion/_kubectx.zsh ~/.oh-my-zsh/custom/completions/_kubectx.zsh
+        ln -s /opt/kubectx/completion/_kubens.zsh ~/.oh-my-zsh/custom/completions/_kubens.zsh
+    fi
 }
 
 function install_tfenv()
@@ -616,9 +627,12 @@ function install_terraform_with_tfenv()
     else
         install_tfenv
     fi
-
+    
     tfenv install latest
-    tfenv use latest
+    
+    if [[ ! -x "$(command -v terraform)" ]]; then
+        tfenv use latest
+    fi
 }
 
 function install_terraform()
@@ -858,30 +872,40 @@ function install_python()
     install \
         python3 \
         python3-pip \
-        python3-distutils-extra \
-        python3-apt \
-        pipx
+        python3-distutils \
+        python3-apt
+        sudo apt update
+
+    install pipx
+    pipx ensurepath
+    sudo pipx ensurepath --global # optional to allow pipx actions with --global argument
 }
 
 function install_node()
 {
-  local os_distribution=$(get_os_distribution)
+    
+    if [[ -x "$(command -v node)" ]]; then
+        version=$(node -v)
+        echo "node is already installed, version: ${version}"
+        return 0
+    fi
 
-  if [ "$os_distribution" == "Debian" ] || [ "$os_distribution" == "Ubuntu" ]; then
-    curl -fsSL https://deb.nodesource.com/setup_23.x | sudo -E bash - \
-    && sudo apt-get install -y nodejs
-  elif [ "$os_distribution" == "CentOS Linux" ]; then
-    curl -fsSL https://rpm.nodesource.com/setup_18.x | sudo -E bash - \
-    && sudo yum install nodejs -y --skip-broken && sudo yum install nsolid -y --skip-broken
-  else
-    echo "OS distribution not supported"
-  fi
+    local os_distribution=$(get_os_distribution)
+    
+    if [[ ${os_distribution} = *"Debian"* ]] || [[ ${os_distribution} = *"Ubuntu"* ]]; then
+        curl -fsSL https://deb.nodesource.com/setup_22.x | sudo -E bash - \
+        && sudo apt-get install -y nodejs
+    elif [[ ${os_distribution} = *"CentOS"* ]] || [[ ${os_distribution} = *"Fedora"* ]]; then
+        curl -fsSL https://rpm.nodesource.com/setup_18.x | sudo -E bash - \
+        &&  sudo yum install nodejs -y --skip-broken && sudo yum install nsolid -y --skip-broken
+    else
+        echo "OS distribution not supported"
+    fi
 }
 
 function install_golang()
 {
   local -r go_version="1.23.4"
-
 
   wget https://go.dev/dl/go${go_version}.linux-amd64.tar.gz
   sudo tar -C /usr/local -xzf go${go_version}.linux-amd64.tar.gz
@@ -959,7 +983,13 @@ function install_gh_ext()
     local ext=$1
     [[ $# -ne 1 ]] && echo "Usage: install_gh_extensions <extension>" && return 1
     [[ -z "${ext}" ]] && echo "install_gh_extensions: extension is empty" && return 1
-    gh extension install "${ext}"
+    
+    gh extension install "${ext}" || true
+    gh extension list | grep "${ext}" || {
+        log error "install_gh_ext: gh extension ${ext} not installed"
+        return 1
+    }
+    log info "install_gh_ext: gh extension ${ext} installed"
 }
 
 function install_gh_copilot()
@@ -985,7 +1015,7 @@ function install_github_tools()
 {
     # ghorg
     # https://github.com/gabrie30/ghorg
-    go install github.com/gabrie30/ghorg@latest
+    go install github.com/gabrie30/ghorg@latest || true
 }
 
 function install_by_gh()
@@ -1137,6 +1167,43 @@ function clone_common_repos() {
 }
 
 
+function create_sshkey_github() {
+    mkdir -p ~/.ssh
+
+    # PERSONAL
+    sshkeyfile="${HOME}/.ssh/id_ed25519_github-com"
+    if [[ -f ${sshkeyfile} ]]; then
+        echo "SSH key ${sshkeyfile} already exists"
+    else
+        if [[ -z "${PERSONAL_EMAIL}" ]]; then
+            echo "Enter your personal email: "
+            read PERSONAL_EMAIL
+        fi
+        ssh-keygen -t ed25519 -C "${PERSONAL_EMAIL}" -f ${sshkeyfile}
+        echo "Host github.com
+        HostName github.com
+        IdentityFile ${sshkeyfile}
+        AddKeysToAgent yes
+        User git" >> ~/.ssh/config
+    fi
+    
+    # WORK
+    sshkeyfile="${HOME}/.ssh/id_ed25519_github-internal"
+    if [[ -f ${sshkeyfile} ]]; then
+        echo "SSH key ${sshkeyfile} already exists"
+    else
+        if [[ -z "${COMPANY_USER_EMAIL}" ]]; then
+            echo "Enter your company user email: "
+            read COMPANY_USER_EMAIL
+        fi
+        ssh-keygen -t ed25519 -C "${COMPANY_USER_EMAIL}" -f ${sshkeyfile}
+        echo "Host git.internal.com # TODO: ask for this
+        HostName git.internal.com # TODO: ask for this
+        IdentityFile ${sshkeyfile}
+        AddKeysToAgent yes
+        User git" >> ~/.ssh/config    
+    fi
+}
 
 #
 # BIG FUNCTIONS
@@ -1148,33 +1215,72 @@ function clone_common_repos() {
 # MAIN
 #
 
+mkdir -p ~/bin
+
+# personal mail
+personal_mail_gitconfig="${CONFIG_PATH}/.gitconfig.d/personal-mail.gitconfig"
+if [[ ! -f "${personal_mail_gitconfig}" ]]; then
+    if [[ -z "${PERSONAL_EMAIL}" ]]; then
+        echo "Enter your personal email: "
+        read PERSONAL_EMAIL
+    fi
+    echo """
+[user]
+    name = ${USER_NAME}
+    email = ${PERSONAL_EMAIL}
+    """ > ${personal_mail_gitconfig}
+fi
+
+# work mail
+# if work folder exists
+if [[ ! -d "${CONFIG_PATH}/.gitconfig.d/work" ]]; then
+    mkdir -p ${CONFIG_PATH}/.gitconfig.d/work    
+fi
+
+if [[ -z "$(ls ${CONFIG_PATH}/.gitconfig.d/work/work-*.gitconfig)" ]]; then
+    if [[ -z "${COMPANY_NAME}" ]]; then
+        echo "Enter your company name: "
+        read COMPANY_NAME
+    fi
+
+    work_mail_gitconfig="${CONFIG_PATH}/.gitconfig.d/work/work-${COMPANY_NAME}.gitconfig"
+    if [[ ! -f "${work_mail_gitconfig}" ]]; then
+        if [[ -z "${COMPANY_USER_NAME}" ]]; then
+            echo "Enter your company user name: "
+            read COMPANY_USER_NAME
+        fi
+        if [[ -z "${COMPANY_USER_EMAIL}" ]]; then
+            echo "Enter your company user email: "
+            read COMPANY_USER_EMAIL
+        fi
+        echo """
+[user]
+    name = ${COMPANY_USER_NAME}
+    email = ${COMPANY_USER_EMAIL}
+        """ > ${work_mail_gitconfig}
+    fi
+
+    # create the work.gitconfig to include the work mail
+    work_gitconfig="${CONFIG_PATH}/.gitconfig.d/work/work.gitconfig"
+    mkdir -p ${WORK_REPOS_PATH}
+    if [[ ! -f "${work_gitconfig}" ]]; then
+        echo """
+[includeIf \"gitdir:${WORK_REPOS_PATH}/\"]
+    path = work-${COMPANY_NAME}.gitconfig
+        """ > ${work_gitconfig}
+    fi
+    
+    # for git to load the work config
+    ln -s ${work_mail_gitconfig} ~/work-${COMPANY_NAME}.gitconfig
+fi
 
 # drivers
-if [[ ${isWSL} ]]; then
+if [[ ${isWSL} == "true" ]]; then
     echo "No install drivers for WSL"
 else
     # TODO: only if not Virtual Machine
     install_drivers
 fi
-
-# folder structure
-mkdir -p "${HOME}/.ssh"
-make_folder_structure
-
-# clone configLinux if exist pull else clone
-if [[ -d "${CONFIG_PATH}/.git" ]]; then
-    git -C ${CONFIG_PATH} pull
-else
-    git clone git@github.com:svg153/configLinux.git ${CONFIG_PATH}
-fi
-
-# GIT
-# TODO: configure_git function
-log info "git"
-create_symlink ${CONFIG_PATH}/.gitconfig ~/.gitconfig
-create_symlink ${CONFIG_PATH}/.gitconfig.d ~/.gitconfig.d
-create_symlink ${CONFIG_PATH}/.git-template ~/.git-template
-git config --global init.templateDir ~/.git-template
 
 # personal mail
 personal_mail_gitconfig="${CONFIG_PATH}/.gitconfig.d/personal-mail.gitconfig"
@@ -1258,10 +1364,12 @@ install_bash_tools
 install_git
 install curl vim
 install \
-    zip unzip unrar \
+    zip unzip \
     xclip \
 
-if [[ ${isWSL} ]]; then
+install unrar || true # in non-free
+
+if [[ ${isWSL} == "true" ]]; then
     echo "No install some utils for WSL"
 else
     # windows automation tools
@@ -1277,6 +1385,24 @@ else
     #     gdebi \
     #     gksu
 fi
+
+# folder structure
+make_folder_structure
+
+# clone conifLinux if exist pull else clone
+if [[ -d "${CONFIG_PATH}/.git" ]]; then
+    git -C ${CONFIG_PATH} pull
+else
+    git clone git@github.com:svg153/configLinux.git ${CONFIG_PATH}
+fi
+
+# GIT
+# TODO: configure_git function
+log info "git"
+create_symlink ${CONFIG_PATH}/.gitconfig ~/.gitconfig
+create_symlink ${CONFIG_PATH}/.gitconfig.d ~/.gitconfig.d
+create_symlink ${CONFIG_PATH}/.git-template ~/.git-template
+git config --global init.templateDir ~/.git-template
 
 log info "languages"
 install_python
@@ -1294,7 +1420,7 @@ log info "zsh and .oh-my-zsh"
 install_zsh
 
 log info "git GUI"
-if [[ ${isWSL} ]]; then
+if [[ ${isWSL} == "true" ]]; then
     log info "No install git-gui and gitk for WSL"
 else
     install \
@@ -1304,7 +1430,7 @@ fi
 
 # install: openvpn
 log info "openvpn"
-if [[ ${isWSL} ]]; then
+if [[ ${isWSL} == "true" ]]; then
     log info "No install openvpn for WSL"
 else
     install \
@@ -1324,17 +1450,22 @@ install_docker
 
 log info "minikube"
 install_minikube
+install_kubectx
 
-if [[ ${isWSL} ]]; then
+if [[ ${isWSL} == "true" ]]; then
+    echo "No install chrome and telegram for WSL"
     install wslu # to redirect to use the hosted browser
+fi
+
+if [[ ${isWSL} == "true" ]]; then
     echo "No install telegram for WSL"
 else
-    install_chrome
+    # install_chrome
     install_telegram
 fi
 
 # @TODO: Install VSCODE
-if [[ ${isWSL} ]]; then
+if [[ ${isWSL} == "true" ]]; then
     echo "No install vscode for WSL"
 else
     install_vscode
@@ -1408,7 +1539,7 @@ done
 # APPS
 #
 
-if [[ ${isWSL} ]]; then
+if [[ ${isWSL} == "true" ]]; then
     echo "No install apps for WSL"
 else
     # xfce4
@@ -1416,14 +1547,14 @@ else
         xfce4-whiskermenu-plugin \
         menulibre \
         xfce4-clipman \
-        xfce4-panel-dev \
         xfce4-power-manager \
         xfce4-screenshooter \
+        xfce4-panel-dev \
         xfce4-taskmanager \
         xfce4-terminal \
         xfce4-xkb-plugin
-
-    # @TODO: Check this apps:
+    
+    # @TODO: Check this apps
     #file-roller
     #evince
     #doidon
@@ -1441,14 +1572,21 @@ else
     #xserver-xorg-input-synaptics
 
     install rsync \
-        qalculate vlc gimp \
+        vlc gimp \
         gparted gnome-disk-utility
+    # TODO: check this
+    # qalculate
 
     # flameshot (new shutter)
     install flameshot
-    flameshot_configfile=".config/flameshot/flameshot.ini"
-    rm ${flameshot_configfile}
-    ln -s ${CONFIG_PATH}/${flameshot_configfile} ~/${flameshot_configfile}
+    if [[ -L ~/${CONFIG_PATH} ]]; then
+        echo "${CONFIG_PATH} is a symlink"
+    else
+        flameshot_configfile=.config/flameshot/flameshot.ini
+        rm ${flameshot_configfile}
+        ln -s ${CONFIG_PATH}/../${flameshot_configfile} ~/${flameshot_configfile}
+    fi
+    
 fi
 
 
@@ -1463,7 +1601,7 @@ fi
 
 # TODO: check wheel scroll https://askubuntu.com/a/304653
 
-if [[ ${isWSL} ]]; then
+if [[ ${isWSL} == "true" ]]; then
     echo "No customization for WSL"
 else
     # fonts
@@ -1514,7 +1652,7 @@ else
 
     # config keyboard
     keyboard_filepath_ori="/etc/default/keyboard"
-    keyboard_filepath_mine="${CONFIG_PATH}/keyboard"
+    keyboard_filepath_mine="${CONFIG_PATH}/${keyboard_filepath_ori}"
     sudo cp ${keyboard_filepath_ori} ${keyboard_filepath_ori}.OLD
     sudo rm ${keyboard_filepath_ori}
     if [[ -e "${keyboard_filepath_mine}" ]]; then

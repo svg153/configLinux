@@ -9,4 +9,4 @@
 [include]
 	path = gh.gitconfig
 [include]
-	path = ./work/work.gitconfig
+	path = work/work.gitconfig
