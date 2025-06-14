@@ -38,6 +38,14 @@ aliases:
             | fzf --multi \
             | xargs -I '%' gh repo delete ${owner}/% --yes
         )
+    web: |-
+        !(
+            if [ $# -eq 0 ]; then
+                gh repo view --web
+            else
+                gh repo view --web $1
+            fi
+        )
     wi: |-
         !(
             if [ $# -eq 0 ]; then
