@@ -127,8 +127,6 @@ add_tool_plugin() {
     if command -v "$tool_cmd" >/dev/null 2>&1; then
         if [ "$#" -eq 0 ]; then
             plugins+=("$tool_cmd")
-        else
-            plugins+=("$@")
         fi
     fi
 }
@@ -145,7 +143,12 @@ plugins+=(perl jsontools)
 plugins+=(python pip)
 plugins+=(golang)
 plugins+=(docker docker-compose)
-plugins+=(kubectl helm minikube) # https://github.com/ohmyzsh/ohmyzsh/tree/master/plugins/kubectl
+
+# https://github.com/ohmyzsh/ohmyzsh/tree/master/plugins/kubectl
+add_tool_plugin "kubectl"
+add_tool_plugin "helm"
+add_tool_plugin "minikube"
+
 plugins+=(zsh-terraform) # https://github.com/ptavares/zsh-terraform
 add_tool_plugin "ansible"
 add_tool_plugin "vault"
@@ -244,7 +247,7 @@ fi
 # starship
 # TODO: move to .include_d and modify the include_d to take the shell and pass as a parameter to the function or take automatically from the current shell
 # https://github.com/starship/starship
-if [ -f "$HOME/.config/starship.toml" ]; then
+if [ -f "$HOME/.config/starship.toml" ] && command -v starship > /dev/null 2>&1; then
     eval "$(starship init zsh)"
 fi
 

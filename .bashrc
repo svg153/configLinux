@@ -149,13 +149,13 @@ fi
 
 # starship
 # https://github.com/starship/starship
-if [ -f "$HOME/.config/starship.toml" ]; then
+if [ -f "$HOME/.config/starship.toml" ] && command -v starship > /dev/null 2>&1; then
     eval "$(starship init bash)"
 fi
 
 # autojump
 # https://github.com/wting/autojump
-if [ -f /usr/share/autojump/autojump.sh ]; then
+if [ -f /usr/share/autojump/autojump.sh ] && command -v autojump > /dev/null 2>&1; then
     . /usr/share/autojump/autojump.sh
 fi
 
@@ -165,7 +165,9 @@ fi
 
 # terraform
 # https://developer.hashicorp.com/terraform/install
-complete -C /usr/bin/terraform terraform
+if [ -f /usr/bin/terraform ] && command -v terraform > /dev/null 2>&1; then
+    complete -C /usr/bin/terraform terraform
+fi
 
 # # ssh agent
 # # https://www.ssh.com/ssh/agent

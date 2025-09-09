@@ -1,3 +1,7 @@
-source <(kubectl completion bash)
+if command -v kubectl > /dev/null 2>&1; then
+    source <(kubectl completion bash)
+fi
 
-source <(minikube completion bash)
+if command -v minikube > /dev/null 2>&1; then
+    source <(minikube completion bash)
+fi
