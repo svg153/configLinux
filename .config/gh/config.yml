@@ -88,20 +88,45 @@ aliases:
         )
     co: |-
         !(
+            # list all the PRs and all the issues in the repository (that not have PR linked) and checkout
+            all_issues_without_pr_linked=$(gh issue list --json number,title,body | jq -r '.[] | "\(.number) \(.title) \(.body)"')
+            all_prs=$(gh pr list --json number,title,headRefName,baseRefName,author,createdAt,updatedAt,body | jq -r '.[] | "\(.number) \(.title) \(.headRefName) \(.baseRefName) \(.author.login) \(.createdAt) \(.updatedAt) \(.body)"')
+            # select the id with fzf and then checkout
+            selected=$(echo -e "${all_issues_without_pr_linked}\n${all_prs}" | fzf | awk '{print $1}')
+            id=${selected}
+            # if id is not empty and is a pr
+            is_id_a_pr=$(gh pr list | grep "${id}")
+            if [ -n "${id}" ]; then
+                if [ -n "${is_id_a_pr}" ]; then
+                    # If the ID is a PR, checkout the PR branch
+                    gh pr checkout "${id}"
+                else
+                    git checkout -b "issue-${id}"
+                fi
+            fi
+        )
+    isco: |-
+        !(
+            # list the issue and, create a branch to start working on it
+            id=$(gh issue list | fzf | awk '{print $1}')
+            if [ -n "${id}" ]; then
+                git checkout -b "issue-${id}"
+            else
+                echo "No issue selected or error occurred"
+            fi
+        )
+    pro: |-
+        !(
+             gh prco
+        )
+    prco: |-
+        !(
             gh pr checkout \
                 $(
                     gh pr list \
                         | fzf \
                         | awk '{print $1}' \
                 )
-        )
-    pro: |-
-        !(
-            gh co
-        )
-    prco: |-
-        !(
-            gh co
         )
     prcr: pr create
     prcrd: |-
