@@ -71,3 +71,5 @@ if [ $? -eq 0 ]; then
 fi
 
 # TODO: https://gist.github.com/Pl8tinium/3702c356a83b7363f3ab769d6ec47e2a
+
+alias cops="copilot --allow-all-tools"
