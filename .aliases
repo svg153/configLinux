@@ -38,11 +38,13 @@ else
   echo "No package manager found."
   return 1
 fi
+alias install_pkg_manager="${install_pkg_manager}"
+alias pkgmanager="echo ${install_pkg_manager}"
 alias install="sudo ${install_pkg_manager} install"
 alias installdeb="sudo dpkg -i"
 alias update="sudo ${install_pkg_manager} update"
 alias upgrade="sudo ${install_pkg_manager} upgrade"
-alias upgradable="install_pkg_manager list --upgradable"
+alias upgradable="sudo apt list --upgradable"
 upgradable-list_func() {
   upgradable | tail -n +2 | awk -F'/' '{print $1}' | tr '\n' ' '
 }
