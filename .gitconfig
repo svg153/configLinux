@@ -2,6 +2,7 @@
 #   * https://github.com/US-CBP/GTAS/blob/master/.gitconfig
 [user]
 	name = Sergio Valverde
+	email = svg153@github.com
 [core]
 	askpass =
 	editor = vim

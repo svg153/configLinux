@@ -916,6 +916,12 @@ function install_golang()
   fi
 }
 
+function install_d2lang()
+{
+    # https://d2lang.com/tour/install
+    curl -fsSL https://d2lang.com/install.sh | sh -s --
+}
+
 function install_gh()
 {
     if [[ -x "$(command -v gh)" ]]; then
@@ -1071,6 +1077,20 @@ function install_azurecli_extentions()
     else
         log warn "install_azurecli_extentions: az is not installed"
     fi
+}
+
+function install_ai_skills()
+{
+    SKILLS=(
+        "vercel-labs/agent-skills" \
+        "anthropics/skills" \
+        "vercel-labs/agent-browser" \
+        "softaworks/agent-toolkit" \
+    )
+  
+    for skill in "${SKILLS[@]}"; do
+            npx skills https://github.com${skill} --global --yes
+    done
 }
 
 #
@@ -1409,6 +1429,7 @@ install_python
 install_node
 install_by_pgkmanager golang-go
 # OR install_golang
+install_d2lang
 
 log info "github tools"
 install_gh
@@ -1528,6 +1549,13 @@ for p in "${tools_by_github[@]}"; do
     install_by_gh "${p}"
 done
 # create_symlink ${CONFIG_PATH}/.config/gitu/ ~/.config/gitu
+
+#
+# AI
+#
+
+install_ai_skills
+npx @_davideast/stitch-mcp init
 
 #
 # PROGRAMS

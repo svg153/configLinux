@@ -1,8 +1,13 @@
-### Added by Codeium. These lines cannot be automatically removed if modified
-if command -v termium > /dev/null 2>&1; then
-  eval "$(termium shell-hook show pre)"
-fi
-### End of Codeium integration
+#
+# -> PRE CONFIGURATION
+#
+
+# ### Added by Codeium. These lines cannot be automatically removed if modified
+# if command -v termium > /dev/null 2>&1; then
+#   eval "$(termium shell-hook show pre)"
+# fi
+# ### End of Codeium integration
+
 #
 # -> functions
 #
@@ -14,7 +19,11 @@ export -f include_d
 # <- functions
 #
 
-
+# Disable powerlevel10k in VSCode Copilot Agent Mode
+if [[ "$TERM_PROGRAM" == "vscode" ]]; then
+  ZSH_THEME="robbyrussell" # Or another basic theme
+  POWERLEVEL9K_DISABLE_CONFIGURATION_WIZARD=true
+fi
 
 #
 # -> Bash configuration
@@ -178,15 +187,23 @@ fi
 #     ssh-add ~/.ssh/id_rsa_azdo
 # fi
 
+# ### Added by Codeium. These lines cannot be automatically removed if modified
+# if command -v termium > /dev/null 2>&1; then
+#   eval "$(termium shell-hook show post)"
+# fi
+# ### End of Codeium integration
+
 #
 # <- My configuration
 #
-### Added by Codeium. These lines cannot be automatically removed if modified
-if command -v termium > /dev/null 2>&1; then
-  eval "$(termium shell-hook show post)"
-fi
-### End of Codeium integration
+
+#
+# -> POST CONFIGURATION
+#
 
 # env paths
 [ -f ~/.env.paths.env ] && source ~/.env.paths.env
 [ -f ~/.env.org.env ] && source ~/.env.org.env
+export PATH="$HOME/.bun/bin:$PATH"
+export BUN_INSTALL="$HOME/.bun"
+export PATH="$BUN_INSTALL/bin:$PATH"
