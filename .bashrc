@@ -201,9 +201,22 @@ fi
 # -> POST CONFIGURATION
 #
 
+# ### Added by Codeium. These lines cannot be automatically removed if modified
+# if command -v termium > /dev/null 2>&1; then
+#   eval "$(termium shell-hook show post)"
+# fi
+# ### End of Codeium integration
+
 # env paths
 [ -f ~/.env.paths.env ] && source ~/.env.paths.env
 [ -f ~/.env.org.env ] && source ~/.env.org.env
 export PATH="$HOME/.bun/bin:$PATH"
 export BUN_INSTALL="$HOME/.bun"
 export PATH="$BUN_INSTALL/bin:$PATH"
+
+# Generated for envman. Do not edit.
+[ -s "$HOME/.config/envman/load.sh" ] && source "$HOME/.config/envman/load.sh"
+
+# .NET SDK
+export DOTNET_ROOT=$HOME/.dotnet
+export PATH=$PATH:$HOME/.dotnet:$HOME/.dotnet/tools

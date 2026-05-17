@@ -1,8 +1,8 @@
-### Added by Codeium. These lines cannot be automatically removed if modified
-if command -v termium > /dev/null 2>&1; then
-  eval "$(termium shell-hook show pre)"
-fi
-### End of Codeium integration
+# ### Added by Codeium. These lines cannot be automatically removed if modified
+# if command -v termium > /dev/null 2>&1; then
+#   eval "$(termium shell-hook show pre)"
+# fi
+# ### End of Codeium integration
 #
 # -> VARS
 #
@@ -18,7 +18,7 @@ if $P10K_ENABLED; then
     # Initialization code that may require console input (password prompts, [y/n]
     # confirmations, etc.) must go above this block; everything else may go below.
     if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
-    source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
+        source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
     fi
 fi
 
@@ -279,11 +279,11 @@ if [ -d "$HOME/.asdf" ]; then
     autoload -Uz compinit && compinit
 fi
 
-### Added by Codeium. These lines cannot be automatically removed if modified
-if command -v termium > /dev/null 2>&1; then
-  eval "$(termium shell-hook show post)"
-fi
-### End of Codeium integration
+# ### Added by Codeium. These lines cannot be automatically removed if modified
+# if command -v termium > /dev/null 2>&1; then
+#   eval "$(termium shell-hook show post)"
+# fi
+# ### End of Codeium integration
 
 # env paths
 [ -f ~/.env.paths.env ] && source ~/.env.paths.env
@@ -299,3 +299,17 @@ fi
 # bun
 export BUN_INSTALL="$HOME/.bun"
 export PATH="$BUN_INSTALL/bin:$PATH"
+
+# Task Master aliases added on 7/9/2025
+alias tm='task-master'
+alias taskmaster='task-master'
+
+# opencode
+export PATH=$HOME/.opencode/bin:$PATH
+
+# Generated for envman. Do not edit.
+[ -s "$HOME/.config/envman/load.sh" ] && source "$HOME/.config/envman/load.sh"
+
+export NVM_DIR="$HOME/.nvm"
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
+[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion

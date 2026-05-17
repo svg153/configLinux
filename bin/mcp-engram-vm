@@ -1,0 +1,22 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+PORT="${ENGRAM_MCP_PORT:-7437}"
+STDIO_CMD="${ENGRAM_STDIO_CMD:-$HOME/bin/engram mcp --tools=agent}"
+
+# Liberar puerto (sin killall)
+pids="$(lsof -t -nP -iTCP:${PORT} -sTCP:LISTEN 2>/dev/null || true)"
+if [[ -n "${pids}" ]]; then
+  echo "[mcp-engram-vm] closing listeners on :${PORT}: ${pids}"
+  for p in ${pids
+		}; do kill "$p" || true; done
+  sleep 1
+fi
+
+exec npx -y supergateway \
+  --stdio "${STDIO_CMD}" \
+  --outputTransport streamableHttp \
+  --streamableHttpPath /mcp \
+  --port "${PORT}" \
+  --stateful \
+  --cors

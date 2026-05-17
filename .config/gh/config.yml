@@ -9,7 +9,7 @@ prompt: enabled
 # Preference for editor-based interactive prompting. This is a global config that cannot be overridden by hostname. Supported values: enabled, disabled
 prefer_editor_prompt: disabled
 # A pager program to send command output to, e.g. "less". Set the value to "cat" to disable the pager.
-pager:
+pager: cat
 # Aliases allow you to create nicknames for gh commands
 # Examples:
 #  * https://gist.github.com/vilmibm/a1b9a405ac0d5153c614c9c646e37d13
@@ -123,9 +123,12 @@ aliases:
         !(
             gh pr checkout \
                 $(
+                    GH_FORCE_TTY='50%' \
                     gh pr list \
                         | fzf \
-                        | awk '{print $1}' \
+                            --ansi --header-lines 3 \
+                            --preview 'GH_FORCE_TTY=$FZF_PREVIEW_COLUMNS gh pr view {1}; GH_FORCE_TTY=$FZF_PREVIEW_COLUMNS gh pr checks {1}' \
+                        | awk '{print $1}'
                 )
         )
     prcr: pr create
@@ -163,13 +166,13 @@ aliases:
             fi
         )
     prcrwim-lunik: |-
-       !(
-            if [ $# -eq 0 ]; then
-                gh lunik-prcrwi
-            else
-                gh lunik-prcrwim "$1"
-            fi
-        )
+        !(
+             if [ $# -eq 0 ]; then
+                 gh lunik-prcrwi
+             else
+                 gh lunik-prcrwim "$1"
+             fi
+         )
     prcrwim-plain: |-
         !(
             if [ $# -eq 0 ]; then
@@ -361,7 +364,7 @@ aliases:
             branch_name=$(gh __branch-name)
             gh workflow run "${workflow_name_to_run}" --ref "${branch_name}" ${workflow_args}
         )
-    watch-last-run-execution: |- 
+    watch-last-run-execution: |-
         !(
             last_run_id=$(gh __get-last-run-execution-id)
             gh run watch ${last_run_id}
