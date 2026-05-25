@@ -1,0 +1,30 @@
+{
+  "$schema": "https://aka.ms/terminal-profiles-schema",
+  "copyFormatting": "none",
+  "defaultProfile": "{61c54bbd-c2c6-5271-96e7-009a87ff44bf}",
+  "profiles": {
+    "defaults": {
+      "font": {
+        "face": "CaskaydiaCove NFM",
+        "size": 11
+      },
+      "historySize": 9001,
+      "snapOnInput": true
+    },
+    "list": [
+      {
+        "guid": "{61c54bbd-c2c6-5271-96e7-009a87ff44bf}",
+        "name": "PowerShell 7 (configLinux)",
+        "commandline": "<PWSH_EXE> -NoLogo",
+        "startingDirectory": "%USERPROFILE%",
+        "icon": "ms-appx:///ProfileIcons/pwsh.png"
+      }
+    ]
+  },
+  "actions": [
+    {
+      "command": "find",
+      "keys": "ctrl+shift+f"
+    }
+  ]
+}

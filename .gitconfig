@@ -1,8 +1,7 @@
 # THNAKS:
 #   * https://github.com/US-CBP/GTAS/blob/master/.gitconfig
-[user]
-	name = Sergio Valverde
-	email = svg153@github.com
+# user identity is intentionally not versioned here.
+# it is provided by ignored/generated files under `.gitconfig.d/`.
 [core]
 	askpass =
 	editor = vim

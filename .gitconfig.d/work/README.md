@@ -7,26 +7,34 @@ This folder contains work related files for git configuration.
 | File | Description |
 | ---- | ----------- |
 | README.md | This file |
-| `work.gitconfig` | Git configuration to include work related configuration depending on the company and the repository folder |
-| `work-mail.gitconfig` | Git configuration for work mail |
-| `work-<COMPANY>.gitconfig` | Git configuration for specific company |
+| `work.gitconfig` | Ignored/generated Git configuration that routes work identity by repo folder and by remote host |
+| `work-company.gitconfig` | Ignored/generated Git configuration for a specific company (rename or edit locally) |
 
 ## Example
 
-The `work.gitconfig` file can include the following configuration:
+The `work.gitconfig` file can include both a folder-based include and host-based includes:
 
 ```gitconfig
 [includeIf "gitdir:~/REPOSITORIOS/1_WORK/"]
-    path = work.gitconfig
+    path = work-company.gitconfig
+[includeIf "hasconfig:remote.*.url:https://<WORK_GIT_HOST>/**"]
+    path = work-company.gitconfig
+[includeIf "hasconfig:remote.*.url:ssh://git@<WORK_GIT_HOST>/**"]
+    path = work-company.gitconfig
+[includeIf "hasconfig:remote.*.url:git@<WORK_GIT_HOST>:**"]
+    path = work-company.gitconfig
 ```
 
-Then, the `work-mail.gitconfig` or the `work-<COMPANY>.gitconfig` files can include the specific configuration for the company:
+Then, the `work-company.gitconfig` file can include the specific configuration for the company:
 
 ```gitconfig
 [user]
-    name = Sergio Valverde
-    email = sv@company.com
+    name = <YOUR_NAME>
+    email = <COMPANY_USER_EMAIL>
+    signingkey = ~/.ssh/id_ed25519_sign_work.pub
 ```
+
+The repository keeps these files ignored on purpose so the real values are generated locally by `run.sh` and never committed. If `WORK_GIT_HOST` is not set when you run `./run.sh git-config-only`, the generated file keeps `<WORK_GIT_HOST>` as a placeholder for you to edit locally.
 
 ## Use multiple SSH keys for different accounts
 

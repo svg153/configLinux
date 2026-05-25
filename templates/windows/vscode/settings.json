@@ -1,0 +1,12 @@
+{
+  "terminal.integrated.defaultProfile.windows": "PowerShell 7 (configLinux)",
+  "terminal.integrated.profiles.windows": {
+    "PowerShell 7 (configLinux)": {
+      "path": "<PWSH_EXE>",
+      "args": [
+        "-NoLogo"
+      ]
+    }
+  },
+  "terminal.integrated.fontFamily": "CaskaydiaCove NFM"
+}

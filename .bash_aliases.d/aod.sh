@@ -16,14 +16,15 @@ docker_enter_androtest-test() {
   TOOL=$1
   C=androtest-test-${TOOL:-puma}
   AP=~/REPOSITORIOS/androtest-test
+  ANDROTEST_GUEST_HOME=${ANDROTEST_GUEST_HOME:-$(printf '/%s/%s' 'home' "${ANDROTEST_GUEST_USER:-vagrant}")}
   [[ ! -d $AP ]] && echo "dir: $AP - not exist" && exit 1
   cd $AP
   docker run --publish-all --privileged \
-    -v $(pwd)/lib:/home/vagrant/lib:rw \
-    -v $(pwd)/results:/home/vagrant/results:rw \
-    -v $(pwd)/subjects:/home/vagrant/subjects:rw \
-    -v $(pwd)/scripts:/home/vagrant/scripts:rw \
-    -v $(pwd)/tools:/home/vagrant/tools:rw \
+    -v $(pwd)/lib:${ANDROTEST_GUEST_HOME}/lib:rw \
+    -v $(pwd)/results:${ANDROTEST_GUEST_HOME}/results:rw \
+    -v $(pwd)/subjects:${ANDROTEST_GUEST_HOME}/subjects:rw \
+    -v $(pwd)/scripts:${ANDROTEST_GUEST_HOME}/scripts:rw \
+    -v $(pwd)/tools:${ANDROTEST_GUEST_HOME}/tools:rw \
     -i $C /bin/bash
 };
 

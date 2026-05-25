@@ -1,20 +1,23 @@
 #!/bin/bash
 
 WHOIAMI=$(whoami)
+TARGET_USER="${SUDO_USER:-${USER}}"
+TARGET_HOME="$(getent passwd "${TARGET_USER}" | cut -d: -f6)"
+TARGET_GROUP="$(id -gn "${TARGET_USER}" 2>/dev/null || echo "${TARGET_USER}")"
 
-default_pathDir1="/home/svg153/REPOSITORIOS/android-emulator/tools/SwiftHand/src"
-default_pathDir2="/home/svg153/REPOSITORIOS/android-emulator/tools/SwiftHand_OLD/src"
+default_pathDir1="${TARGET_HOME}/REPOSITORIOS/project-a/src"
+default_pathDir2="${TARGET_HOME}/REPOSITORIOS/project-b/src"
 # @TODO: default_pathNamefileDiff by common paths of dirs --> https://www.rosettacode.org/wiki/Find_common_directory_path#UNIX_Shell
-default_pathNamefileDiff="/home/svg153/REPOSITORIOS/android-emulator/tools/SwiftHand_diff.txt"
-tempfile="/home/svg153/.temp.txt"
+default_pathNamefileDiff="${TARGET_HOME}/REPOSITORIOS/diff-output.txt"
+tempfile="${TARGET_HOME}/.temp.txt"
 
 dir1=""
 dir2=""
 file=""
 
 
-user_TOBE="svg153"
-group_TOBE="svg153"
+user_TOBE="${TARGET_USER}"
+group_TOBE="${TARGET_GROUP}"
 perm_TOBE=655
 
 

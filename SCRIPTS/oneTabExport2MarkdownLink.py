@@ -17,7 +17,7 @@ destinyDirectory = ""
 
 
 def print_help():
-    print NAME + " --origin </home/User/onetab_links.txt> [--destiny </home/User/>]"
+    print NAME + " --origin <path/to/onetab_links.txt> [--destiny <path/to/output>]"
     print "         -i | --links:   - Required : The absolute path to parse the export of the onetab links."
     print "         -o | --mardown: - Optional : The absolute path to write the markdowns links."
     sys.exit(0)

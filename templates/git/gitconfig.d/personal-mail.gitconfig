@@ -1,0 +1,4 @@
+[user]
+    name = <YOUR_NAME>
+    email = <PERSONAL_EMAIL>
+    signingkey = ~/.ssh/id_ed25519_sign_github.pub

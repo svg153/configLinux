@@ -11,3 +11,4 @@ This folder contains binary files or scripts.
 | plantuml | Folder that contains plantuml jar | <https://www.plantuml.com/download> |
 | git-sizer | Git sizer to check the size of git repository | <https://github.com/github/git-sizer> |
 | hdmi.bash | Script to switch between HDMI and laptop screen | - |
+| engram-stack-e2e | Linux wrapper that runs `SCRIPTS/engram/start-engram-stack.sh --run-e2e-check` from the shared repo | - |

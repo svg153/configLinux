@@ -222,7 +222,12 @@ aliases:
             folder_name=$(basename $(pwd))
             repo_name=${folder_name}
             
-            owner_name=svg153
+            repo_owner=$(git remote get-url origin 2>/dev/null | sed -n 's/.*github.com[:\/]\([^/]*\)\/.*/\1/p')
+            owner_name=${GH_DEFAULT_OWNER:-${repo_owner}}
+
+            if [ -z "${owner_name}" ]; then
+                owner_name=$(gh api user -q .login 2>/dev/null || true)
+            fi
 
             is_git_new=false
 
@@ -231,6 +236,10 @@ aliases:
             fi
             if [ $# -gt 1 ]; then
                 echo "Usage: gh renewup [owner_name]"
+                exit 1
+            fi
+            if [ -z "${owner_name}" ]; then
+                echo "Unable to determine owner_name automatically. Pass it explicitly or set GH_DEFAULT_OWNER."
                 exit 1
             fi
 

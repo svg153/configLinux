@@ -1,0 +1,87 @@
+SSH commit signing and per-host identities (Linux)
+
+This document explains how to reproduce the SSH signing + per-remote identity setup on a Linux machine.
+
+## Summary
+
+- authentication keys (SSH keys uploaded as *SSH keys* in GitHub/GHES) are used to connect (clone/push/pull)
+- signing keys (separate SSH keys uploaded as *SSH signing keys* in GitHub/GHES) are used to cryptographically sign commits/tags
+- this repository stores only shared config and templates; the real personal/work identity files are generated locally under `.gitconfig.d/` by `run.sh`
+- Git configuration uses `includeIf` + `hasconfig:remote.*.url` so a repository that has a remote pointing to the enterprise host automatically picks the enterprise identity and signing key
+
+## Files and templates
+
+- `.gitconfig` — authoritative root `~/.gitconfig` source of truth (symlinked by bootstrap)
+- `.gitconfig.d/default.gitconfig` — authoritative shared include entrypoint (symlinked by bootstrap)
+- `templates/git/gitconfig.d/personal-mail.gitconfig` — personal identity template with placeholders
+- `templates/git/gitconfig.d/work/work.gitconfig` — work include template with folder/remote routing using `<WORK_GIT_HOST>` placeholders
+- `templates/git/gitconfig.d/work/work-company.gitconfig` — work identity template with placeholders
+- `SCRIPTS/linux-generate-signing-keys.sh` — helper script that generates signing keys and `allowed_signers`
+
+## High-level steps
+
+1. Generate signing keys on the Linux machine (two keys: one for github.com and one for the enterprise GHES)
+2. Build `~/.ssh/allowed_signers` containing the public signing keys associated to the user identities
+3. Configure Git to use `gpg.format=ssh`, set `gpg.ssh.program` and `gpg.ssh.allowedSignersFile`, and enable `commit.gpgsign`
+4. Install the template `.gitconfig` and the `gitconfig.d` includes (or let `run.sh git-config-only` generate the ignored identity files in the repo and symlink them)
+5. Upload the public signing keys to GitHub.com / GHES (UI → SSH signing keys)
+6. Test: create a repo, make a commit and run `git log --show-signature -1`
+
+## Quick copy-paste commands
+
+```bash
+# generate signing keys (no passphrase here for simplicity)
+mkdir -p ~/.ssh && chmod 700 ~/.ssh
+ssh-keygen -t ed25519 -a 64 -C "<GITHUB_SIGN_EMAIL>" -f ~/.ssh/id_ed25519_sign_github -N ""
+ssh-keygen -t ed25519 -a 64 -C "<WORK_SIGN_EMAIL>" -f ~/.ssh/id_ed25519_sign_work -N ""
+chmod 600 ~/.ssh/id_ed25519_sign_*
+chmod 644 ~/.ssh/id_ed25519_sign_*.pub
+
+# allowed_signers file
+printf "<GITHUB_SIGN_UID> %s\n" "$(cat ~/.ssh/id_ed25519_sign_github.pub)" > ~/.ssh/allowed_signers
+printf "<WORK_SIGN_UID> %s\n" "$(cat ~/.ssh/id_ed25519_sign_work.pub)" >> ~/.ssh/allowed_signers
+chmod 644 ~/.ssh/allowed_signers
+
+# git config
+git config --global gpg.format ssh
+git config --global gpg.ssh.program /usr/bin/ssh-keygen
+git config --global gpg.ssh.allowedSignersFile ~/.ssh/allowed_signers
+git config --global commit.gpgsign true
+git config --global tag.gpgSign true
+
+# run only the shared config part of the setup (recommended when adapting a machine that is already provisioned)
+# export CONFIG_REPO_URL='<CONFIG_REPO_URL>'
+# export WORK_GIT_HOST='<WORK_GIT_HOST>'
+# export COMMON_REPOS='folder;org/repo folder;org/repo'
+# ./run.sh shared-config-only
+
+# copy the authoritative/shared files from this repo manually (example)
+# cp .gitconfig ~/
+# cp .gitconfig.d/default.gitconfig ~/.gitconfig.d/
+# cp templates/git/gitconfig.d/personal-mail.gitconfig ~/.gitconfig.d/
+# mkdir -p ~/.gitconfig.d/work
+# cp templates/git/gitconfig.d/work/work.gitconfig ~/.gitconfig.d/work/
+# cp templates/git/gitconfig.d/work/work-company.gitconfig ~/.gitconfig.d/work/
+
+# test commit signing
+tmp=$(mktemp -d)
+cd "$tmp"
+git init
+echo hi > README.md
+git add README.md
+git commit -m "test signing"
+git log --show-signature -1
+```
+
+## Notes and troubleshooting
+
+- If the UI of your GHES does not have an explicit "SSH signing keys" section, look for "Signed commits" or the user's "SSH and GPG keys" area. GHES versions differ.
+- If you want stronger protection, add a passphrase to the signing keys and configure an ssh-agent that supports the `sign` operation. For a simple setup we created keys without passphrases.
+- The `allowed_signers` file is used by `ssh-keygen -Y verify` (used by Git when `gpg.format=ssh`) to verify commit signatures; keeping it up to date is crucial for verification on the machine.
+- `./run.sh` without arguments prints usage; full bootstrap modes require `--yes` on purpose.
+- `./run.sh shared-config-only` now uses the current repository checkout by default, generates the ignored identity templates if missing, installs the Git symlinks, and copies the shared PowerShell templates only when they do not already exist.
+
+If you want, I can copy these templates into `~/.gitconfig.d` on your Linux VM over SSH, or produce a one-line `scp` command for you to run from Windows to push the public keys to the VM.
+
+---
+Documentation generated by the local configuration assistant — keep it under version control in this repository for future machines.

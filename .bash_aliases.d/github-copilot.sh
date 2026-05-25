@@ -8,7 +8,7 @@ if [ $? -eq 0 ]; then
     # copilot_what-the-shell () {
     #   TMPFILE=$(mktemp);
     #   trap 'rm -f $TMPFILE' EXIT;
-    #   if /home/svg153/.local/opt/node/bin/github-copilot-cli what-the-shell "$@" --shellout $TMPFILE; then
+    #   if "$HOME"/.local/opt/node/bin/github-copilot-cli what-the-shell "$@" --shellout $TMPFILE; then
     #     if [ -e "$TMPFILE" ]; then
     #       FIXED_CMD=$(cat $TMPFILE);
     #       print -s "$FIXED_CMD";
@@ -25,7 +25,7 @@ if [ $? -eq 0 ]; then
     # copilot_git-assist () {
     #   TMPFILE=$(mktemp);
     #   trap 'rm -f $TMPFILE' EXIT;
-    #   if /home/svg153/.local/opt/node/bin/github-copilot-cli git-assist "$@" --shellout $TMPFILE; then
+    #   if "$HOME"/.local/opt/node/bin/github-copilot-cli git-assist "$@" --shellout $TMPFILE; then
     #     if [ -e "$TMPFILE" ]; then
     #       FIXED_CMD=$(cat $TMPFILE);
     #       print -s "$FIXED_CMD";
@@ -42,7 +42,7 @@ if [ $? -eq 0 ]; then
     # copilot_gh-assist () {
     #   TMPFILE=$(mktemp);
     #   trap 'rm -f $TMPFILE' EXIT;
-    #   if /home/svg153/.local/opt/node/bin/github-copilot-cli gh-assist "$@" --shellout $TMPFILE; then
+    #   if "$HOME"/.local/opt/node/bin/github-copilot-cli gh-assist "$@" --shellout $TMPFILE; then
     #     if [ -e "$TMPFILE" ]; then
     #       FIXED_CMD=$(cat $TMPFILE);
     #       print -s "$FIXED_CMD";

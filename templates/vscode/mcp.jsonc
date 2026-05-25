@@ -1,0 +1,130 @@
+{
+  "servers": {
+    "github": {
+      "type": "http",
+      "url": "https://api.githubcopilot.com/mcp/",
+      "gallery": true
+    },
+    "context7": {
+      "type": "http",
+      "url": "https://mcp.context7.com/mcp"
+    },
+    "microsoft-learn": {
+      "type": "http",
+      "url": "https://learn.microsoft.com/api/mcp"
+    },
+    "markitdown": {
+      "command": "docker",
+      "args": [
+        "run",
+        "--rm",
+        "-i",
+        "markitdown-mcp:latest"
+      ]
+    },
+    "mcp-doc": {
+      "type": "http",
+      "url": "http://modelcontextprotocol.io/mcp"
+    },
+    "playwright": {
+      "command": "docker",
+      "args": [
+        "run",
+        "-i",
+        "--init",
+        "mcp/playwright"
+      ],
+      "type": "stdio"
+    },
+    "playwright-remote": {
+      "type": "http",
+      "url": "http://127.0.0.1:3333/mcp"
+    },
+    "youtube-search": {
+      "type": "stdio",
+      "command": "npx",
+      "args": [
+        "-y",
+        "@kirbah/mcp-youtube"
+      ],
+      "env": {
+        "YOUTUBE_API_KEY": "${input:youtube_api_key}"
+      }
+    },
+    "vercel": {
+      "type": "http",
+      "url": "https://mcp.vercel.com/"
+    },
+    "supabase": {
+      "type": "http",
+      "url": "https://mcp.supabase.com/mcp"
+    },
+    "sequential-thinking-docker": {
+      "command": "docker",
+      "args": [
+        "run",
+        "--rm",
+        "-i",
+        "mcp/sequentialthinking"
+      ]
+    },
+    "stitch": {
+      "type": "http",
+      "url": "https://stitch.googleapis.com/mcp",
+      "headers": {
+        "X-Goog-Api-Key": "${input:google_stitch_api_key}"
+      }
+    },
+    "engram": {
+      "type": "stdio",
+      "command": "engram",
+      "args": [
+        "mcp",
+        "--tools=agent"
+      ]
+    }
+    // Optional local/WLS examples (fill in your own paths locally, do not commit secrets or personal paths):
+    // "copilot-mcp-local": {
+    //   "type": "stdio",
+    //   "command": "wsl",
+    //   "args": [
+    //     "bash",
+    //     "-lc",
+    //     "cd <WSL_COPILOT_MCP_ROOT> && node dist/index.js"
+    //   ],
+    //   "env": {
+    //     "GITHUB_TOKEN": "${input:github_token_ghcli}",
+    //     "GITHUB_ORG": "<GITHUB_ORG>"
+    //   }
+    // },
+    // "youtube-mcp-server-local": {
+    //   "type": "stdio",
+    //   "command": "wsl",
+    //   "args": [
+    //     "bash",
+    //     "-lc",
+    //     "cd <WSL_YOUTUBE_MCP_ROOT> && npm install >/dev/null 2>&1 && npm run build >/dev/null 2>&1 && node dist/index.js"
+    //   ]
+    // }
+  },
+  "inputs": [
+    {
+      "type": "promptString",
+      "id": "google_stitch_api_key",
+      "description": "Google Cloud API key for Stitch MCP Server",
+      "password": true
+    },
+    {
+      "type": "promptString",
+      "id": "github_token_ghcli",
+      "description": "GitHub Personal Access Token",
+      "password": true
+    },
+    {
+      "type": "promptString",
+      "id": "youtube_api_key",
+      "description": "YouTube Data API v3 key for @kirbah/mcp-youtube",
+      "password": true
+    }
+  ]
+}

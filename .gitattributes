@@ -1,0 +1,20 @@
+# Normalize high-risk script and config text files for cross-platform bootstrap work.
+*.sh text eol=lf
+.bash* text eol=lf
+.zsh* text eol=lf
+.p10k* text eol=lf
+.aliases text eol=lf
+.env* text eol=lf
+*.ini text eol=lf
+
+# Git/bootstrap config and portable text assets.
+*.gitconfig text eol=lf
+*.json text eol=lf
+*.jsonc text eol=lf
+*.md text eol=lf
+*.yml text eol=lf
+*.yaml text eol=lf
+
+# PowerShell remains Windows-friendly by default.
+*.ps1 text eol=crlf
+*.psm1 text eol=crlf

@@ -294,7 +294,7 @@ fi
 #
 
 # bun completions
-[ -s "/home/svg153/.bun/_bun" ] && source "/home/svg153/.bun/_bun"
+[ -s "$HOME/.bun/_bun" ] && source "$HOME/.bun/_bun"
 
 # bun
 export BUN_INSTALL="$HOME/.bun"

@@ -1,0 +1,12 @@
+{
+  "name": "engram-configlinux-tooling",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Shared Engram helper scripts for Windows and Linux",
+  "scripts": {
+    "check:e2e": "node ./check-engram-monitor-e2e.js"
+  },
+  "devDependencies": {
+    "playwright": "^1.54.2"
+  }
+}

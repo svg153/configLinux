@@ -1,0 +1,14 @@
+{
+  "servers": {
+    // Manual launcher for Engram API + monitor from the shared config repo:
+    // powershell -ExecutionPolicy Bypass -File "$env:CONFIG_PATH\\SCRIPTS\\engram\\start-engram-stack.ps1" -RunE2ECheck
+    "engram-stdio": {
+      "type": "stdio",
+      "command": "engram",
+      "args": [
+        "mcp",
+        "--tools=agent"
+      ]
+    }
+  }
+}

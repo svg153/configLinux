@@ -1,0 +1,14 @@
+{
+  "servers": {
+    // Manual launcher for Engram API + monitor from the shared config repo:
+    // bash ~/configLinux/SCRIPTS/engram/start-engram-stack.sh --run-e2e-check
+    "engram-stdio": {
+      "type": "stdio",
+      "command": "engram",
+      "args": [
+        "mcp",
+        "--tools=agent"
+      ]
+    }
+  }
+}

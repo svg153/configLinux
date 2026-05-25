@@ -8,3 +8,5 @@
 # AUTOMATICALLY GENERATED from run.sh
 .config/warp-terminal/user_preferences.json
 .config/pulse/
+SCRIPTS/engram/node_modules/
+SCRIPTS/engram/logs/

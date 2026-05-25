@@ -1,4 +1,4 @@
-ORG := svg153
+ORG ?= local
 REPO := jira
 PRODUCT ?= $(shell basename $(CURDIR))
 PRODUCT_VERSION ?= $(shell git rev-parse --abbrev-ref HEAD | awk -F "/" '{print $$NF}')

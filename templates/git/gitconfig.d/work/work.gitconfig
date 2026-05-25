@@ -1,0 +1,10 @@
+[includeIf "gitdir:~/REPOSITORIOS/1_WORK/"]
+    path = work-company.gitconfig
+[includeIf "hasconfig:remote.*.url:https://<WORK_GIT_HOST>/**"]
+    path = work-company.gitconfig
+[includeIf "hasconfig:remote.*.url:ssh://git@<WORK_GIT_HOST>/**"]
+    path = work-company.gitconfig
+[includeIf "hasconfig:remote.*.url:git@<WORK_GIT_HOST>:**"]
+    path = work-company.gitconfig
+[includeIf "hasconfig:remote.*.url:git@<WORK_GIT_HOST>:*/*"]
+    path = work-company.gitconfig
