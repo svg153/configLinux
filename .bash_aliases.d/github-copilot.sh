@@ -62,7 +62,7 @@ fi
 command -v gh >/dev/null 2>&1
 if [ $? -eq 0 ]; then
     if gh extension list | grep -q "gh copilot"; then
-        shell_actual=$(basename $SHELL)
+        shell_actual=$(basename "$SHELL")
         if [ "$shell_actual" = "bash" ] || [ "$shell_actual" = "zsh" ]; then
             eval "$(gh copilot alias -- "$shell_actual")"
         fi
@@ -73,3 +73,7 @@ fi
 # TODO: https://gist.github.com/Pl8tinium/3702c356a83b7363f3ab769d6ec47e2a
 alias copal="copilot --allow-all-tools"
 alias cops="copal --deny-tool 'shell(git:commit)' --deny-tool 'shell(git:push)' --deny-tool 'shell(rm)'"
+
+if command -v github-copilot-app >/dev/null 2>&1; then
+    alias copilot-app="github-copilot-app"
+fi
