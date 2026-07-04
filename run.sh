@@ -8,12 +8,6 @@ set -euo pipefail
 #         * reboot
 # 2º) sudo apt-get install git && mkdir ~/REPOSITORIOS && git clone <CONFIG_REPO_URL> ~/REPOSITORIOS/configLinux/
 
-# TODO: check this lines, only for debian
-# configure the /etc/apt/sources.list
-# sudo mv /etc/apt/sources.list /etc/apt/sources.list.OLD
-# sudo cp ./sources.list /etc/apt/
-# sudo sed -i 's/main/main contrib non-free/g' /etc/apt/sources.list
-
 
 #
 # VARS
