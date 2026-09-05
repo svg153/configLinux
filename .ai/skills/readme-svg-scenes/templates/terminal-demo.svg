@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="720" viewBox="0 0 1280 720" role="img" aria-labelledby="title desc">
+  <title id="title">PROJECT demo</title>
+  <desc id="desc">Terminal-style demo scene for PROJECT.</desc>
+  <rect width="1280" height="720" rx="24" fill="#0b1120"/>
+  <rect x="24" y="24" width="1232" height="672" rx="18" fill="#020617" stroke="#1e293b"/>
+  <rect x="44" y="44" width="740" height="560" rx="12" fill="#0f172a" stroke="#1e293b"/>
+  <rect x="804" y="44" width="432" height="560" rx="12" fill="#111827" stroke="#1e293b"/>
+  <rect x="44" y="624" width="1192" height="52" rx="12" fill="#111827" stroke="#1e293b"/>
+  <text x="68" y="80" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="24" fill="#cbd5e1">Primary panel</text>
+  <text x="828" y="80" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="24" fill="#cbd5e1">Details</text>
+  <text x="70" y="132" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="22" fill="#94a3b8">▾ 📁 workspace  3 groups  1.2 GiB</text>
+  <text x="94" y="176" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="22" fill="#22c55e">◐ 📁 focused-group  420 MiB</text>
+  <text x="118" y="220" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="22" fill="#38bdf8">● ITEM ONE  200 MiB</text>
+  <text x="118" y="264" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="22" fill="#a78bfa">○ ITEM TWO  120 MiB</text>
+  <text x="118" y="308" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="22" fill="#94a3b8">○ ITEM THREE  100 MiB</text>
+  <text x="828" y="132" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="22" fill="#22c55e">Selected target: ITEM ONE</text>
+  <text x="828" y="184" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="20" fill="#e2e8f0">Path</text>
+  <text x="828" y="214" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="18" fill="#94a3b8">/path/to/realistic/example</text>
+  <text x="828" y="272" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="20" fill="#e2e8f0">Size</text>
+  <text x="828" y="302" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="18" fill="#94a3b8">200 MiB</text>
+  <text x="828" y="360" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="20" fill="#e2e8f0">Last modified</text>
+  <text x="828" y="390" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="18" fill="#94a3b8">2026-01-01 12:00</text>
+  <text x="828" y="448" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="20" fill="#e2e8f0">Why it matters</text>
+  <text x="828" y="478" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="18" fill="#94a3b8">One short sentence that explains the selected row.</text>
+  <text x="68" y="657" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="19" fill="#cbd5e1">Keys: j/k move • space toggle • enter expand • q confirm • esc cancel</text>
+</svg>
