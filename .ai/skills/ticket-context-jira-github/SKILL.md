@@ -1,12 +1,12 @@
 ---
 name: ticket-context-jira-github
-description: 'Enrich PR summaries using Jira tickets (e.g., ADS-123) or GitHub Issues/refs. Detect IDs from PR title/body/commits, then fetch objective/context via jira CLI or gh CLI. Use when PR references a ticket/issue.'
+description: 'Enrich PR summaries using Jira tickets (e.g., PROJ-123) or GitHub Issues/refs. Detect IDs from PR title/body/commits, then fetch objective/context via jira CLI or gh CLI. Use when PR references a ticket/issue.'
 ---
 
 # Ticket Context (Jira + GitHub)
 
 ## When to Use
-- PR title/body/branch/commit messages include Jira keys like `ADS-123`, `RUNA-456`.
+- PR title/body/branch/commit messages include Jira keys like `PROJ-123`.
 - PR references GitHub issues like `#123` or `owner/repo#123`.
 
 ## Constraints

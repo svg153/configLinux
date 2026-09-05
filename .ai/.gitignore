@@ -1,0 +1,5 @@
+# .ai/.gitignore - keep files with internal infrastructure out of the repo
+# OpenStack skill for the team (internal cloud endpoints)
+openstack-ads.skill.md
+# symlink to ~/.agents (not committed)
+.agents/
