@@ -1,4 +1,6 @@
 __GH_BROWSER=""
+alias ghconf='echo ~/.config/gh/config.yml'
+
 get_gh_browser(){
     isWSL=$(uname -a | grep WSL | wc -l)
     if [[ ${isWSL} -gt 0 ]]; then

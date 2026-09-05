@@ -1,0 +1,12 @@
+#!/bin/bash
+# GitHub MCP Server via Docker
+
+source ~/.e-mcp
+
+docker run -i --rm \
+    --name github-mcp-server \
+    -e GITHUB_PERSONAL_ACCESS_TOKEN="$GITHUB_PERSONAL_ACCESS_TOKEN" \
+    -e GITHUB_HOST="${GITHUB_HOST:-github.com}" \
+    -p 3000:3000 \
+    ghcr.io/github/github-mcp-server \
+    stdio

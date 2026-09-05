@@ -104,6 +104,7 @@
 	fame = !docker run --rm -v $(pwd):/repo casperdcl/git-fame
 	sw-remote-ssh = remote set-url origin \"$(git remote get-url origin | sed \"s/https:\\/\\/\\([^@]*@\\)\\?\\([^/]*\\)\\//git@\\2:/\")\"
 	root = rev-parse --show-toplevel
+	branchdiff = "!f() { base=$(git symbolic-ref refs/remotes/origin/HEAD 2>/dev/null | sed \"s@^refs/remotes/origin/@@\" || echo \"main\"); git diff $(git merge-base HEAD $base)..HEAD; }; f"
 	# TODO: check if works
 	# clean = remove-branch-merged
 	# remove-branch-merged = git branch --merged | grep -v '\*\|main\|master' | xargs -n 1 git branch -d

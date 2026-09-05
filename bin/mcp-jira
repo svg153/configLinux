@@ -1,0 +1,20 @@
+#!/bin/bash
+# docker run -i --rm -p 9000:9000 --env-file ~/.e-mcp ghcr.io/sooperset/mcp-atlassian:latest --transport sse --port 9000 -vv
+source ~/.e-mcp
+
+SOURCE_DIR="$(dirname "$0")"
+SCRIPT_NAME="$(basename "$0" .sh)"
+PORT=9001 # same has mcp configuration in vscode
+
+docker run -i --rm \
+    --name mcp-atlassian \
+    -p $PORT:$PORT \
+    -e CONFLUENCE_URL="$CONFLUENCE_URL" \
+    -e CONFLUENCE_USERNAME="$CONFLUENCE_USERNAME" \
+    -e CONFLUENCE_PERSONAL_TOKEN="$CONFLUENCE_PERSONAL_TOKEN" \
+    -e JIRA_URL="$JIRA_URL" \
+    -e JIRA_USERNAME="$JIRA_USERNAME" \
+    -e JIRA_PERSONAL_TOKEN="$JIRA_PERSONAL_TOKEN" \
+    ghcr.io/sooperset/mcp-atlassian:latest \
+    --transport sse --port $PORT -v \
+    > "$SOURCE_DIR/$SCRIPT_NAME.log" 2> "$SOURCE_DIR/$SCRIPT_NAME.errlog" &

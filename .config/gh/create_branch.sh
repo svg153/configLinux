@@ -35,9 +35,12 @@ JIRA_ISSUE_KEY=$1
 # JIRA_USERNAME="your-jira-username"
 # JIRA_API_TOKEN="your-jira-api-token"
 # response=$(curl -s -u $JIRA_USERNAME:$JIRA_API_TOKEN -X GET -H "Content-Type: application/json" $JIRA_API_URL)
-
+if ! [[ $JIRA_ISSUE_KEY =~ ^[A-Z]+-[0-9]+$ ]]; then
+  echo "Error: Invalid Jira issue key format. Expected format: ABC-1234"
+  usage
+  exit 1
+fi
 # Fetch issue details from Jira
-#
 response=$(jira issue view $JIRA_ISSUE_KEY --raw)
 
 # Extract issue title
@@ -54,6 +57,6 @@ branch_title=$(echo $issue_title | tr '[:upper:]' '[:lower:]' | sed 's/ /-/g')
 branch_name="${JIRA_ISSUE_KEY}_${branch_title}"
 
 # Create the branch
-git checkout -b $branch_name
+# git checkout -b $branch_name
 
 echo "Branch '$branch_name' created successfully."

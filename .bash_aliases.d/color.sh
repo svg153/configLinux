@@ -13,6 +13,6 @@ if [ "$TERM" != "dumb" ] && [ -x /usr/bin/dircolors ]; then
     alias fgrep='fgrep --color=auto'
     alias egrep='egrep --color=auto'
 
-    alias diff='colordiff'
+    # alias diff='colordiff'
 fi
 
