@@ -24,6 +24,9 @@ TEMP_RECORDS=""
 TEMP_CSV=""
 REPOS_FILE=""
 
+# Root of the current scan, used to render each repo's location
+SCAN_DIR=""
+
 cleanup() {
     rm -f "$TEMP_RECORDS" "$TEMP_CSV" "$REPOS_FILE"
 }
@@ -181,6 +184,19 @@ shell_escape() {
     echo "${value//\"/\\\"}"
 }
 
+# Render a repository's location as its path relative to the scanned root.
+# Repository names repeat across ticket folders (team-admin, n8n-admin...), so
+# without the parent folder the table cannot tell two rows apart. For a repo
+# sitting directly in the scan root the folder is shown as ".".
+get_location() {
+    local repo_path="$1"
+    local location="${repo_path#"$SCAN_DIR"}"
+    location="${location#/}"
+    location=$(dirname "$location")
+    [ "$location" = "." ] && location=""
+    echo "$location"
+}
+
 # Build a single CSV row for one repository
 build_row() {
     local repo_path="$1"
@@ -251,12 +267,16 @@ build_row() {
     local last_modified=$(get_last_modified)
     local age=$(format_age "$last_modified")
 
+    # Parent folder relative to the scan root, so repeated names stay tellable apart
+    local location=$(get_location "$repo_path")
+
     # Internal record uses FS_CHAR: epoch first so the records can be sorted
     # numerically, then the display fields. Only the commit message can
     # contain commas, so it is the only field that needs CSV escaping.
-    printf '%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s\n' \
+    printf '%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s\n' \
         "$last_modified" "$FS_CHAR" \
         "$(field_escape "$repo_name")" "$FS_CHAR" \
+        "$(field_escape "$location")" "$FS_CHAR" \
         "$(field_escape "$branch")" "$FS_CHAR" \
         "$(field_escape "$status")" "$FS_CHAR" \
         "$(field_escape "$changes_str")" "$FS_CHAR" \
@@ -277,6 +297,7 @@ main() {
         echo "❌ Directory not found: ${1:-.}"
         exit 1
     }
+    SCAN_DIR="$scan_dir"
 
     # Banner
     gum style \
@@ -330,9 +351,9 @@ main() {
 
     # Convert records into CSV: commas survive because only the commit
     # message can contain them and it is quoted on demand.
-    while IFS="$FS_CHAR" read -r epoch c1 c2 c3 c4 c5 c6 age c7; do
-        printf '%s,%s,%s,%s,%s,%s,%s,%s\n' \
-            "$c1" "$c2" "$c3" "$c4" "$c5" "$c6" "$age" "$c7" >> "$TEMP_CSV"
+    while IFS="$FS_CHAR" read -r epoch c1 c2 c3 c4 c5 c6 c7 age c8; do
+        printf '%s,%s,%s,%s,%s,%s,%s,%s,%s\n' \
+            "$c1" "$c2" "$c3" "$c4" "$c5" "$c6" "$c7" "$age" "$c8" >> "$TEMP_CSV"
     done < "$TEMP_RECORDS"
 
     # Show statistics
@@ -347,10 +368,10 @@ main() {
     echo ""
     gum table \
         --separator "," \
-        --columns "Repository,Branch,Status,Changes,Remote,Domain,Age,Last Commit" \
+        --columns "Repository,Location,Branch,Status,Changes,Remote,Domain,Age,Last Commit" \
         --border rounded \
         --border.foreground "$BLUE" \
-        --widths 24,14,12,13,14,18,6,34 \
+        --widths 22,24,13,11,12,13,16,6,30 \
         --print < "$TEMP_CSV" || true
 
     # Summary of states
