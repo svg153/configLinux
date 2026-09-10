@@ -1,9 +1,9 @@
 #!/bin/bash
 
-# Script to display Git repository status in a table format
-# Dependencies: gum (https://github.com/charmbracelet/gum)
+# Script para mostrar el estado de múltiples repositorios Git en una tabla
+# Dependencias: gum (https://github.com/charmbracelet/gum)
 
-# Colors
+# Colores
 RED=196
 GREEN=46
 YELLOW=226
@@ -11,72 +11,77 @@ BLUE=39
 GRAY=240
 ORANGE=208
 
-# Check if gum is installed
+# Función para verificar si gum está instalado
 check_gum() {
     if ! command -v gum &> /dev/null; then
-        echo "❌ Error: gum is not installed."
-        echo "Install it with:"
+        echo "❌ Error: gum no está instalado."
+        echo "Instálalo con:"
         echo "  - macOS: brew install gum"
         echo "  - Linux: sudo mkdir -p /etc/apt/keyrings"
         echo "           curl -fsSL https://repo.charm.sh/apt/gpg.key | sudo gpg --dearmor -o /etc/apt/keyrings/charm.gpg"
         echo "           echo \"deb [signed-by=/etc/apt/keyrings/charm.gpg] https://repo.charm.sh/apt/ * *\" | sudo tee /etc/apt/sources.list.d/charm.list"
         echo "           sudo apt update && sudo apt install gum"
-        echo "  - Or download from: https://github.com/charmbracelet/gum/releases"
+        echo "  - O descarga desde: https://github.com/charmbracelet/gum/releases"
         exit 1
     fi
 }
 
-# Get current branch name
-get_branch() {
-    git branch --show-current 2>/dev/null || echo "N/A"
-}
-
-# Count file changes
-get_changes() {
-    local untracked=$(git ls-files --others --exclude-standard 2>/dev/null | wc -l)
-    local modified=$(git diff --name-only 2>/dev/null | wc -l)
-    local staged=$(git diff --cached --name-only 2>/dev/null | wc -l)
-    echo "$modified:$staged:$untracked"
-}
-
-# Get remote status (ahead/behind)
-get_remote_status() {
-    if ! git rev-parse --abbrev-ref @{upstream} &>/dev/null; then
-        echo "⚠ No remote:-"
+# Función para obtener el estado de un repositorio
+get_repo_status() {
+    local repo_path="$1"
+    local repo_name=$(basename "$repo_path")
+    
+    # Cambiar al directorio del repo
+    cd "$repo_path" || return
+    
+    # Verificar si es un repositorio Git
+    if [ ! -d ".git" ]; then
+        echo "$repo_name,❌ No Git,,,,"
         return
     fi
     
-    local ahead=$(git rev-list --count @{upstream}..HEAD 2>/dev/null || echo 0)
-    local behind=$(git rev-list --count HEAD..@{upstream} 2>/dev/null || echo 0)
-    local remote_url=$(git remote get-url origin 2>/dev/null || echo "")
-    local domain="-"
+    # Obtener la rama actual
+    local branch=$(git branch --show-current 2>/dev/null || echo "N/A")
     
-    # Extract domain from remote URL
-    if [ -n "$remote_url" ]; then
-        if [[ "$remote_url" =~ ^git@([^:]+): ]]; then
-            domain="${BASH_REMATCH[1]}"
-        elif [[ "$remote_url" =~ ^https?://([^/]+) ]]; then
-            domain="${BASH_REMATCH[1]}"
+    # Contar cambios
+    local untracked=$(git ls-files --others --exclude-standard | wc -l)
+    local modified=$(git diff --name-only | wc -l)
+    local staged=$(git diff --cached --name-only | wc -l)
+    
+    # Estado del tracking remoto
+    local ahead=0
+    local behind=0
+    local remote_status="✓"
+    
+    if git rev-parse --abbrev-ref @{upstream} &>/dev/null; then
+        ahead=$(git rev-list --count @{upstream}..HEAD 2>/dev/null || echo 0)
+        behind=$(git rev-list --count HEAD..@{upstream} 2>/dev/null || echo 0)
+        
+        if [ "$ahead" -gt 0 ] && [ "$behind" -gt 0 ]; then
+            remote_status="↕ $ahead↑ $behind↓"
+        elif [ "$ahead" -gt 0 ]; then
+            remote_status="↑ $ahead"
+        elif [ "$behind" -gt 0 ]; then
+            remote_status="↓ $behind"
+        else
+            remote_status="✓ Sync"
         fi
+    else
+        remote_status="⚠ No remote"
     fi
     
-    local status="✓ Sync"
-    if [ "$ahead" -gt 0 ] && [ "$behind" -gt 0 ]; then
-        status="↕ $ahead↑ $behind↓"
-    elif [ "$ahead" -gt 0 ]; then
-        status="↑ $ahead"
-    elif [ "$behind" -gt 0 ]; then
-        status="↓ $behind"
+    # Estado general
+    local status="✓ Clean"
+    if [ "$modified" -gt 0 ] || [ "$staged" -gt 0 ] || [ "$untracked" -gt 0 ]; then
+        status="⚠ Changes"
     fi
     
-    echo "$status:$domain"
-}
-
-# Get last commit message
-get_last_commit() {
+    # Último commit (primera línea del mensaje)
     local last_commit=$(git log -1 --pretty=format:"%s" 2>/dev/null | cut -c1-40)
     [ -z "$last_commit" ] && last_commit="No commits"
-    echo "$last_commit"
+    
+    # Salida en formato CSV
+    echo "$repo_name,$branch,$status,M:$modified S:$staged U:$untracked,$remote_status,$last_commit"
 }
 
 # Función principal
@@ -97,124 +102,111 @@ main() {
         "🔍 Git Repository Status Scanner" \
         "Scanning: $scan_dir"
     
-    # Crear archivo temporal para datos (no header needed, --columns creates it)
+    # Crear archivo temporal para datos
     local temp_file=$(mktemp)
-    local temp_repos=$(mktemp)
     
-    # Obtener path absoluto del directorio a escanear
-    scan_dir="$(cd "$scan_dir" && pwd)"
+    # Encabezados
+    echo "Repository,Branch,Status,Changes,Remote,Last Commit" > "$temp_file"
     
-    # Buscar todos los .git y guardar paths absolutos (sin entrar en repos anidados)
-    gum spin --spinner dot --title "Scanning repositories..." -- bash -c '
-        cd "'"$scan_dir"'" && find . -type d -name ".git" -prune 2>/dev/null | while read git_dir; do
-            repo_dir=$(dirname "$git_dir")
-            abs_path="'"$scan_dir"'/$repo_dir"
-            abs_path=${abs_path//\/.\//\/}
-            echo "$abs_path" >> "'"$temp_repos"'"
-        done
-    '
+    # Buscar todos los directorios con .git (sin entrar en repos ya encontrados)
+    # Crear script temporal para evitar problemas con declare -f en subshells
+    local temp_script=$(mktemp)
+    cat > "$temp_script" << 'EOFSCRIPT'
+get_repo_status() {
+    local repo_path="$1"
+    local repo_name=$(basename "$repo_path")
     
-    # Process each repository found
-    while IFS= read -r repo_path; do
-        cd "$repo_path" || continue
+    cd "$repo_path" || return
+    
+    if [ ! -d ".git" ]; then
+        echo "$repo_name,❌ No Git,,,,"
+        return
+    fi
+    
+    local branch=$(git branch --show-current 2>/dev/null || echo "N/A")
+    local untracked=$(git ls-files --others --exclude-standard | wc -l)
+    local modified=$(git diff --name-only | wc -l)
+    local staged=$(git diff --cached --name-only | wc -l)
+    
+    local ahead=0
+    local behind=0
+    local remote_status="✓"
+    
+    if git rev-parse --abbrev-ref @{upstream} &>/dev/null; then
+        ahead=$(git rev-list --count @{upstream}..HEAD 2>/dev/null || echo 0)
+        behind=$(git rev-list --count HEAD..@{upstream} 2>/dev/null || echo 0)
         
-        repo_name=$(basename "$repo_path")
-        branch=$(get_branch)
-        
-        # Color code main branches
-        if [[ "$branch" == "main" || "$branch" == "master" ]]; then
-            branch=$(gum style --foreground "$GREEN" "$branch")
-        elif [[ "$branch" != "N/A" ]]; then
-            branch=$(gum style --foreground "$YELLOW" "$branch")
-        fi
-        
-        # Get changes (returns modified:staged:untracked)
-        IFS=':' read -r modified staged untracked <<< "$(get_changes)"
-        
-        # Get remote status and domain (returns status:domain)
-        IFS=':' read -r remote_status remote_domain <<< "$(get_remote_status)"
-        
-        # Overall status with color
-        if [ "$modified" -gt 0 ] || [ "$staged" -gt 0 ] || [ "$untracked" -gt 0 ]; then
-            status="$(gum style --foreground "$ORANGE" "⚠ Changes")"
+        if [ "$ahead" -gt 0 ] && [ "$behind" -gt 0 ]; then
+            remote_status="↕ $ahead↑ $behind↓"
+        elif [ "$ahead" -gt 0 ]; then
+            remote_status="↑ $ahead"
+        elif [ "$behind" -gt 0 ]; then
+            remote_status="↓ $behind"
         else
-            status="$(gum style --foreground "$GREEN" "✓ Clean")"
+            remote_status="✓ Sync"
         fi
-        
-        # Format changes with emojis and colors
-        changes_str=""
-        if [ "$modified" -gt 0 ]; then
-            changes_str+="$(gum style --foreground "$ORANGE" "📝$modified")"
-        fi
-        if [ "$staged" -gt 0 ]; then
-            [ -n "$changes_str" ] && changes_str+=" "
-            changes_str+="$(gum style --foreground "$GREEN" "✓$staged")"
-        fi
-        if [ "$untracked" -gt 0 ]; then
-            [ -n "$changes_str" ] && changes_str+=" "
-            changes_str+="$(gum style --foreground "$GRAY" "❓$untracked")"
-        fi
-        [ -z "$changes_str" ] && changes_str="$(gum style --foreground "$GREEN" "-")"
-        
-        # Color remote status
-        if [[ "$remote_status" == "⚠ No remote" ]]; then
-            remote_status="$(gum style --foreground "$YELLOW" "$remote_status")"
-        elif [[ "$remote_status" == "✓ Sync" ]]; then
-            remote_status="$(gum style --foreground "$GREEN" "$remote_status")"
-        elif [[ "$remote_status" =~ ^↓ ]]; then
-            remote_status="$(gum style --foreground "$ORANGE" "$remote_status")"
-        elif [[ "$remote_status" =~ ^↑ ]]; then
-            remote_status="$(gum style --foreground "$BLUE" "$remote_status")"
-        elif [[ "$remote_status" =~ ^↕ ]]; then
-            remote_status="$(gum style --foreground "$RED" "$remote_status")"
-        fi
-        
-        # Color domain based on public/private SCM
-        if [[ "$remote_domain" =~ github\.com|gitlab\.com|bitbucket\.org ]]; then
-            remote_domain="$(gum style --foreground "$BLUE" "🌐 $remote_domain")"
-        elif [[ "$remote_domain" != "-" ]]; then
-            remote_domain="$(gum style --foreground "$GRAY" "🔒 $remote_domain")"
-        fi
-        
-        # Last commit
-        last_commit=$(get_last_commit)
-        
-        # Write to CSV
-        echo "$repo_name,$branch,$status,$changes_str,$remote_status,$remote_domain,$last_commit" >> "$temp_file"
-    done < "$temp_repos"
+    else
+        remote_status="⚠ No remote"
+    fi
     
-    rm "$temp_repos"
+    local status="✓ Clean"
+    if [ "$modified" -gt 0 ] || [ "$staged" -gt 0 ] || [ "$untracked" -gt 0 ]; then
+        status="⚠ Changes"
+    fi
     
-    # Count repositories found
-    local repo_count=$(wc -l < "$temp_file")
+    local last_commit=$(git log -1 --pretty=format:"%s" 2>/dev/null | cut -c1-40)
+    [ -z "$last_commit" ] && last_commit="No commits"
+    
+    echo "$repo_name,$branch,$status,M:$modified S:$staged U:$untracked,$remote_status,$last_commit"
+}
+
+scan_dir="$(cd "$1" && pwd)"
+cd "$scan_dir" || exit 1
+find . -type d -name '.git' -prune 2>/dev/null | while read -r git_dir; do
+    repo_dir=$(dirname "$git_dir")
+    abs_path="$scan_dir/$repo_dir"
+    abs_path="${abs_path//\/.\//\/}"  # Limpiar ./
+    get_repo_status "$abs_path" >> "$2"
+done
+EOFSCRIPT
+    
+    # Ejecutar el script (con spinner)
+    if command -v gum &> /dev/null; then
+        gum spin --spinner dot --title "Scanning repositories..." -- bash "$temp_script" "$scan_dir" "$temp_file"
+    else
+        bash "$temp_script" "$scan_dir" "$temp_file"
+    fi
+    rm "$temp_script"
+    
+    # Contar repositorios encontrados
+    local repo_count=$(($(wc -l < "$temp_file") - 1))
     
     if [ "$repo_count" -eq 0 ]; then
         gum style \
             --foreground "$YELLOW" \
             --bold \
-            "⚠️  No Git repositories found in: $scan_dir"
+            "⚠️  No se encontraron repositorios Git en: $scan_dir"
         rm "$temp_file"
         exit 0
     fi
     
-    # Show statistics
+    # Mostrar estadísticas
     gum style \
         --foreground "$GREEN" \
         --bold \
         --margin "1 0 0 0" \
         "📊 Found $repo_count repositories"
     
-    # Display table with gum
+    # Mostrar tabla con gum
     echo ""
     gum table \
-        --separator "," \
-        --columns "Repository,Branch,Status,Changes,Remote,Domain,Last Commit" \
         --border rounded \
         --border.foreground "$BLUE" \
-        --widths 25,15,12,18,15,20,40 \
+        --columns "Repository,Branch,Status,Changes,Remote,Last Commit" \
+        --widths 25,15,12,18,15,45 \
         --print < "$temp_file"
     
-    # Summary of states
+    # Resumen de estados
     echo ""
     local clean_count=$(grep -c "Clean" "$temp_file")
     local dirty_count=$(grep -c "Changes" "$temp_file")
@@ -229,9 +221,9 @@ main() {
     echo "$SUMMARY"
     echo ""
     
-    # Cleanup
+    # Limpiar
     rm "$temp_file"
 }
 
-# Execute
+# Ejecutar
 main "$@"
