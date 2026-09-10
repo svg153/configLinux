@@ -60,6 +60,22 @@ csv_escape() {
 # always contain commas but virtually never a control character (0x1f).
 readonly FS_CHAR=$'\x1f'
 
+# Directories that may contain vendored/cached copies of other repositories.
+# Their .git folders are not projects of their own, so they are skipped.
+VENDOR_DIRS=(.terraform node_modules .venv vendor bower_components .tox .gradle
+             Pods .bundle .cargo target .pytest_cache __pycache__)
+
+# Build the find expression list used to prune the vendor directories above
+build_vendor_prune() {
+    local expr=""
+    local dir
+    for dir in "${VENDOR_DIRS[@]}"; do
+        [ -n "$expr" ] && expr+=" -o "
+        expr+="-name $dir"
+    done
+    echo "$expr"
+}
+
 # Escape a value before it goes through `gum style`, so that ANSI colouring
 # does not mangle the separator-based parsing done by the caller.
 field_escape() {
@@ -119,6 +135,43 @@ get_last_commit() {
     local last_commit=$(git log -1 --pretty=format:"%s" 2>/dev/null | cut -c1-40)
     [ -z "$last_commit" ] && last_commit="No commits"
     echo "$last_commit"
+}
+
+# Get the epoch of the last commit, used to sort repositories newest first.
+# Repositories without commits return 0 so they land at the bottom of the
+# table instead of showing a misleading "now" at the top.
+get_last_modified() {
+    local epoch=$(git log -1 --pretty=format:"%ct" 2>/dev/null)
+    echo "${epoch:-0}"
+}
+
+# Turn an epoch into a compact age (3d, 2mo, 1y). A constant dash keeps the
+# column width stable so the table stays aligned for repositories with no commits.
+format_age() {
+    local epoch="$1"
+    if [ "$epoch" -le 0 ]; then
+        echo "-"
+        return
+    fi
+
+    local now=$(date +%s)
+    local diff=$((now - epoch))
+    [ "$diff" -lt 0 ] && diff=0
+
+    local minute=60 hour=3600 day=86400
+    if [ "$diff" -lt "$minute" ]; then
+        echo "now"
+    elif [ "$diff" -lt "$hour" ]; then
+        echo "$((diff / minute))m"
+    elif [ "$diff" -lt "$day" ]; then
+        echo "$((diff / hour))h"
+    elif [ "$diff" -lt "$((day * 30))" ]; then
+        echo "$((diff / day))d"
+    elif [ "$diff" -lt "$((day * 365))" ]; then
+        echo "$((diff / (day * 30)))mo"
+    else
+        echo "$((diff / (day * 365)))y"
+    fi
 }
 
 # Escape a string for use inside a double-quoted `bash -c` snippet
@@ -194,14 +247,22 @@ build_row() {
 
     local last_commit=$(get_last_commit)
 
-    # Internal record uses FS_CHAR; the last field is CSV-escaped at the end
-    printf '%s%s%s%s%s%s%s%s%s%s%s%s%s\n' \
+    # Last modification epoch and its human-readable equivalent
+    local last_modified=$(get_last_modified)
+    local age=$(format_age "$last_modified")
+
+    # Internal record uses FS_CHAR: epoch first so the records can be sorted
+    # numerically, then the display fields. Only the commit message can
+    # contain commas, so it is the only field that needs CSV escaping.
+    printf '%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s\n' \
+        "$last_modified" "$FS_CHAR" \
         "$(field_escape "$repo_name")" "$FS_CHAR" \
         "$(field_escape "$branch")" "$FS_CHAR" \
         "$(field_escape "$status")" "$FS_CHAR" \
         "$(field_escape "$changes_str")" "$FS_CHAR" \
         "$(field_escape "$remote_status")" "$FS_CHAR" \
         "$(field_escape "$remote_domain")" "$FS_CHAR" \
+        "$age" "$FS_CHAR" \
         "$(csv_escape "$last_commit")"
 }
 
@@ -237,8 +298,12 @@ main() {
     # Collect repository paths (cheap, no git calls) then inspect each one.
     # The spinner only wraps the fast find phase so it can never swallow output.
     REPOS_FILE=$(mktemp)
+    local vendor_prune
+    vendor_prune="$(build_vendor_prune)"
+    # Matches both regular repositories (.git is a directory) and linked
+    # worktrees (.git is a file pointing at the main repo's gitdir).
     gum spin --spinner dot --title "Scanning repositories..." -- \
-        bash -c "find \"$(shell_escape "$scan_dir")\" -type d -name .git -prune 2>/dev/null | while read -r g; do d=\$(dirname \"\$g\"); (cd \"\$d\" && pwd); done | sort > \"$(shell_escape "$REPOS_FILE")\""
+        bash -c "find \"$(shell_escape "$scan_dir")\" \( -type d \( $vendor_prune \) -prune \) -o \( -name .git -prune -print \) 2>/dev/null | while read -r g; do d=\$(dirname \"\$g\"); (cd \"\$d\" && pwd); done | sort > \"$(shell_escape "$REPOS_FILE")\""
 
     # Build one record per repository (separator 0x1f is never a CSV comma)
     while IFS= read -r repo_path; do
@@ -258,11 +323,16 @@ main() {
         exit 0
     fi
 
+    # Newest first: the first field of every record is the epoch of the last
+    # commit. Sorting happens on the raw records (before the ANSI colours and
+    # the CSV quoting are applied) so ordering is numeric and reliable.
+    sort -t"$FS_CHAR" -k1,1nr -k2,2 "$TEMP_RECORDS" -o "$TEMP_RECORDS"
+
     # Convert records into CSV: commas survive because only the commit
-    # field can contain them and it is quoted on demand.
-    while IFS="$FS_CHAR" read -r c1 c2 c3 c4 c5 c6 c7; do
-        printf '%s,%s,%s,%s,%s,%s,%s\n' \
-            "$c1" "$c2" "$c3" "$c4" "$c5" "$c6" "$c7" >> "$TEMP_CSV"
+    # message can contain them and it is quoted on demand.
+    while IFS="$FS_CHAR" read -r epoch c1 c2 c3 c4 c5 c6 age c7; do
+        printf '%s,%s,%s,%s,%s,%s,%s,%s\n' \
+            "$c1" "$c2" "$c3" "$c4" "$c5" "$c6" "$age" "$c7" >> "$TEMP_CSV"
     done < "$TEMP_RECORDS"
 
     # Show statistics
@@ -270,16 +340,17 @@ main() {
         --foreground "$GREEN" \
         --bold \
         --margin "1 0 0 0" \
-        "📊 Found $repo_count repositories"
+        "📊 Found $repo_count repositories" \
+        "🕒 Sorted by last commit (newest first)"
 
     # Display table with gum
     echo ""
     gum table \
         --separator "," \
-        --columns "Repository,Branch,Status,Changes,Remote,Domain,Last Commit" \
+        --columns "Repository,Branch,Status,Changes,Remote,Domain,Age,Last Commit" \
         --border rounded \
         --border.foreground "$BLUE" \
-        --widths 25,15,12,18,15,20,40 \
+        --widths 24,14,12,13,14,18,6,34 \
         --print < "$TEMP_CSV" || true
 
     # Summary of states
