@@ -115,14 +115,20 @@ function install_node()
 
     local os_distribution=$(get_os_distribution)
 
+    # NODE_LTS_VERSION can be set to override the default LTS version
+    # Default: 24.x (current LTS, supported until April 2028)
+    # Available: 20.x (legacy, EOL April 2026), 22.x (legacy, EOL April 2027), 24.x (LTS)
+    local node_lts_version="${NODE_LTS_VERSION:-24}"
+
     if [[ ${os_distribution} = *"Debian"* ]] || [[ ${os_distribution} = *"Ubuntu"* ]]; then
-        curl -fsSL https://deb.nodesource.com/setup_22.x | sudo -E bash - \
+        sudo curl -fsSL "https://deb.nodesource.com/setup_${node_lts_version}.x" | bash - \
         && sudo apt-get install -y nodejs
     elif [[ ${os_distribution} = *"CentOS"* ]] || [[ ${os_distribution} = *"Fedora"* ]]; then
-        curl -fsSL https://rpm.nodesource.com/setup_18.x | sudo -E bash - \
-        && sudo yum install nodejs -y --skip-broken && sudo yum install nsolid -y --skip-broken
+        sudo curl -fsSL "https://rpm.nodesource.com/setup_${node_lts_version}.x" | bash - \
+        && sudo yum install nodejs -y --skip-broken
     else
         echo "OS distribution not supported"
+        return 1
     fi
 }
 
@@ -156,10 +162,35 @@ function install_starship()
     fi
 }
 
+function install_uv()
+{
+    if [[ -x "$(command -v uv)" ]]; then
+        uv --version
+        return 0
+    fi
+
+    if ! command -v curl &> /dev/null; then
+        install curl
+    fi
+
+    curl -LsSf https://astral.sh/uv/install.sh | sh
+
+    echo 'export PATH="$HOME/.local/share/uv/bin:$PATH"' >> ~/.bashrc
+    export PATH="$HOME/.local/share/uv/bin:$PATH"
+
+    if [[ -x "$(command -v uv)" ]]; then
+        uv --version
+    else
+        log error "install_uv: uv not installed successfully"
+        return 1
+    fi
+}
+
 function install_language_toolchain_bundle()
 {
     install_python
     install_node
+    install_uv
     install_by_pgkmanager golang-go
     install_d2lang
 }
