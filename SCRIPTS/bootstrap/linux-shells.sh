@@ -2,29 +2,26 @@
 
 function install_zsh()
 {
-    if [[ ${SHELL} != *"zsh"* ]]; then
-        if ! command -v zsh > /dev/null 2>&1; then
-            install zsh
-            sh -c "$(wget -O- https://install.ohmyz.sh/)"
-        fi
-
+    if command -v zsh > /dev/null 2>&1; then
+        # Zsh is installed, configure it
+        
         rm ~/.zshrc; ln -s ${CONFIG_PATH}/.zshrc ~/.zshrc
 
         ZSH_C="${HOME}/.oh-my-zsh/custom"
         OMZsh_C_P="${ZSH_C}/plugins/"
 
         cd "${OMZsh_C_P}"
-        [[ ! -d ${OMZsh_C_P}/zsh-autosuggestions ]] && git clone https://github.com/zsh-users/zsh-autosuggestions
-        [[ ! -d ${OMZsh_C_P}/zsh-completions ]] && git clone https://github.com/zsh-users/zsh-completions
-        [[ ! -d ${OMZsh_C_P}/zsh-navigation-tools ]] && git clone https://github.com/z-shell/zsh-navigation-tools
-        [[ ! -d ${OMZsh_C_P}/zsh-syntax-highlighting ]] && git clone https://github.com/zsh-users/zsh-syntax-highlighting
-        [[ ! -d ${OMZsh_C_P}/zsh-history-substring-search ]] && git clone https://github.com/zsh-users/zsh-history-substring-search
-        [[ ! -d ${OMZsh_C_P}/alias-tips ]] && git clone https://github.com/djui/alias-tips.git
-        [[ ! -d ${OMZsh_C_P}/zsh-256color ]] && git clone https://github.com/chrissicool/zsh-256color
-        [[ ! -d ${OMZsh_C_P}/zsh-terraform ]] && git clone https://github.com/ptavares/zsh-terraform
-        [[ ! -d ${OMZsh_C_P}/azcli ]] && git clone https://github.com/dmakeienko/azcli.git
-        [[ ! -d ${OMZsh_C_P}/jq ]] && git clone https://github.com/reegnz/jq-zsh-plugin ./jq
-        [[ ! -d ${OMZsh_C_P}/zsh-z ]] && git clone https://github.com/agkozak/zsh-z
+        [[ ! -d ${OMZsh_C_P}/zsh-autosuggestions ]] && git clone https://github.com/zsh-users/zsh-autosuggestions --depth 1
+        [[ ! -d ${OMZsh_C_P}/zsh-completions ]] && git clone https://github.com/zsh-users/zsh-completions --depth 1
+        [[ ! -d ${OMZsh_C_P}/zsh-navigation-tools ]] && git clone https://github.com/z-shell/zsh-navigation-tools --depth 1
+        [[ ! -d ${OMZsh_C_P}/zsh-syntax-highlighting ]] && git clone https://github.com/zsh-users/zsh-syntax-highlighting --depth 1
+        [[ ! -d ${OMZsh_C_P}/zsh-history-substring-search ]] && git clone https://github.com/zsh-users/zsh-history-substring-search --depth 1
+        [[ ! -d ${OMZsh_C_P}/alias-tips ]] && git clone https://github.com/djui/alias-tips.git --depth 1
+        [[ ! -d ${OMZsh_C_P}/zsh-256color ]] && git clone https://github.com/chrissicool/zsh-256color --depth 1
+        [[ ! -d ${OMZsh_C_P}/zsh-terraform ]] && git clone https://github.com/ptavares/zsh-terraform --depth 1
+        [[ ! -d ${OMZsh_C_P}/azcli ]] && git clone https://github.com/dmakeienko/azcli.git --depth 1
+        [[ ! -d ${OMZsh_C_P}/jq ]] && git clone https://github.com/reegnz/jq-zsh-plugin ./jq --depth 1
+        [[ ! -d ${OMZsh_C_P}/zsh-z ]] && git clone https://github.com/agkozak/zsh-z --depth 1
         cd -
 
         install autojump
@@ -36,7 +33,27 @@ function install_zsh()
             ln -s "${CONFIG_PATH}/.oh-my-zsh/custom/themes/" "${OMZsh_C_T}"
         fi
         cd -
+
+        # Change default shell to zsh automatically (non-interactive)
+        if [[ "${SHELL}" != *"/zsh" ]]; then
+            echo "export CHANGE_SHELL_TO_ZSH=1" >> ~/.profile
+            log info "Shell change to zsh will be applied on next login"
+            log info "Run: chsh -s $(which zsh)"
+        else
+            log info "Shell already set to zsh"
+        fi
+
+        return 0
     fi
+
+    # Zsh not installed, install it
+    install zsh
+
+    # Install Oh My Zsh non-interactively (SILENT_INSTALL=1)
+    SILENT_INSTALL=1 sh -c "$(wget -qO- https://install.ohmyz.sh)" "" --no-update-notifier
+    log info "Oh My Zsh installed"
+
+    log info "Zsh + Oh My Zsh setup complete"
 }
 
 function install_fonts()
@@ -81,7 +98,7 @@ function install_font_nerdfonts()
 
 function install_pyenv()
 {
-    sudo apt update; sudo apt install build-essential libssl-dev zlib1g-dev \
+    sudo apt update; sudo apt install -y build-essential libssl-dev zlib1g-dev \
     libbz2-dev libreadline-dev libsqlite3-dev curl \
     libncursesw5-dev xz-utils libxml2-dev libxmlsec1-dev libffi-dev liblzma-dev
 

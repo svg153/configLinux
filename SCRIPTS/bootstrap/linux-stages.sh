@@ -187,7 +187,7 @@ function run_linux_stage_customization()
 
     sudo add-apt-repository ppa:numix/ppa
     sudo apt update
-    sudo apt install numix-*
+    sudo apt install -y numix-*
 
     sudo cp -r ./themes/* /usr/share/themes/
 

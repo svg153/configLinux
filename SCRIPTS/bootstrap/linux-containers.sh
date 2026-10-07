@@ -32,7 +32,7 @@ function install_docker()
                 sudo rm -rf /var/lib/containerd
             else
                 echo "Docker is not installed"
-                sudo apt install --no-install-recommends apt-transport-https ca-certificates curl gnupg2
+                sudo apt install -y --no-install-recommends apt-transport-https ca-certificates curl gnupg2
                 sudo update-alternatives --set iptables /usr/sbin/iptables-legacy
                 sudo update-alternatives --set ip6tables /usr/sbin/ip6tables-legacy
 
@@ -40,7 +40,7 @@ function install_docker()
                 curl -fsSL https://download..docker.com/linux/${ID}/gpg | sudo tee /etc/apt/trusted.gpg.d/docker.asc
                 echo "deb [arch=amd64] https://download.docker.com/linux/${ID} ${VERSION_CODENAME} stable" | sudo tee /etc/apt/sources.list.d/docker.list
                 sudo apt update
-                sudo apt install docker-ce docker-ce-cli containerd.io
+                sudo apt install -y docker-ce docker-ce-cli containerd.io
 
                 sudo usermod -aG docker $USER
 

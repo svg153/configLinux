@@ -2,6 +2,9 @@
 
 set -euo pipefail
 
+# Usage: ./run.sh <mode> [--yes]
+#   --yes : Skip all confirmation prompts (non-interactive)
+
 # RUN BEFORE:
 # 1º) user must be in sudoers
 #         * su && apt-get install sudo && adduser ${USER} sudo && exit
