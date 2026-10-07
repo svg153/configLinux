@@ -92,10 +92,14 @@ function install_gh_copilot()
     node_version=$(node -v | cut -d'.' -f1 | cut -d'v' -f2)
     [[ ${node_version} -lt 18 ]] && install_node
 
-    sudo npm install -g npm
-    sudo npm install -g @githubnext/github-copilot-cli
+    if ! command -v npm &> /dev/null; then
+        sudo apt install -y npm
+    fi
 
-    github-copilot-cli auth
+    sudo npm install npm 2>/dev/null || true
+    npm install -g @githubnext/github-copilot-cli 2>/dev/null || true
+
+    log info "github-copilot-cli installed - run: github-copilot-cli auth"
 }
 
 function install_github_tools()

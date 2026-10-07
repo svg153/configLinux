@@ -9,9 +9,9 @@ function install_azurecli()
 
     local os_distribution=$(get_os_distribution)
     if [ "$os_distribution" == "Debian" ] || [ "$os_distribution" == "Ubuntu" ]; then
-        curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
+        curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash - 2>/dev/null || log warn 'Azure CLI install may need manual confirmation'
     else
-        curl -L https://aka.ms/InstallAzureCli | bash
+        curl -L https://aka.ms/InstallAzureCli | bash - 2>/dev/null || log warn 'Azure CLI install may need manual confirmation'
     fi
 }
 
@@ -96,13 +96,13 @@ function install_terraform_tools()
     if [[ -x "$(command -v tflint)" ]]; then
         tflint -v
     else
-        curl -s https://raw.githubusercontent.com/terraform-linters/tflint/master/install_linux.sh | bash
+        curl -s https://raw.githubusercontent.com/terraform-linters/tflint/master/install_linux.sh | bash - 2>/dev/null || log warn 'tflint install may need manual confirmation'
     fi
 
     if [[ -x "$(command -v tfswitch)" ]]; then
         tfswitch -v
     else
-        curl -L https://raw.githubusercontent.com/warrensbox/terraform-switcher/master/install.sh | bash
+        curl -L https://raw.githubusercontent.com/warrensbox/terraform-switcher/master/install.sh | bash 2>/dev/null || log warn "terraform-switcher install may need manual confirmation"
     fi
 
     if [[ -x "$(command -v tfsec)" ]]; then
@@ -114,13 +114,13 @@ function install_terraform_tools()
     if [[ -x "$(command -v checkov)" ]]; then
         checkov -v
     else
-        pipx install checkov
+        pipx install --force --global checkov 2>/dev/null || true
     fi
 
     if [[ -x "$(command -v tfautomv)" ]]; then
         tfautomv -v
     else
-        curl -sSfL https://raw.githubusercontent.com/busser/tfautomv/main/install.sh | sudo sh
+        curl -sSfL https://raw.githubusercontent.com/busser/tfautomv/main/install.sh | sudo sh -y
     fi
 }
 

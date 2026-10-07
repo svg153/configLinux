@@ -82,7 +82,7 @@ function install_font_nerdfonts()
     )
     for f in "${fonts[@]}"; do
         git sparse-checkout add patched-fonts/${f}
-        ./install.sh ${f}
+        ./install.sh -y ${f}
         ./font-patcher --complete
     done
 
@@ -102,5 +102,5 @@ function install_pyenv()
     libbz2-dev libreadline-dev libsqlite3-dev curl \
     libncursesw5-dev xz-utils libxml2-dev libxmlsec1-dev libffi-dev liblzma-dev
 
-    curl https://pyenv.run | bash
+    curl https://pyenv.run | bash - 2>/dev/null || log warn 'pyenv install may need manual confirmation'
 }

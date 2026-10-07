@@ -11,8 +11,6 @@ function install_gum()
     curl -fsSL https://repo.charm.sh/apt/gpg.key | sudo gpg --dearmor -o /etc/apt/keyrings/charm.gpg
     echo "deb [signed-by=/etc/apt/keyrings/charm.gpg] https://repo.charm.sh/apt/ * *" | sudo tee /etc/apt/sources.list.d/charm.list
     sudo apt update && sudo apt install -y gum
-    update
-    install gum
 }
 
 function install_ijq()
@@ -46,7 +44,7 @@ function install_fzf()
     else
         git clone --depth 1 https://github.com/junegunn/fzf.git ~/.fzf
     fi
-    ~/.fzf/install --all
+    ~/.fzf/install --all --yes
 }
 
 function install_gotask()
@@ -54,7 +52,7 @@ function install_gotask()
     if [[ -x "$(command -v task)" ]]; then
         echo "task is already installed"
     else
-        sh -c "$(curl --location https://taskfile.dev/install.sh)" -- -d -b ~/.local/bin
+        sh -c "$(curl --location https://taskfile.dev/install.sh)" -- -d -b ~/.local/bin -y
     fi
 }
 
@@ -79,8 +77,8 @@ function install_webinstall()
         return 0
     fi
 
-    [[ -x "$(command -v curl)" ]] || install curl
-    curl https://webi.sh/webi | sh
+    [[ -x "$(command -v curl)" ]] || install_by_pgkmanager curl
+    curl https://webi.sh/webi | sh -y
 }
 
 function install_by_webinstall()
@@ -93,14 +91,10 @@ function install_by_webinstall()
 
 function install_python()
 {
-    install \
-        python3 \
-        python3-pip \
-        npm \
-        python3-apt
+    install_by_pgkmanager python3 python3-pip npm python3-apt
     sudo apt update
 
-    install pipx
+    install_by_pgkmanager pipx
     pipx ensurepath
     sudo pipx ensurepath --global
 }
@@ -146,7 +140,7 @@ function install_golang()
 
 function install_d2lang()
 {
-    curl -fsSL https://d2lang.com/install.sh | sh -s --
+    curl -fsSL https://d2lang.com/install.sh | sh -s -- -y
 }
 
 function install_starship()
@@ -156,7 +150,7 @@ function install_starship()
         return 0
     fi
 
-    sh -c "$(curl -fsSL https://starship.rs/install.sh)"
+    sh -c "$(curl -fsSL https://starship.rs/install.sh)" -y -b /usr/local/bin
     if [[ ! -d ~/.config ]]; then
         mkdir -p ~/.config
     fi
@@ -170,11 +164,10 @@ function install_uv()
     fi
 
     if ! command -v curl &> /dev/null; then
-        install curl
+        install_by_pgkmanager curl
     fi
 
-    curl -LsSf https://astral.sh/uv/install.sh | sh
-
+    curl -LsSf https://astral.sh/uv/install.sh | sh -y
     echo 'export PATH="$HOME/.local/share/uv/bin:$PATH"' >> ~/.bashrc
     export PATH="$HOME/.local/share/uv/bin:$PATH"
 

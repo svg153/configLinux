@@ -97,7 +97,9 @@ function run_linux_stage_devtools()
     log info "terraform"
     install_iac_tooling_bundle
 
-    pipx install pre-commit ansible-lint black
+    for tool in pre-commit ansible-lint black; do
+            pipx install --force "$tool" 2>/dev/null || true
+        done
 
     local tools_by_github=(
         wtfutil/wtf

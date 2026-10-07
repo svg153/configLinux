@@ -9,11 +9,11 @@ function install_docker()
             echo "Docker Desktop is not installed in Windows"
             echo "Install Docker on Windows WSL without Docker Desktop"
 
-            sudo apt update && sudo apt upgrade
+            sudo apt update && sudo apt upgrade -y
 
             if check_if_program_is_installed "docker"; then
                 echo "Docker is already installed"
-                sudo apt-get remove \
+                sudo apt-get remove -y \
                     docker.io \
                     docker-doc \
                     docker-compose \
@@ -21,7 +21,7 @@ function install_docker()
                     podman-docker \
                     containerd \
                     runc
-                sudo apt-get purge \
+                sudo apt-get purge -y \
                     docker-ce \
                     docker-ce-cli \
                     containerd.io \
@@ -33,11 +33,11 @@ function install_docker()
             else
                 echo "Docker is not installed"
                 sudo apt install -y --no-install-recommends apt-transport-https ca-certificates curl gnupg2
-                sudo update-alternatives --set iptables /usr/sbin/iptables-legacy
-                sudo update-alternatives --set ip6tables /usr/sbin/ip6tables-legacy
+                sudo update-alternatives --set iptables /usr/sbin/iptables-legacy 2>/dev/null || echo 'iptables-legacy not found, skipping'
+                sudo update-alternatives --set ip6tables /usr/sbin/ip6tables-legacy 2>/dev/null || echo 'ip6tables-legacy not found, skipping'
 
                 . /etc/os-release
-                curl -fsSL https://download..docker.com/linux/${ID}/gpg | sudo tee /etc/apt/trusted.gpg.d/docker.asc
+                curl -fsSL https://download.docker.com/linux/${ID}/gpg | sudo tee /etc/apt/trusted.gpg.d/docker.asc
                 echo "deb [arch=amd64] https://download.docker.com/linux/${ID} ${VERSION_CODENAME} stable" | sudo tee /etc/apt/sources.list.d/docker.list
                 sudo apt update
                 sudo apt install -y docker-ce docker-ce-cli containerd.io
@@ -85,7 +85,7 @@ function install_docker()
                         fi
                     fi
                 else
-                    echo '{"hosts": ["unix://'"$DOCKER_DIR"'/docker.sock"], "iptables": true}' | sudo tee /etc/docker/daemon.json
+                    echo '{"hosts": ["unix://$DOCKER_DIR/docker.sock"], "iptables": true}' | sudo tee /etc/docker/daemon.json
                 fi
             fi
         fi

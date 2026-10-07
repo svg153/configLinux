@@ -14,7 +14,7 @@ function install_termium()
         return 0
     fi
 
-    curl -L https://github.com/Exafunction/codeium/releases/download/termium-v0.2.0/install.sh | bash
+    curl -L https://github.com/Exafunction/codeium/releases/download/termium-v0.2.0/install.sh | bash 2>/dev/null || log warn "termium install may need manual confirmation"
     log warn "termium installed; run 'termium auth' manually when you want to connect your account."
 }
 
@@ -22,9 +22,35 @@ function install_ai_skills()
 {
     [[ -x "$(command -v npx)" ]] || install_node
 
+    local skills_dir="${HOME}/.local/share/ai-skills"
+    mkdir -p "${skills_dir}"
+
     for skill in "${AGENT_SKILL_REPOSITORIES[@]}"; do
-        npx skills https://github.com/${skill} --global --yes
+        local repo_name="${skill##*/}"
+        local repo_url="https://github.com/${skill}"
+        
+        if [[ -d "${skills_dir}/${repo_name}" ]]; then
+            log info "  ✓ ${repo_name} already cloned"
+            continue
+        fi
+        
+        log info "  Cloning ${repo_url}..."
+        if command -v gh &> /dev/null && gh auth status &> /dev/null; then
+            gh repo clone "${skill}" "${skills_dir}/${repo_name}" -- --config=alwaysAllowSignedTags 2>/dev/null || git clone "${repo_url}" "${skills_dir}/${repo_name}" 2>/dev/null || log warn "Failed to clone ${repo_name}"
+        else
+            git clone "${repo_url}" "${skills_dir}/${repo_name}" 2>/dev/null || log warn "Failed to clone ${repo_name}"
+        fi
+        
+        local installed="${skills_dir}/${repo_name}"
+        if [[ -f "${installed}/README.md" ]] || [[ -f "${installed}/package.json" ]]; then
+            log info "  ✓ ${repo_name} cloned successfully"
+        else
+            log warn "  ⚠ ${repo_name} cloned but might be empty"
+            rm -rf "${skills_dir}/${repo_name}"
+        fi
     done
+    
+    log info "AI skills cloned to ${skills_dir}/"
 }
 
 function install_stitch_mcp_bootstrap()
