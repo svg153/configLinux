@@ -96,7 +96,7 @@ function install_python()
     install \
         python3 \
         python3-pip \
-        python3-distutils \
+        npm \
         python3-apt
     sudo apt update
 
