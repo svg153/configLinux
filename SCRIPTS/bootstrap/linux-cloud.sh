@@ -7,7 +7,8 @@ function install_azurecli()
         return 0
     fi
 
-    local os_distribution=$(get_os_distribution)
+    local os_distribution
+    os_distribution=$(get_os_distribution)
     if [ "$os_distribution" == "Debian" ] || [ "$os_distribution" == "Ubuntu" ]; then
         curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash - 2>/dev/null || log warn 'Azure CLI install may need manual confirmation'
     else
@@ -23,7 +24,7 @@ function install_azurecli_extentions()
 
     if [[ -x "$(command -v az)" ]]; then
         for ext in "${extensions[@]}"; do
-            az extension add --name ${ext}
+            az extension add --name "${ext}"
         done
     else
         log warn "install_azurecli_extentions: az is not installed"
@@ -84,7 +85,7 @@ function install_terraform()
     && terraform -help \
     && terraform -help plan \
 
-    stdout=$(terraform -install-autocomplete | grep "already installed" | wc -l)
+    stdout=$(terraform -install-autocomplete | grep -c "already installed")
     ret=$?
     if [[ ${ret} -ne 0 ]] && [[ ${stdout} -gt 0 ]]; then
         echo "Terraform autocomplete is already installed"

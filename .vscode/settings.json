@@ -2,15 +2,15 @@
     "files.associations": {
         "[D|d]ockerfile-*": "dockerfile",
         "[M|m]akefile-*": "makefile",
-        ".aliases": "shellscript",
+        ".aliases": "shellscript"
     },
     "search.exclude": {
         "**/.git/objects/**": true,
-        "**/.git/subtree-cache/**": true,
+        "**/.git/subtree-cache/**": true
     },
     "files.watcherExclude": {
         "**/.git/objects/**": true,
-        "**/.git/subtree-cache/**": true,
+        "**/.git/subtree-cache/**": true
     },
     "python.formatting.provider": "autopep8",
     "ansible.python.interpreterPath": "/usr/local/bin/python3"

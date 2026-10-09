@@ -10,8 +10,8 @@ function install_chrome()
     local deb_filename="google-chrome-stable_current_amd64.deb"
     local deb_filepath_dw="${PROGRAMAS_PATH}/${deb_filename}"
     wget -O ${deb_filepath_dw} https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb ${PROGRAMAS_PATH}
-    sudo dpkg -i ${deb_filepath_dw}
-    sudo apt-get --fix-broken-install && sudo apt-get update && install && rm ${deb_filepath_dw}
+    sudo dpkg -i "${deb_filepath_dw}"
+    sudo apt-get --fix-broken-install && sudo apt-get update && install && rm "${deb_filepath_dw}"
 }
 
 function install_vscode()
@@ -35,10 +35,10 @@ function install_telegram()
         return 0
     fi
 
-    wget -O ${PROGRAMAS_PATH}/tsetup.tar.xz https://telegram.org/dl/desktop/linux
+    wget -O "${PROGRAMAS_PATH}"/tsetup.tar.xz "https://telegram.org/dl/desktop/linux"
     cd ${PROGRAMAS_PATH}
     tar xvf tsetup.tar.xz
-    sudo ln -s ${PROGRAMAS_PATH}/Telegram/Telegram ~/bin/telegram
+    sudo ln -s "${PROGRAMAS_PATH}"/Telegram/Telegram ~/bin/telegram
     rm -rf tsetup.tar.xz
-    cd -
+    cd - || exit
 }

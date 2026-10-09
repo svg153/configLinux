@@ -45,7 +45,7 @@ function get_os_distribution() {
     . /etc/os-release
     echo "$NAME"
   elif type lsb_release >/dev/null 2>&1; then
-    echo "$(lsb_release -si)"
+    lsb_release -si
   elif [ -f /etc/lsb-release ]; then
     . /etc/lsb-release
     echo "$DISTRIB_ID"

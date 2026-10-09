@@ -23,7 +23,7 @@ function install_ijq()
     local version=1.1.2
     wget "https://git.sr.ht/~gpanders/ijq/refs/download/v${version}/ijq-${version}-linux-amd64.tar.gz"
     tar xf ijq-${version}-linux-amd64.tar.gz
-    cd ijq-${version}
+    cd "ijq-${version}" || exit
     sudo cp ijq /usr/local/bin/ijq-${version}
     sudo ln -s /usr/local/bin/ijq-${version} /usr/local/bin/ijq
     sudo mkdir -p /usr/local/share/man/man1
@@ -86,7 +86,7 @@ function install_by_webinstall()
     local p=$1
     [[ $# -ne 1 ]] && echo "webinstall: webinstall <program>" && return 1
     [[ -z "${p}" ]] && echo "webinstall: program is empty" && return 1
-    webi ${p}
+    webi "${p}"
 }
 
 function install_python()
@@ -107,7 +107,8 @@ function install_node()
         return 0
     fi
 
-    local os_distribution=$(get_os_distribution)
+    local os_distribution
+    os_distribution=$(get_os_distribution)
 
     # NODE_LTS_VERSION can be set to override the default LTS version
     # Default: 24.x (current LTS, supported until April 2028)

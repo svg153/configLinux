@@ -91,7 +91,8 @@ function require_full_bootstrap_confirmation()
 function backup_existing_path()
 {
     local target_file=$1
-    local backup_file="${target_file}.backup.$(date +%Y%m%d%H%M%S)"
+    local backup_file
+    backup_file="${target_file}.backup.$(date +%Y%m%d%H%M%S)"
 
     mv "${target_file}" "${backup_file}"
     log warn "Moved existing ${target_file} to ${backup_file}"

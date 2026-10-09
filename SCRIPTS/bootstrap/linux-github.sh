@@ -16,9 +16,7 @@ function install_gh()
         gh auth login
     fi
 
-    ssh-keyscan -t ed25519 github.com >> ~/.ssh/known_hosts
-    ssh-keyscan -t ecdsa-sha2-nistp256 github.com >> ~/.ssh/known_hosts
-    ssh-keyscan -t rsa github.com >> ~/.ssh/known_hosts
+    for key_type in ed25519 ecdsa-sha2-nistp256 rsa; do ssh-keyscan -t "${key_type}" github.com >> ~/.ssh/known_hosts; done
 }
 
 function install_gh_extensions(){

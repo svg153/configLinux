@@ -7,7 +7,7 @@ function print_doctor_report()
     echo "script_dir=${SCRIPT_DIR}"
     echo "config_path=${CONFIG_PATH}"
     echo "repo_path_exists=$([[ -d "${CONFIG_PATH}" ]] && echo true || echo false)"
-    echo "is_wsl=${isWSL}"
+    echo "is_wsl=${isWSL:-false}"
 
     local commands=(git gh node npm python3 pwsh powershell.exe docker code)
     for cmd in "${commands[@]}"; do
@@ -193,8 +193,8 @@ function run_linux_stage_customization()
 
     sudo cp -r ./themes/* /usr/share/themes/
 
-    os_xfce4="~/.config/xfce4"
-    os_xfconf="${os_xfce4}/xfconf"
+    os_xfce4="$HOME/.config/xfce4"
+    # os_xfconf="${os_xfce4}/xfconf"
     repo_xfce4="${CONFIG_PATH}/.config/xfce4"
     repo_xfconf="${repo_xfce4}/xfconf"
 

@@ -81,8 +81,8 @@ function install_font_nerdfonts()
         "Hack"
     )
     for f in "${fonts[@]}"; do
-        git sparse-checkout add patched-fonts/${f}
-        ./install.sh -y ${f}
+        git sparse-checkout add patched-fonts/"${f}"
+        ./install.sh -y "${f}"
         ./font-patcher --complete
     done
 
@@ -91,7 +91,7 @@ function install_font_nerdfonts()
     set +e
 
     docker run -v ~/.local/share/fonts/:/in -v ~/.local/share/fonts/:/out nerdfonts/patcher --powerline --powerlineextra
-    sudo chown -R $USER:$USER ~/.local/share/fonts
+    sudo chown -R "$USER":"$USER" ~/.local/share/fonts
 
     fc-cache -fv
 }
