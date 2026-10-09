@@ -210,8 +210,7 @@ function run_linux_stage_customization()
     sudo cp ${keyboard_filepath_ori} ${keyboard_filepath_ori}.OLD
     sudo rm ${keyboard_filepath_ori}
     if [[ -e "${keyboard_filepath_mine}" ]]; then
-        sudo ln -s ${keyboard_filepath_mine} ${keyboard_filepath_ori}
-        if [[ $? -ne 0 ]]; then
+    if ! sudo ln -s ${keyboard_filepath_mine} ${keyboard_filepath_ori}; then
             sudo cp ${keyboard_filepath_mine} ${keyboard_filepath_ori}
         fi
     fi

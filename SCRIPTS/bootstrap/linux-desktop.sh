@@ -36,7 +36,7 @@ function install_telegram()
     fi
 
     wget -O "${PROGRAMAS_PATH}"/tsetup.tar.xz "https://telegram.org/dl/desktop/linux"
-    cd ${PROGRAMAS_PATH}
+    cd "${PROGRAMAS_PATH}" || exit
     tar xvf tsetup.tar.xz
     sudo ln -s "${PROGRAMAS_PATH}"/Telegram/Telegram ~/bin/telegram
     rm -rf tsetup.tar.xz

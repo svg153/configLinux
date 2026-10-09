@@ -15,7 +15,7 @@ create_symlink() {
         return 0
     fi
     if [[ -e "${dest}" ]] || [[ -d "${dest}" ]]; then
-        local backup="${dest}.bak-$(date +%Y%m%d%H%M%S)"
+        local backup=""; backup="${dest}.bak-$(date +%Y%m%d%H%M%S)"
         mv "${dest}" "${backup}" 2>/dev/null || true
         echo "   ⚠️  Backed up: ${dest} → ${backup}"
     fi

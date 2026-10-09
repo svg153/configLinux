@@ -53,7 +53,7 @@ function install_docker()
                     if check_if_program_is_installed "groupmod"; then
                         sudo groupmod -g "${middle_id}" docker
                     else
-                        middle_id=$(echo ${middle_id})
+                        middle_id=${middle_id}
                         sudo sed -i -e 's/^\(docker:x\):[^:]\+/\1:${middle_id}/' /etc/group
                     fi
                 fi

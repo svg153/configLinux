@@ -46,7 +46,7 @@ function install_ai_skills()
             log info "  ✓ ${repo_name} cloned successfully"
         else
             log warn "  ⚠ ${repo_name} cloned but might be empty"
-            rm -rf "${skills_dir}/${repo_name}"
+            rm -rf "${skills_dir:?}/${repo_name}"
         fi
     done
     
