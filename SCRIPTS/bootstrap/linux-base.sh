@@ -1,4 +1,28 @@
 #!/usr/bin/env bash
+# ===========================================
+# Helper functions for configLinux
+# ===========================================
+
+create_symlink() {
+    local target="${1}"
+    local dest="${2}"
+    if [[ ! -e "${target}" ]]; then
+        echo "   ⚠️  Skipped (target no existe): ${dest} → ${target}"
+        return 0
+    fi
+    if [[ -L "${dest}" ]] && [[ "$(readlink -f "${dest}")" == "$(readlink -f "${target}")" ]]; then
+        echo "   ✅ Already linked: ${dest} → ${target}"
+        return 0
+    fi
+    if [[ -e "${dest}" ]] || [[ -d "${dest}" ]]; then
+        local backup=""; backup="${dest}.bak-$(date +%Y%m%d%H%M%S)"
+        mv "${dest}" "${backup}" 2>/dev/null || true
+        echo "   ⚠️  Backed up: ${dest} → ${backup}"
+    fi
+    ln -sfn "${target}" "${dest}"
+    echo "   🔗 Created: ${dest} → ${target}"
+}
+
 
 function make_folder_structure()
 {

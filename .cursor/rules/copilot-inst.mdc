@@ -1,0 +1,6 @@
+# GitHub Copilot Instructions
+
+## Terminal Commands
+- NEVER use `sudo` or any command requiring root privileges
+- If a command needs `sudo`, tell the user to run it manually in their terminal
+- Do NOT attempt to execute privileged commands via run_in_terminal

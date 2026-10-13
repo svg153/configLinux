@@ -7,7 +7,7 @@ function print_doctor_report()
     echo "script_dir=${SCRIPT_DIR}"
     echo "config_path=${CONFIG_PATH}"
     echo "repo_path_exists=$([[ -d "${CONFIG_PATH}" ]] && echo true || echo false)"
-    echo "is_wsl=${isWSL}"
+    echo "is_wsl=${isWSL:-false}"
 
     local commands=(git gh node npm python3 pwsh powershell.exe docker code)
     for cmd in "${commands[@]}"; do
@@ -97,7 +97,9 @@ function run_linux_stage_devtools()
     log info "terraform"
     install_iac_tooling_bundle
 
-    pipx install pre-commit ansible-lint black
+    for tool in pre-commit ansible-lint black; do
+            pipx install --force "$tool" 2>/dev/null || true
+        done
 
     local tools_by_github=(
         wtfutil/wtf
@@ -187,12 +189,12 @@ function run_linux_stage_customization()
 
     sudo add-apt-repository ppa:numix/ppa
     sudo apt update
-    sudo apt install numix-*
+    sudo apt install -y numix-*
 
     sudo cp -r ./themes/* /usr/share/themes/
 
-    os_xfce4="~/.config/xfce4"
-    os_xfconf="${os_xfce4}/xfconf"
+    os_xfce4="$HOME/.config/xfce4"
+    # os_xfconf="${os_xfce4}/xfconf"
     repo_xfce4="${CONFIG_PATH}/.config/xfce4"
     repo_xfconf="${repo_xfce4}/xfconf"
 
@@ -208,8 +210,7 @@ function run_linux_stage_customization()
     sudo cp ${keyboard_filepath_ori} ${keyboard_filepath_ori}.OLD
     sudo rm ${keyboard_filepath_ori}
     if [[ -e "${keyboard_filepath_mine}" ]]; then
-        sudo ln -s ${keyboard_filepath_mine} ${keyboard_filepath_ori}
-        if [[ $? -ne 0 ]]; then
+    if ! sudo ln -s ${keyboard_filepath_mine} ${keyboard_filepath_ori}; then
             sudo cp ${keyboard_filepath_mine} ${keyboard_filepath_ori}
         fi
     fi

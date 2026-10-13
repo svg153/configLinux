@@ -20,24 +20,7 @@ pager: cat
 aliases:
     aliases: alias list
     accounts: auth status
-    rmarchive: |-
-        !(
-            # TODO: change the sed to support other github servers, change to regex uri pattern 
-            repo_owner=$(git remote get-url origin | sed -n 's/.*github.com[:\/]\(.*\)\/.*/\1/p')
-            owner=${1:-$repo_owner}
-            gh api --paginate graphql -f owner="${owner}" -f query='
-                query($owner: String!, $per_page: Int = 100, $endCursor: String) {
-                    repositoryOwner(login: $owner) {
-                        repositories(first: $per_page, after: $endCursor, isArchived: true) {
-                            nodes { name }
-                            pageInfo { hasNextPage endCursor }
-                        }
-                    }
-                }' \
-            | jq -r '.data.repositoryOwner.repositories.nodes[].name' | sort \
-            | fzf --multi \
-            | xargs -I '%' gh repo delete ${owner}/% --yes
-        )
+    rmarchive: "!(\n    # TODO: change the sed to support other github servers, change to regex uri pattern \n    repo_owner=$(git remote get-url origin | sed -n 's/.*github.com[:\\/]\\(.*\\)\\/.*/\\1/p')\n    owner=${1:-$repo_owner}\n    gh api --paginate graphql -f owner=\"${owner}\" -f query='\n        query($owner: String!, $per_page: Int = 100, $endCursor: String) {\n            repositoryOwner(login: $owner) {\n                repositories(first: $per_page, after: $endCursor, isArchived: true) {\n                    nodes { name }\n                    pageInfo { hasNextPage endCursor }\n                }\n            }\n        }' \\\n    | jq -r '.data.repositoryOwner.repositories.nodes[].name' | sort \\\n    | fzf --multi \\\n    | xargs -I '%' gh repo delete ${owner}/% --yes\n)"
     web: |-
         !(
             if [ $# -eq 0 ]; then
@@ -144,18 +127,7 @@ aliases:
         !(
             gh __prcr
         )
-    __prcr: |-
-        !(
-            branch_name=$(gh __branch-name)
-            title=$(echo ${branch_name} | tr '-' ' ')
-            
-            pr_title="${1:-${title}}"
-            pr_body="${2:-${title}}"
-            
-            # TODO: Remove next line when https://github.com/cli/cli/issues/1718 is fixed
-            git push -u origin HEAD
-            gh prcr --title "${pr_title}" --body "${pr_body}"
-        )
+    __prcr: "!(\n    branch_name=$(gh __branch-name)\n    title=$(echo ${branch_name} | tr '-' ' ')\n    \n    pr_title=\"${1:-${title}}\"\n    pr_body=\"${2:-${title}}\"\n    \n    # TODO: Remove next line when https://github.com/cli/cli/issues/1718 is fixed\n    git push -u origin HEAD\n    gh prcr --title \"${pr_title}\" --body \"${pr_body}\"\n)"
     prcrewi: prcrwi
     prcrwi: |-
         !(
@@ -220,53 +192,7 @@ aliases:
         )
     codespaces: codespace list
     configs: config list
-    renewup: |-
-        !(
-            folder_name=$(basename $(pwd))
-            repo_name=${folder_name}
-            
-            repo_owner=$(git remote get-url origin 2>/dev/null | sed -n 's/.*github.com[:\/]\([^/]*\)\/.*/\1/p')
-            owner_name=${GH_DEFAULT_OWNER:-${repo_owner}}
-
-            if [ -z "${owner_name}" ]; then
-                owner_name=$(gh api user -q .login 2>/dev/null || true)
-            fi
-
-            is_git_new=false
-
-            if [ $# -eq 1 ]; then
-                owner_name=$1
-            fi
-            if [ $# -gt 1 ]; then
-                echo "Usage: gh renewup [owner_name]"
-                exit 1
-            fi
-            if [ -z "${owner_name}" ]; then
-                echo "Unable to determine owner_name automatically. Pass it explicitly or set GH_DEFAULT_OWNER."
-                exit 1
-            fi
-
-            if [ ! -d .git ]; then
-                git init
-                is_git_new=true
-            fi
-
-            gh repo create \
-                ${repo_name} \
-                --private \
-                --source=. \
-                --remote=upstream
-
-            if [ "${is_git_new}" = true ]; then
-                git add .
-                git commit -m "first commit"
-            fi
-
-            # TODO: Change to other github server
-            git remote add origin git@github.com:${owner_name}/${repo_name}.git
-
-            git push -u origin main
-        )
+    renewup: "!(\n    folder_name=$(basename $(pwd))\n    repo_name=${folder_name}\n    \n    repo_owner=$(git remote get-url origin 2>/dev/null | sed -n 's/.*github.com[:\\/]\\([^/]*\\)\\/.*/\\1/p')\n    owner_name=${GH_DEFAULT_OWNER:-${repo_owner}}\n\n    if [ -z \"${owner_name}\" ]; then\n        owner_name=$(gh api user -q .login 2>/dev/null || true)\n    fi\n\n    is_git_new=false\n\n    if [ $# -eq 1 ]; then\n        owner_name=$1\n    fi\n    if [ $# -gt 1 ]; then\n        echo \"Usage: gh renewup [owner_name]\"\n        exit 1\n    fi\n    if [ -z \"${owner_name}\" ]; then\n        echo \"Unable to determine owner_name automatically. Pass it explicitly or set GH_DEFAULT_OWNER.\"\n        exit 1\n    fi\n\n    if [ ! -d .git ]; then\n        git init\n        is_git_new=true\n    fi\n\n    gh repo create \\\n        ${repo_name} \\\n        --private \\\n        --source=. \\\n        --remote=upstream\n\n    if [ \"${is_git_new}\" = true ]; then\n        git add .\n        git commit -m \"first commit\"\n    fi\n\n    # TODO: Change to other github server\n    git remote add origin git@github.com:${owner_name}/${repo_name}.git\n\n    git push -u origin main\n)"
     rc: repo clone
     clo: repo clone "$1"/"$2"
     repos: repo list
@@ -439,135 +365,13 @@ aliases:
             wi_id="$1"
             gh new-branch-from-jira-wi ${wi_id}
         )
-    jira-wif: |-
-        !(
-            # List active Jira work items assigned to current user (or all not-done if none assigned),
-            # show a preview of the description, and create a branch from the selected issue.
-            if ! command -v "jira" &> /dev/null; then
-                echo "jira cli not found, please install https://github.com/ankitpokhrel/jira-cli"
-                exit 1
-            fi
-
-            # JQL to prefer issues assigned to current user, falling back to any not-done issue.
-            JQL_ASSIGNED='assignee = currentUser() AND statusCategory != Done ORDER BY updated DESC'
-            JQL_ANY='statusCategory != Done ORDER BY updated DESC'
-
-            # Try to get JSON output first; fallback to plain list if --output isn't supported.
-            issues_json=""
-            issues_json=$(jira issue list --jql "$JQL_ASSIGNED" --output json 2>/dev/null) || true
-            if [ -z "$issues_json" ]; then
-                issues_json=$(jira issue list --jql "$JQL_ASSIGNED" 2>/dev/null) || true
-            fi
-            if [ -z "$issues_json" ]; then
-                # try any not-done issues
-                issues_json=$(jira issue list --jql "$JQL_ANY" --output json 2>/dev/null) || true
-                if [ -z "$issues_json" ]; then
-                    issues_json=$(jira issue list --jql "$JQL_ANY" 2>/dev/null) || true
-                fi
-            fi
-
-            if [ -z "$issues_json" ]; then
-                echo "No Jira issues found for the queries."
-                exit 0
-            fi
-
-            # Parse JSON batches that may use either {"issues": [...]} or a top-level array.
-            echo "$issues_json" \
-                | jq -r '
-                    if type == "object" and has("issues") then .issues[]
-                    else .[]
-                    end
-                  | [.key, .fields.summary, (.fields.status.name // .fields.status // "-"), (.fields.assignee.displayName // "Unassigned")] | @tsv'
-            
-            # Pipe to fzf with preview, then create branch from chosen issue key.
-            echo "$issues_json" \
-                | jq -r '
-                    if type == "object" and has("issues") then .issues[]
-                    else .[]
-                    end
-                  | [.key, .fields.summary, (.fields.status.name // .fields.status // "-"), (.fields.assignee.displayName // "Unassigned")] | @tsv' \
-                | fzf --delimiter $'\t' \
-                    --preview "jira issue get {1} --output json 2>/dev/null | jq -r '.fields.description // .renderedFields.description // "(no description)"' | w3m -dump -T text/html" \
-                | awk '{print $1}' \
-                | xargs -r -I '%' gh plain-new-branch '%'
-        )
-    new-branch-from-jira-wi: |-
-        !(
-            if [ $# -ne 1 ]; then
-                echo "Usage: gh new-branch-from-jira-wi <wi_id>"
-                exit 1
-            fi
-            
-            wi_id="$1"
-
-            wi_project=$(echo "${wi_id}" | awk -F'-' '{print $1}')
-            
-            wi_title="$(gh jira-item-title "${wi_id}")"
-            if [ -z "${wi_title}" ]; then
-                echo "Error: Work item not found"
-                exit 1
-            fi
-          
-            gh new-branch-wi-jira "${wi_project}" "${wi_id}" "${wi_title}"
-        )
-    new-branch-wi-jira: |-
-        !(
-            if [ $# -ne 3 ]; then
-                echo "Usage: gh new-branch-wi-jira <wi_project> <wi_id> <wi_title>"
-                exit 1
-            fi
-            
-            wi_project="$1"
-            wi_id="$2"
-            wi_title="$3"
-            
-            git sw -c "${wi_project}-${wi_id}_${wi_title}"
-        )
-    jira-item-title: |-
-        !(
-            if [ $# -ne 1 ]; then
-                echo "Usage: gh jira-item-title <wi_id>"
-                exit 1
-            fi
-            wi_id="$1"
-            
-            # if jira cli not installed install it
-            if ! command -v "jira" &> /dev/null; then
-                echo "jira cli not found, installing it"
-                exit 1
-            fi
-            jira issue get "${wi_id}" --fields summary | jq -r '.fields.summary'
-        )
+    jira-wif: "!(\n    # List active Jira work items assigned to current user (or all not-done if none assigned),\n    # show a preview of the description, and create a branch from the selected issue.\n    if ! command -v \"jira\" &> /dev/null; then\n        echo \"jira cli not found, please install https://github.com/ankitpokhrel/jira-cli\"\n        exit 1\n    fi\n\n    # JQL to prefer issues assigned to current user, falling back to any not-done issue.\n    JQL_ASSIGNED='assignee = currentUser() AND statusCategory != Done ORDER BY updated DESC'\n    JQL_ANY='statusCategory != Done ORDER BY updated DESC'\n\n    # Try to get JSON output first; fallback to plain list if --output isn't supported.\n    issues_json=\"\"\n    issues_json=$(jira issue list --jql \"$JQL_ASSIGNED\" --output json 2>/dev/null) || true\n    if [ -z \"$issues_json\" ]; then\n        issues_json=$(jira issue list --jql \"$JQL_ASSIGNED\" 2>/dev/null) || true\n    fi\n    if [ -z \"$issues_json\" ]; then\n        # try any not-done issues\n        issues_json=$(jira issue list --jql \"$JQL_ANY\" --output json 2>/dev/null) || true\n        if [ -z \"$issues_json\" ]; then\n            issues_json=$(jira issue list --jql \"$JQL_ANY\" 2>/dev/null) || true\n        fi\n    fi\n\n    if [ -z \"$issues_json\" ]; then\n        echo \"No Jira issues found for the queries.\"\n        exit 0\n    fi\n\n    # Parse JSON batches that may use either {\"issues\": [...]} or a top-level array.\n    echo \"$issues_json\" \\\n        | jq -r '\n            if type == \"object\" and has(\"issues\") then .issues[]\n            else .[]\n            end\n          | [.key, .fields.summary, (.fields.status.name // .fields.status // \"-\"), (.fields.assignee.displayName // \"Unassigned\")] | @tsv'\n    \n    # Pipe to fzf with preview, then create branch from chosen issue key.\n    echo \"$issues_json\" \\\n        | jq -r '\n            if type == \"object\" and has(\"issues\") then .issues[]\n            else .[]\n            end\n          | [.key, .fields.summary, (.fields.status.name // .fields.status // \"-\"), (.fields.assignee.displayName // \"Unassigned\")] | @tsv' \\\n        | fzf --delimiter $'\\t' \\\n            --preview \"jira issue get {1} --output json 2>/dev/null | jq -r '.fields.description // .renderedFields.description // \"(no description)\"' | w3m -dump -T text/html\" \\\n        | awk '{print $1}' \\\n        | xargs -r -I '%' gh plain-new-branch '%'\n)"
+    new-branch-from-jira-wi: "!(\n    if [ $# -ne 1 ]; then\n        echo \"Usage: gh new-branch-from-jira-wi <wi_id>\"\n        exit 1\n    fi\n    \n    wi_id=\"$1\"\n\n    wi_project=$(echo \"${wi_id}\" | awk -F'-' '{print $1}')\n    \n    wi_title=\"$(gh jira-item-title \"${wi_id}\")\"\n    if [ -z \"${wi_title}\" ]; then\n        echo \"Error: Work item not found\"\n        exit 1\n    fi\n  \n    gh new-branch-wi-jira \"${wi_project}\" \"${wi_id}\" \"${wi_title}\"\n)"
+    new-branch-wi-jira: "!(\n    if [ $# -ne 3 ]; then\n        echo \"Usage: gh new-branch-wi-jira <wi_project> <wi_id> <wi_title>\"\n        exit 1\n    fi\n    \n    wi_project=\"$1\"\n    wi_id=\"$2\"\n    wi_title=\"$3\"\n    \n    git sw -c \"${wi_project}-${wi_id}_${wi_title}\"\n)"
+    jira-item-title: "!(\n    if [ $# -ne 1 ]; then\n        echo \"Usage: gh jira-item-title <wi_id>\"\n        exit 1\n    fi\n    wi_id=\"$1\"\n    \n    # if jira cli not installed install it\n    if ! command -v \"jira\" &> /dev/null; then\n        echo \"jira cli not found, installing it\"\n        exit 1\n    fi\n    jira issue get \"${wi_id}\" --fields summary | jq -r '.fields.summary'\n)"
     # Azure DevOps
-    new-branch-azdo: |-
-        !(
-            if [ $# -ne 2 ]; then
-                echo "Usage: gh new-branch-azdo <wi_id> <wi_title>"
-                exit 1
-            fi
-            
-            wi_id="$1"
-            wi_title="$2"
-            
-            git sw -c "AB-${wi_id}_${wi_title}"
-        )
-    new-branch-from-azdo-wi: |-
-        !(
-            if [ $# -ne 1 ]; then
-                echo "Usage: gh new-branch-from-azdo-wi <wi_id>"
-                exit 1
-            fi
-            
-            wi_id="$1"
-            
-            wi_title="$(gh azdo-item-title "${wi_id}")"
-            if [ -z "${wi_title}" ]; then
-                echo "Error: Work item not found"
-                exit 1
-            fi
-                        
-            gh new-branch-azdo "${wi_id}" "${wi_title}"
-        )
+    new-branch-azdo: "!(\n    if [ $# -ne 2 ]; then\n        echo \"Usage: gh new-branch-azdo <wi_id> <wi_title>\"\n        exit 1\n    fi\n    \n    wi_id=\"$1\"\n    wi_title=\"$2\"\n    \n    git sw -c \"AB-${wi_id}_${wi_title}\"\n)"
+    new-branch-from-azdo-wi: "!(\n    if [ $# -ne 1 ]; then\n        echo \"Usage: gh new-branch-from-azdo-wi <wi_id>\"\n        exit 1\n    fi\n    \n    wi_id=\"$1\"\n    \n    wi_title=\"$(gh azdo-item-title \"${wi_id}\")\"\n    if [ -z \"${wi_title}\" ]; then\n        echo \"Error: Work item not found\"\n        exit 1\n    fi\n                \n    gh new-branch-azdo \"${wi_id}\" \"${wi_title}\"\n)"
     azdo-wif-simple: |-
         !(
             gh azdo-get-active-wi-info \
@@ -584,34 +388,7 @@ aliases:
             | xargs -I '%' gh plain-new-branch '%'
         )
     # TODO: remove this, duplicated into bash_aliases, use bash commands intead of run gh commands for all. Create branches better from bash aliases and with the branch name, take the info for the next commands.
-    azdo-item-title: |-
-        !(
-            if [ $# -ne 1 ]; then
-                echo "Usage: gh azdo-item-title <wi_id>"
-                exit 1
-            fi
-            wi_id="$1"
-            
-            if ! command -v "az" &> /dev/null; then
-                echo "az cli not found, installing it"
-                exit 1
-            fi
-            
-            # cehck az boards extension
-            if ! az extension show --name boards &> /dev/null; then
-                echo "az boards extension not found, installing it"
-                exit 1
-            fi
-            
-            az boards work-item show \
-                --id "${wi_id}" \
-                --output json \
-                --query 'fields."System.Title"' \
-                | tr '[:upper:]' '[:lower:]' \
-                | tr -d '!"#$%&'"'"'()*+,./:;<=>?@[\\]^_`{|}~-' \
-                | sed -e 's/[ \t]*$//' \
-                | tr ' ' '-'
-        )
+    azdo-item-title: "!(\n    if [ $# -ne 1 ]; then\n        echo \"Usage: gh azdo-item-title <wi_id>\"\n        exit 1\n    fi\n    wi_id=\"$1\"\n    \n    if ! command -v \"az\" &> /dev/null; then\n        echo \"az cli not found, installing it\"\n        exit 1\n    fi\n    \n    # cehck az boards extension\n    if ! az extension show --name boards &> /dev/null; then\n        echo \"az boards extension not found, installing it\"\n        exit 1\n    fi\n    \n    az boards work-item show \\\n        --id \"${wi_id}\" \\\n        --output json \\\n        --query 'fields.\"System.Title\"' \\\n        | tr '[:upper:]' '[:lower:]' \\\n        | tr -d '!\"#$%&'\"'\"'()*+,./:;<=>?@[\\\\]^_`{|}~-' \\\n        | sed -e 's/[ \\t]*$//' \\\n        | tr ' ' '-'\n)"
     azdo-get-active-wi-ids: |-
         !(
             az boards query  \
@@ -652,33 +429,7 @@ aliases:
                 --draft"
         )
     # lunik
-    lunik-prcrwi: |-
-        !(
-            # Usage: gh lunik-prcrwi
-            
-            branch_name=$(gh __branch-name)
-    
-            issue_id=$(echo "${branch_name}" | awk -F'_' '{print $1}')
-            branch_issue_title=$(echo "${branch_name}" | awk -F'_' '{print $2}')
-            
-            wi_id="${issue_id}"            
-            wi_title=$(echo "${branch_issue_title}" | tr '-' ' ')
-
-            git push -u origin HEAD
-            
-            pr_body_temp_file=$(mktemp -t pr_body_XXXXX.md)
-            chmod 666 ${pr_body_temp_file}
-            trap "rm -f ${pr_body_temp_file}" EXIT
-
-            echo "# Description" >> ${pr_body_temp_file}
-            echo -e "\n${wi_title}" >> ${pr_body_temp_file}
-            echo -e "\nJira Issue: ${wi_id}" >> ${pr_body_temp_file}
-
-            bash -c "gh prcr \
-                --body-file \"${pr_body_temp_file}\" \
-                --fill \
-                --draft"
-        )
+    lunik-prcrwi: "!(\n    # Usage: gh lunik-prcrwi\n    \n    branch_name=$(gh __branch-name)\n\n    issue_id=$(echo \"${branch_name}\" | awk -F'_' '{print $1}')\n    branch_issue_title=$(echo \"${branch_name}\" | awk -F'_' '{print $2}')\n    \n    wi_id=\"${issue_id}\"            \n    wi_title=$(echo \"${branch_issue_title}\" | tr '-' ' ')\n\n    git push -u origin HEAD\n    \n    pr_body_temp_file=$(mktemp -t pr_body_XXXXX.md)\n    chmod 666 ${pr_body_temp_file}\n    trap \"rm -f ${pr_body_temp_file}\" EXIT\n\n    echo \"# Description\" >> ${pr_body_temp_file}\n    echo -e \"\\n${wi_title}\" >> ${pr_body_temp_file}\n    echo -e \"\\nJira Issue: ${wi_id}\" >> ${pr_body_temp_file}\n\n    bash -c \"gh prcr \\\n        --body-file \\\"${pr_body_temp_file}\\\" \\\n        --fill \\\n        --draft\"\n)"
     # plain
     plain-wi: |-
         !(
@@ -690,85 +441,8 @@ aliases:
             wi_id="$1"
             gh new-branch-from-azdo-wi ${wi_id}
         )
-    plain-prcrwim: |-
-        !(
-            # Usage: gh plain-prcrwim [pr_title]
-
-            branch_name=$(gh __branch-name)
-            
-            issue_id=$(echo "${branch_name}" | awk -F'_' '{print $1}')
-            branch_issue_title=$(echo "${branch_name}" | awk -F'_' '{print $2}')
-            
-            wi_id="${issue_id}"
-            # if the issue id is in the format of AB-1234, then remove the prefix
-            case "${wi_id}" in
-                AB-*) 
-                    wi_id_azdo="${wi_id#AB-}" # remove the prefix
-                    pr_body='#'"${wi_id_azdo}"
-                    ;;
-                *)
-                    wi_id_azdo=${wi_id}
-                    pr_body="${wi_id_azdo}"
-                    ;;
-            esac
-            
-            wi_title="${branch_issue_title}"
-            wi_title_azdo=$(echo "${wi_title}" | tr '-' ' ')
-            
-            pr_title="${wi_id_azdo} ${wi_title_azdo}"
-            
-            default_branch="main"
-            default_branch=$(git symbolic-ref refs/remotes/origin/HEAD | sed 's@^refs/remotes/origin/@@')
-
-            git push -u origin HEAD
-            
-            az repos pr create \
-                --title "${pr_title}" \
-                --description "${pr_body}" \
-                --source-branch "${branch_name}" \
-                --target-branch "${default_branch}" \
-                --work-items "${wi_id_azdo}"
-        )
-    plain-prcrwi: |-
-        !(
-            set -x
-            # Usage: gh plain-prcrwi
-            
-            branch_name=$(gh __branch-name)
-    
-            issue_id=$(echo "${branch_name}" | awk -F'_' '{print $1}')
-            branch_issue_title=$(echo "${branch_name}" | awk -F'_' '{print $2}')
-            
-            wi_id="${issue_id}"
-            if [[ "${issue_id}" == "AB-"* ]]; then
-                wi_id_azdo="${wi_id#AB-}" # remove the prefix
-                pr_body='#'"${wi_id_azdo}"
-            else
-                wi_id_azdo=${wi_id}
-                pr_body="${wi_id_azdo}"
-            fi
-            
-            wi_title="${branch_issue_title}"
-            wi_title_azdo=$(echo "${wi_title}" | tr '-' ' ')
-            
-            pr_title="${wi_id_azdo} ${wi_title_azdo}"
-            
-            default_branch="main"
-            if command -v "git default-branch" &> /dev/null; then
-                default_branch=$(git default-branch)
-            else
-                default_branch=$(git symbolic-ref refs/remotes/origin/HEAD | sed 's@^refs/remotes/origin/@@')
-            fi
-
-            git push -u origin HEAD
-            
-            az repos pr create \
-                --title "${pr_title}" \
-                --description "${pr_body}" \
-                --source-branch "${branch_name}" \
-                --target-branch "${default_branch}" \
-                --work-items "${wi_id_azdo}"
-        )
+    plain-prcrwim: "!(\n    # Usage: gh plain-prcrwim [pr_title]\n\n    branch_name=$(gh __branch-name)\n    \n    issue_id=$(echo \"${branch_name}\" | awk -F'_' '{print $1}')\n    branch_issue_title=$(echo \"${branch_name}\" | awk -F'_' '{print $2}')\n    \n    wi_id=\"${issue_id}\"\n    # if the issue id is in the format of AB-1234, then remove the prefix\n    case \"${wi_id}\" in\n        AB-*) \n            wi_id_azdo=\"${wi_id#AB-}\" # remove the prefix\n            pr_body='#'\"${wi_id_azdo}\"\n            ;;\n        *)\n            wi_id_azdo=${wi_id}\n            pr_body=\"${wi_id_azdo}\"\n            ;;\n    esac\n    \n    wi_title=\"${branch_issue_title}\"\n    wi_title_azdo=$(echo \"${wi_title}\" | tr '-' ' ')\n    \n    pr_title=\"${wi_id_azdo} ${wi_title_azdo}\"\n    \n    default_branch=\"main\"\n    default_branch=$(git symbolic-ref refs/remotes/origin/HEAD | sed 's@^refs/remotes/origin/@@')\n\n    git push -u origin HEAD\n    \n    az repos pr create \\\n        --title \"${pr_title}\" \\\n        --description \"${pr_body}\" \\\n        --source-branch \"${branch_name}\" \\\n        --target-branch \"${default_branch}\" \\\n        --work-items \"${wi_id_azdo}\"\n)"
+    plain-prcrwi: "!(\n    set -x\n    # Usage: gh plain-prcrwi\n    \n    branch_name=$(gh __branch-name)\n\n    issue_id=$(echo \"${branch_name}\" | awk -F'_' '{print $1}')\n    branch_issue_title=$(echo \"${branch_name}\" | awk -F'_' '{print $2}')\n    \n    wi_id=\"${issue_id}\"\n    if [[ \"${issue_id}\" == \"AB-\"* ]]; then\n        wi_id_azdo=\"${wi_id#AB-}\" # remove the prefix\n        pr_body='#'\"${wi_id_azdo}\"\n    else\n        wi_id_azdo=${wi_id}\n        pr_body=\"${wi_id_azdo}\"\n    fi\n    \n    wi_title=\"${branch_issue_title}\"\n    wi_title_azdo=$(echo \"${wi_title}\" | tr '-' ' ')\n    \n    pr_title=\"${wi_id_azdo} ${wi_title_azdo}\"\n    \n    default_branch=\"main\"\n    if command -v \"git default-branch\" &> /dev/null; then\n        default_branch=$(git default-branch)\n    else\n        default_branch=$(git symbolic-ref refs/remotes/origin/HEAD | sed 's@^refs/remotes/origin/@@')\n    fi\n\n    git push -u origin HEAD\n    \n    az repos pr create \\\n        --title \"${pr_title}\" \\\n        --description \"${pr_body}\" \\\n        --source-branch \"${branch_name}\" \\\n        --target-branch \"${default_branch}\" \\\n        --work-items \"${wi_id_azdo}\"\n)"
     # pezaio
     pezaio-wi: |-
         !(
@@ -792,51 +466,7 @@ aliases:
             | jq -r '.[].id' \
             | fzf --preview 'az boards work-item show --id {1} --org https://dev.azure.com/pezaio --output table'
         )
-    pezaio-prcrwi: |-
-        !(
-            root_dir=$(git rev-parse --show-toplevel)
-            branch_name=$(gh __branch-name)
-            wi_id=$(echo ${branch_name} | awk -F'_' '{print $1}')
-            wi_title=$(echo ${branch_name} | awk -F'_' '{print $2}')
-
-            wi_id_azdo_gh=$(echo ${wi_id} | tr '-' '#')
-            wi_id_azdo=$(echo ${wi_id_azdo_gh} | awk -F'#' '{print $2}')
-            wi_title_azdo=$(echo ${wi_title} | tr '-' ' ')
-
-            pr_title="${wi_id_azdo_gh} ${wi_title_azdo}"
-
-            # if there is pull_request_template.md file in the .github folder, use it as pr body
-            # pr_tmpl=${root_dir}/.github/pull_request_template.md
-            # Force not enter
-            pr_tmpl=${root_dir}/.github/pull_request_template.md
-            pr_body_temp_file=$(mktemp -t pr_body_XXXXX.md)
-            chmod 666 ${pr_body_temp_file}
-            #trap "rm -f ${pr_body_temp_file}\" EXIT
-
-            if [ -f "${pr_tmpl}" ]; then
-                # Modify the template using sed
-                modified_template=$(cat "${pr_tmpl}")
-                modified_template=$(echo "${modified_template}" | sed '/<!--/,/-->/d')
-                modified_template=$(echo "${modified_template}" | sed "s@### User Stories/Bugs affected@### User Stories/Bugs affected\\n\\nRelated ${wi_id_azdo_gh}@")
-                modified_template=$(echo "${modified_template}" | sed 's@### Other systems impacted@### Other systems impacted\\n\\n- N/A@')
-                modified_template=$(echo "${modified_template}" | sed 's@- \\[ \\] No@- [x] No@')
-                # Remplace double empty lines with one empty line
-                modified_template=$(echo "${modified_template}" | sed ':L;N;s/^\\\\n$//;t L')
-                echo "${modified_template}" > ${pr_body_temp_file}
-                
-                pr_body="${pr_body_temp_file}"
-            else
-                pr_body="${wi_id_azdo_gh}
-            fi
-
-            # TODO: Remove next line when https://github.com/cli/cli/issues/1718 is fixed
-            git push -u origin HEAD
-
-            bash -c "gh prcr \
-                --title \"${pr_title}\" \
-                --body-file \"${pr_body}\" \
-                --draft"
-        )
+    pezaio-prcrwi: "!(\n    root_dir=$(git rev-parse --show-toplevel)\n    branch_name=$(gh __branch-name)\n    wi_id=$(echo ${branch_name} | awk -F'_' '{print $1}')\n    wi_title=$(echo ${branch_name} | awk -F'_' '{print $2}')\n\n    wi_id_azdo_gh=$(echo ${wi_id} | tr '-' '#')\n    wi_id_azdo=$(echo ${wi_id_azdo_gh} | awk -F'#' '{print $2}')\n    wi_title_azdo=$(echo ${wi_title} | tr '-' ' ')\n\n    pr_title=\"${wi_id_azdo_gh} ${wi_title_azdo}\"\n\n    # if there is pull_request_template.md file in the .github folder, use it as pr body\n    # pr_tmpl=${root_dir}/.github/pull_request_template.md\n    # Force not enter\n    pr_tmpl=${root_dir}/.github/pull_request_template.md\n    pr_body_temp_file=$(mktemp -t pr_body_XXXXX.md)\n    chmod 666 ${pr_body_temp_file}\n    #trap \"rm -f ${pr_body_temp_file}\\\" EXIT\n\n    if [ -f \"${pr_tmpl}\" ]; then\n        # Modify the template using sed\n        modified_template=$(cat \"${pr_tmpl}\")\n        modified_template=$(echo \"${modified_template}\" | sed '/<!--/,/-->/d')\n        modified_template=$(echo \"${modified_template}\" | sed \"s@### User Stories/Bugs affected@### User Stories/Bugs affected\\\\n\\\\nRelated ${wi_id_azdo_gh}@\")\n        modified_template=$(echo \"${modified_template}\" | sed 's@### Other systems impacted@### Other systems impacted\\\\n\\\\n- N/A@')\n        modified_template=$(echo \"${modified_template}\" | sed 's@- \\\\[ \\\\] No@- [x] No@')\n        # Remplace double empty lines with one empty line\n        modified_template=$(echo \"${modified_template}\" | sed ':L;N;s/^\\\\\\\\n$//;t L')\n        echo \"${modified_template}\" > ${pr_body_temp_file}\n        \n        pr_body=\"${pr_body_temp_file}\"\n    else\n        pr_body=\"${wi_id_azdo_gh}\n    fi\n\n    # TODO: Remove next line when https://github.com/cli/cli/issues/1718 is fixed\n    git push -u origin HEAD\n\n    bash -c \"gh prcr \\\n        --title \\\"${pr_title}\\\" \\\n        --body-file \\\"${pr_body}\\\" \\\n        --draft\"\n)"
     pezaio-dependabot-merge: |-
         !(
             git stash

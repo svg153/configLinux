@@ -10,9 +10,7 @@ function install_gum()
     sudo mkdir -p /etc/apt/keyrings
     curl -fsSL https://repo.charm.sh/apt/gpg.key | sudo gpg --dearmor -o /etc/apt/keyrings/charm.gpg
     echo "deb [signed-by=/etc/apt/keyrings/charm.gpg] https://repo.charm.sh/apt/ * *" | sudo tee /etc/apt/sources.list.d/charm.list
-    sudo apt update && sudo apt install gum
-    update
-    install gum
+    sudo apt update && sudo apt install -y gum
 }
 
 function install_ijq()
@@ -25,7 +23,7 @@ function install_ijq()
     local version=1.1.2
     wget "https://git.sr.ht/~gpanders/ijq/refs/download/v${version}/ijq-${version}-linux-amd64.tar.gz"
     tar xf ijq-${version}-linux-amd64.tar.gz
-    cd ijq-${version}
+    cd "ijq-${version}" || exit
     sudo cp ijq /usr/local/bin/ijq-${version}
     sudo ln -s /usr/local/bin/ijq-${version} /usr/local/bin/ijq
     sudo mkdir -p /usr/local/share/man/man1
@@ -46,7 +44,7 @@ function install_fzf()
     else
         git clone --depth 1 https://github.com/junegunn/fzf.git ~/.fzf
     fi
-    ~/.fzf/install --all
+    ~/.fzf/install --all --yes
 }
 
 function install_gotask()
@@ -54,7 +52,7 @@ function install_gotask()
     if [[ -x "$(command -v task)" ]]; then
         echo "task is already installed"
     else
-        sh -c "$(curl --location https://taskfile.dev/install.sh)" -- -d -b ~/.local/bin
+        sh -c "$(curl --location https://taskfile.dev/install.sh)" -- -d -b ~/.local/bin -y
     fi
 }
 
@@ -79,8 +77,8 @@ function install_webinstall()
         return 0
     fi
 
-    [[ -x "$(command -v curl)" ]] || install curl
-    curl https://webi.sh/webi | sh
+    [[ -x "$(command -v curl)" ]] || install_by_pgkmanager curl
+    curl https://webi.sh/webi | sh -y
 }
 
 function install_by_webinstall()
@@ -88,19 +86,15 @@ function install_by_webinstall()
     local p=$1
     [[ $# -ne 1 ]] && echo "webinstall: webinstall <program>" && return 1
     [[ -z "${p}" ]] && echo "webinstall: program is empty" && return 1
-    webi ${p}
+    webi "${p}"
 }
 
 function install_python()
 {
-    install \
-        python3 \
-        python3-pip \
-        python3-distutils \
-        python3-apt
+    install_by_pgkmanager python3 python3-pip npm python3-apt
     sudo apt update
 
-    install pipx
+    install_by_pgkmanager pipx
     pipx ensurepath
     sudo pipx ensurepath --global
 }
@@ -113,16 +107,23 @@ function install_node()
         return 0
     fi
 
-    local os_distribution=$(get_os_distribution)
+    local os_distribution
+    os_distribution=$(get_os_distribution)
+
+    # NODE_LTS_VERSION can be set to override the default LTS version
+    # Default: 24.x (current LTS, supported until April 2028)
+    # Available: 20.x (legacy, EOL April 2026), 22.x (legacy, EOL April 2027), 24.x (LTS)
+    local node_lts_version="${NODE_LTS_VERSION:-24}"
 
     if [[ ${os_distribution} = *"Debian"* ]] || [[ ${os_distribution} = *"Ubuntu"* ]]; then
-        curl -fsSL https://deb.nodesource.com/setup_22.x | sudo -E bash - \
+        sudo curl -fsSL "https://deb.nodesource.com/setup_${node_lts_version}.x" | bash - \
         && sudo apt-get install -y nodejs
     elif [[ ${os_distribution} = *"CentOS"* ]] || [[ ${os_distribution} = *"Fedora"* ]]; then
-        curl -fsSL https://rpm.nodesource.com/setup_18.x | sudo -E bash - \
-        && sudo yum install nodejs -y --skip-broken && sudo yum install nsolid -y --skip-broken
+        sudo curl -fsSL "https://rpm.nodesource.com/setup_${node_lts_version}.x" | bash - \
+        && sudo yum install nodejs -y --skip-broken
     else
         echo "OS distribution not supported"
+        return 1
     fi
 }
 
@@ -140,7 +141,7 @@ function install_golang()
 
 function install_d2lang()
 {
-    curl -fsSL https://d2lang.com/install.sh | sh -s --
+    curl -fsSL https://d2lang.com/install.sh | sh -s -- -y
 }
 
 function install_starship()
@@ -150,9 +151,32 @@ function install_starship()
         return 0
     fi
 
-    sh -c "$(curl -fsSL https://starship.rs/install.sh)"
+    sh -c "$(curl -fsSL https://starship.rs/install.sh)" -y -b /usr/local/bin
     if [[ ! -d ~/.config ]]; then
         mkdir -p ~/.config
+    fi
+}
+
+function install_uv()
+{
+    if [[ -x "$(command -v uv)" ]]; then
+        uv --version
+        return 0
+    fi
+
+    if ! command -v curl &> /dev/null; then
+        install_by_pgkmanager curl
+    fi
+
+    curl -LsSf https://astral.sh/uv/install.sh | sh -y
+    echo 'export PATH="$HOME/.local/share/uv/bin:$PATH"' >> ~/.bashrc
+    export PATH="$HOME/.local/share/uv/bin:$PATH"
+
+    if [[ -x "$(command -v uv)" ]]; then
+        uv --version
+    else
+        log error "install_uv: uv not installed successfully"
+        return 1
     fi
 }
 
@@ -160,6 +184,7 @@ function install_language_toolchain_bundle()
 {
     install_python
     install_node
+    install_uv
     install_by_pgkmanager golang-go
     install_d2lang
 }

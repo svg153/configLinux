@@ -2,18 +2,18 @@
 
 function install_docker()
 {
-    if [[ ${isWSL} == "true" ]]; then
+    if [[ "${isWSL:-true}" == "true" ]]; then
         if check_if_program_is_installed_in_windows "docker"; then
             echo "Docker Desktop is installed in Windows"
         else
             echo "Docker Desktop is not installed in Windows"
             echo "Install Docker on Windows WSL without Docker Desktop"
 
-            sudo apt update && sudo apt upgrade
+            sudo apt update && sudo apt upgrade -y
 
             if check_if_program_is_installed "docker"; then
                 echo "Docker is already installed"
-                sudo apt-get remove \
+                sudo apt-get remove -y \
                     docker.io \
                     docker-doc \
                     docker-compose \
@@ -21,7 +21,7 @@ function install_docker()
                     podman-docker \
                     containerd \
                     runc
-                sudo apt-get purge \
+                sudo apt-get purge -y \
                     docker-ce \
                     docker-ce-cli \
                     containerd.io \
@@ -32,28 +32,29 @@ function install_docker()
                 sudo rm -rf /var/lib/containerd
             else
                 echo "Docker is not installed"
-                sudo apt install --no-install-recommends apt-transport-https ca-certificates curl gnupg2
-                sudo update-alternatives --set iptables /usr/sbin/iptables-legacy
-                sudo update-alternatives --set ip6tables /usr/sbin/ip6tables-legacy
+                sudo apt install -y --no-install-recommends apt-transport-https ca-certificates curl gnupg2
+                sudo update-alternatives --set iptables /usr/sbin/iptables-legacy 2>/dev/null || echo 'iptables-legacy not found, skipping'
+                sudo update-alternatives --set ip6tables /usr/sbin/ip6tables-legacy 2>/dev/null || echo 'ip6tables-legacy not found, skipping'
 
                 . /etc/os-release
-                curl -fsSL https://download..docker.com/linux/${ID}/gpg | sudo tee /etc/apt/trusted.gpg.d/docker.asc
+                curl -fsSL "https://download.docker.com/linux/${ID}/gpg" | sudo tee /etc/apt/trusted.gpg.d/docker.asc
                 echo "deb [arch=amd64] https://download.docker.com/linux/${ID} ${VERSION_CODENAME} stable" | sudo tee /etc/apt/sources.list.d/docker.list
                 sudo apt update
-                sudo apt install docker-ce docker-ce-cli containerd.io
+                sudo apt install -y docker-ce docker-ce-cli containerd.io
 
-                sudo usermod -aG docker $USER
+                sudo usermod -aG docker "$USER"
 
                 if getent group | grep 36257; then
                     sudo sed -i -e 's/^\(docker:x\):[^:]\+/\1:36257/' /etc/group
                 else
                     all_ids=$(seq 1000 65535)
-                    possible_ids=$(echo ${all_ids} | grep -v -E "$(getent group | cut -d: -f3 | grep -E '^[0-9]{4}' | sort -g)")
-                    middle_id=$(echo ${possible_ids} | wc -l | awk '{print $1/2}')
+                    possible_ids=$(echo "${all_ids}" | grep -v -E "$(getent group | cut -d: -f3 | grep -E '^[0-9]{4}' | sort -g)")
+                    middle_id=$(echo "${possible_ids}" | wc -l | awk '{print $1/2}')
                     if check_if_program_is_installed "groupmod"; then
-                        sudo groupmod -g ${middle_id} docker
+                        sudo groupmod -g "${middle_id}" docker
                     else
-                        sudo sed -i -e 's/^\(docker:x\):[^:]\+/\1:'$(echo ${middle_id})'/' /etc/group
+                        middle_id=${middle_id}
+                        sudo sed -i -e 's/^\(docker:x\):[^:]\+/\1:${middle_id}/' /etc/group
                     fi
                 fi
 
@@ -85,7 +86,7 @@ function install_docker()
                         fi
                     fi
                 else
-                    echo '{"hosts": ["unix://'"$DOCKER_DIR"'/docker.sock"], "iptables": true}' | sudo tee /etc/docker/daemon.json
+                    echo '{"hosts": ["unix://$DOCKER_DIR/docker.sock"], "iptables": true}' | sudo tee /etc/docker/daemon.json
                 fi
             fi
         fi
@@ -96,7 +97,7 @@ function install_docker()
 
         sudo docker run hello-world
         sudo groupadd docker || true
-        sudo usermod -aG docker $USER
+        sudo usermod -aG docker "$USER"
         docker run hello-world
         sudo systemctl enable docker
     fi

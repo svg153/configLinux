@@ -16,62 +16,88 @@ function install_gh()
         gh auth login
     fi
 
-    ssh-keyscan -t ed25519 github.com >> ~/.ssh/known_hosts
-    ssh-keyscan -t ecdsa-sha2-nistp256 github.com >> ~/.ssh/known_hosts
-    ssh-keyscan -t rsa github.com >> ~/.ssh/known_hosts
+    for key_type in ed25519 ecdsa-sha2-nistp256 rsa; do ssh-keyscan -t "${key_type}" github.com >> ~/.ssh/known_hosts; done
 }
 
 function install_gh_extensions(){
     gh_extension=(
-        github/gh-copilot
         github/gh-projects
         dlvhdr/gh-dash
-        rsese/gh-actions-status
         meiji163/gh-notify
         seachicken/gh-poi
         redraw/gh-install
     )
-
-    local fork_repo="${GH_CLONE_ORG_FORK_REPO:-}"
 
     if gh auth status; then
         for ext in "${gh_extension[@]}"; do
             install_gh_ext "${ext}"
         done
 
-        if ! gh extension list | grep "matt-bartel/gh-clone-org"; then
-            install_gh_ext "matt-bartel/gh-clone-org"
-            if [[ -d ~/.local/share/gh/extensions/gh-clone-org-matt ]]; then
-                mv ~/.local/share/gh/extensions/gh-clone-org{,-matt}
-                mv ~/.local/share/gh/extensions/gh-clone-org-matt/gh-clone-org{,-matt}
-            fi
-        fi
-
-        if [[ -n "${fork_repo}" ]] && ! gh extension list | grep "${fork_repo}"; then
-            local custom_repo_dir="${REPOS_PATH}/gh-clone-org-custom"
-            local custom_ext_link="${HOME}/.local/share/gh/extensions/gh-clone-org-custom"
-            local active_ext_link="${HOME}/.local/share/gh/extensions/gh-clone-org"
-
-            if [[ ! -d "${custom_repo_dir}" ]]; then
-                gh repo clone "${fork_repo}" "${custom_repo_dir}"
-            fi
-
-            mkdir -p "${HOME}/.local/share/gh/extensions"
-            [[ -L "${custom_ext_link}" ]] || ln -s "${custom_repo_dir}" "${custom_ext_link}"
-            [[ -L "${active_ext_link}" ]] && unlink "${active_ext_link}"
-            ln -s "${custom_ext_link}" "${active_ext_link}"
-            log info "gh-clone-org override linked from GH_CLONE_ORG_FORK_REPO"
-        fi
+        install_gh_clone_org_matt
+        install_gh_clone_org_fork
     else
         log warn "gh_extensions: gh is not authenticated"
     fi
 }
 
+function install_gh_clone_org_matt()
+{
+    local extensions_dir="${HOME}/.local/share/gh/extensions"
+    local installed_dir="${extensions_dir}/gh-clone-org"
+    local renamed_dir="${extensions_dir}/gh-clone-org-matt"
+
+    if [[ -d "${renamed_dir}" ]]; then
+        log info "install_gh_clone_org_matt: already installed as 'gh clone-org-matt'"
+        return 0
+    fi
+
+    # Install under the default name (gh-clone-org), then rename so the command
+    # becomes 'gh clone-org-matt' and frees the 'gh clone-org' name for the fork.
+    install_gh_ext "matt-bartel/gh-clone-org"
+
+    [[ -d "${installed_dir}" ]] || {
+        log error "install_gh_clone_org_matt: ${installed_dir} not found after install"
+        return 1
+    }
+
+    mv "${installed_dir}" "${renamed_dir}"
+    if [[ -f "${renamed_dir}/gh-clone-org" ]]; then
+        mv "${renamed_dir}/gh-clone-org" "${renamed_dir}/gh-clone-org-matt"
+        chmod +x "${renamed_dir}/gh-clone-org-matt" 2>/dev/null || true
+    fi
+    log info "install_gh_clone_org_matt: registered as 'gh clone-org-matt'"
+}
+
+function install_gh_clone_org_fork()
+{
+    local extensions_dir="${HOME}/.local/share/gh/extensions"
+    local custom_repo_dir="${REPOS_PATH}/gh-clone-org-custom"
+    local active_link="${extensions_dir}/gh-clone-org"
+    local fork_repo="svg153/gh-clone-org"
+
+    if [[ ! -d "${custom_repo_dir}" ]]; then
+        gh repo clone "${fork_repo}" "${custom_repo_dir}" || {
+            log error "install_gh_clone_org_fork: failed to clone ${fork_repo}"
+            return 1
+        }
+    fi
+
+    mkdir -p "${extensions_dir}"
+    # Replace whatever currently holds the 'gh clone-org' command name
+    # (a plain dir from a previous install, or a stale symlink).
+    if [[ -e "${active_link}" ]] || [[ -L "${active_link}" ]]; then
+        rm -rf "${active_link}"
+    fi
+    ln -s "${custom_repo_dir}" "${active_link}"
+    chmod +x "${custom_repo_dir}/gh-clone-org" 2>/dev/null || true
+    log info "install_gh_clone_org_fork: 'gh clone-org' -> ${fork_repo} (${custom_repo_dir})"
+}
+
 function install_gh_ext()
 {
     local ext=$1
-    [[ $# -ne 1 ]] && echo "Usage: install_gh_extensions <extension>" && return 1
-    [[ -z "${ext}" ]] && echo "install_gh_extensions: extension is empty" && return 1
+    [[ $# -ne 1 ]] && echo "Usage: install_gh_ext <extension>" && return 1
+    [[ -z "${ext}" ]] && echo "install_gh_ext: extension is empty" && return 1
 
     gh extension install "${ext}" || true
     gh extension list | grep "${ext}" || {
@@ -92,10 +118,14 @@ function install_gh_copilot()
     node_version=$(node -v | cut -d'.' -f1 | cut -d'v' -f2)
     [[ ${node_version} -lt 18 ]] && install_node
 
-    sudo npm install -g npm
-    sudo npm install -g @githubnext/github-copilot-cli
+    if ! command -v npm &> /dev/null; then
+        sudo apt install -y npm
+    fi
 
-    github-copilot-cli auth
+    sudo npm install npm 2>/dev/null || true
+    npm install -g @githubnext/github-copilot-cli 2>/dev/null || true
+
+    log info "github-copilot-cli installed - run: github-copilot-cli auth"
 }
 
 function install_github_tools()

@@ -115,7 +115,7 @@
 [init]
 	defaultBranch = main
 	# TODO: check with relative path
-	templateDir = ~/.git-template
+	templateDir = /home/svg153/.git-template
 [credential]
 	helper = 
 	credentialStore = cache
