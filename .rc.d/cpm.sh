@@ -1,3 +1,5 @@
 # cpm — Copilot Provider Model switcher
 # https://github.com/burkeholland/cpm
-source "$HOME/.config/cpm/cpm.sh"
+if [ -f "$HOME/.config/cpm/cpm.sh" ]; then
+    source "$HOME/.config/cpm/cpm.sh"
+fi
