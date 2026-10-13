@@ -33,6 +33,29 @@ Internally, both entrypoints now route most modes through stage wrappers, so the
 
 The script now uses the repository checkout it is being run from by default, so the Git and prompt assets can be installed from any clone location without hardcoding a personal folder layout.
 
+### GitHub Copilot CLI with NaN on Windows
+
+`SCRIPTS\copilot\nan-copilot.ps1` starts GitHub Copilot CLI with the NaN OpenAI-compatible API. It prompts for the NaN API key without echoing it and does not save it. The default model is `deepseek-v4-flash`.
+
+Run it from PowerShell 7 in the repository root:
+
+```powershell
+pwsh -File .\SCRIPTS\copilot\nan-copilot.ps1
+```
+
+To start with a different NaN model, pass its model ID:
+
+```powershell
+pwsh -File .\SCRIPTS\copilot\nan-copilot.ps1 -Model glm5.3-flash
+```
+
+Install PowerShell 7 and GitHub Copilot CLI first if they are not already installed:
+
+```powershell
+winget install --id Microsoft.PowerShell --source winget
+winget install --id GitHub.Copilot --source winget
+```
+
 ## Layout
 
 - `run.sh` / `run.ps1` — platform entrypoints
