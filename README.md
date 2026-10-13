@@ -29,7 +29,8 @@ Internally, both entrypoints now route most modes through stage wrappers, so the
 - `CONFIG_REPO_URL` — repo URL to clone when `CONFIG_PATH` does not exist
 - `WORK_GIT_HOST` — host used in generated work `includeIf hasconfig:remote.*.url` rules; if omitted the template keeps `<WORK_GIT_HOST>` as a local placeholder
 - `COMMON_REPOS` — optional space-separated list in the format `folder;org/repo`
-- `GH_CLONE_ORG_FORK_REPO` — optional `org/repo` override for a custom `gh-clone-org` fork
+
+The bootstrap installs two `gh-clone-org` flavors: the upstream `matt-bartel/gh-clone-org` as `gh clone-org-matt`, and the personal fork `svg153/gh-clone-org` as the default `gh clone-org`.
 
 The script now uses the repository checkout it is being run from by default, so the Git and prompt assets can be installed from any clone location without hardcoding a personal folder layout.
 
