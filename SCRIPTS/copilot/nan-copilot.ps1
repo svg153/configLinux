@@ -52,7 +52,11 @@ try {
   $apiKey = $null
 
   foreach ($name in $environmentNames) {
-    [Environment]::SetEnvironmentVariable($name, $previousEnvironment[$name], 'Process')
+    if ($null -eq $previousEnvironment[$name]) {
+      Remove-Item -LiteralPath "Env:$name" -ErrorAction SilentlyContinue
+    } else {
+      [Environment]::SetEnvironmentVariable($name, $previousEnvironment[$name], 'Process')
+    }
   }
 }
 
