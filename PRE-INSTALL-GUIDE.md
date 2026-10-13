@@ -99,7 +99,7 @@ El script carga por defecto en .gitconfig:
 
 ## ✅ PRE-CHECKS ANTES DE EJECUTAR
 
-Antes de `sudo ./install.sh`, verifica que:
+Antes de `./run.sh`, verifica que:
 - [ ] `personal-mail.gitconfig` existe con tu email personal
 - [ ] `work/work.gitconfig` existe con tu email de trabajo (o créalo, solo es placeholder)
 - [ ] Tu user tiene permisos sudo (ya lo tiene, ya te pide sudo)
@@ -119,20 +119,23 @@ cat .gitconfig.d/personal-mail.gitconfig # Ver email correcto
 # 0. Pre-config (si quieres hacerlo manual)
 #   Crear personal-mail.gitconfig y work/work.gitconfig primero
 
-# 1. Base: crea carpetas, enlaza configs, instala git/vim/bash
-./SCRIPTS/bootstrap/linux-base.sh
+# 1. Solo Git + templates (rápido, sin tocar el sistema)
+./run.sh shared-config-only
 
-# 2. Shells: zsh + oh-my-zsh  
-./SCRIPTS/bootstrap/linux-shells.sh
+# 2. Base: crea carpetas, enlaza configs, instala git/vim/bash
+./run.sh linux-base
 
-# 3. Devtools: lenguajes, CLI tools, git, docker
-./SCRIPTS/bootstrap/linux-devtools.sh
+# 3. Shells: zsh + oh-my-zsh
+./run.sh linux-shells
 
-# 4. Docker/Containers
-./SCRIPTS/bootstrap/linux-containers.sh
+# 4. Devtools: lenguajes, CLI tools, git, docker
+./run.sh linux-devtools
+
+# 5. Docker/Containers
+./run.sh linux-containers
 ```
 
-O ejecuta TODAS las etapas con:
+O ejecuta TODAS las etapas con el bootstrap completo (requiere confirmación explícita):
 ```bash
-./run.sh FULL
+./run.sh desktop --yes
 ```
