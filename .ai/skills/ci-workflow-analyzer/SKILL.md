@@ -1,3 +1,8 @@
+---
+name: ci-workflow-analyzer
+description: Analyze GitHub Actions workflows to compare job configurations and identify environment differences. Use when builds succeed in one environment but fail in another, when comparing staging vs production workflows, or when investigating CI/CD pipeline inconsistencies.
+---
+
 # Skill: CI Workflow Analyzer
 
 **Purpose**: Analyze GitHub Actions workflows to compare job configurations and identify environment differences
