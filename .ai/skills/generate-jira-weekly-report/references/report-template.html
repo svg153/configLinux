@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<!--
+  DC2C · plantilla de informe semanal (autocontenida: sin scripts, sin CDN, sin recursos externos).
+
+  NO se rellena a mano. Se genera con:
+      node tools/fill-report.mjs <payload.json> <salida.html>
+  El generador importa report-model.mjs (la MISMA fuente de métricas que usa el canvas
+  jira-weekly), así que el informe y el canvas no pueden discrepar.
+
+  Sintaxis de plantilla (la expande tools/fill-report.mjs). Los ejemplos van con entidades
+  HTML a propósito: este comentario lo lee el propio generador, y unos llaves literales
+  dentro de la documentación se interpretarían como marcadores reales.
+
+      &#123;&#123;ruta&#125;&#125;                 valor escapado (HTML-escape)
+      &#123;&#123;&#123;ruta&#125;&#125;&#125;               valor sin escapar (sólo para HTML ya construido)
+      <!&#45;&#45; #each ruta &#45;&#45;>    repite el fragmento por cada elemento del array
+      <!&#45;&#45; /each &#45;&#45;>
+      <!&#45;&#45; #if ruta &#45;&#45;>      incluye el fragmento si el valor es truthy
+      <!&#45;&#45; /if &#45;&#45;>
+      <!&#45;&#45; #unless ruta &#45;&#45;>  incluye el fragmento si el valor es falsy
+      <!&#45;&#45; /unless &#45;&#45;>
+
+  Dentro de un #each hay cinco locales: «this» (el elemento, útil si es un escalar),
+  «@number» (posición 1-based), «@index», «@first» y «@last».
+
+  La geometría (posiciones x/y del mini-gantt, anchos de barra, ticks de mes) la calcula el
+  generador. Ninguna coordenada se escribe a mano aquí — ésa era la causa raíz de que el
+  informe anterior afirmara un ritmo observado que sus propios datos no sostenían.
+-->
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Informe semanal · {{PROJECT}} · {{REPORT_DATE}}</title>
+<style>
+  :root{
+    --bg:#f6f7f9; --card:#fff; --ink:#16202b; --muted:#5b6b7c; --line:#e3e7ec;
+    --accent:#0b6bcb; --done:#1a7f37; --warn:#b45309; --crit:#c0392b; --ready:#6f42c1;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);
+    font:15px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+  .wrap{max-width:1080px;margin:0 auto;padding:28px 20px 56px}
+  header.top{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:22px 24px}
+  h1{margin:0 0 4px;font-size:26px;letter-spacing:-.02em}
+  h2{margin:34px 0 12px;font-size:19px;letter-spacing:-.01em;
+     border-bottom:1px solid var(--line);padding-bottom:7px}
+  h3{margin:22px 0 8px;font-size:15px}
+  .sub{color:var(--muted);font-size:14px}
+  .chips{margin-top:14px;display:flex;flex-wrap:wrap;gap:8px}
+  .chip{background:#eef2f6;border:1px solid var(--line);border-radius:999px;
+    padding:3px 11px;font-size:12.5px;color:var(--muted)}
+  .chip b{color:var(--ink)}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:18px 20px}
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(158px,1fr));gap:12px}
+  .kpi{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px 16px}
+  .kpi .k{font-size:12px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}
+  .kpi .v{font-size:27px;font-weight:700;letter-spacing:-.02em;margin-top:4px}
+  .kpi .d{font-size:12.5px;color:var(--muted);margin-top:2px}
+  .kpi.done .v{color:var(--done)} .kpi.crit .v{color:var(--crit)} .kpi.warn .v{color:var(--warn)}
+  table{width:100%;border-collapse:collapse;font-size:14px}
+  th,td{text-align:left;padding:8px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+  th{font-size:12px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);font-weight:600}
+  td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
+  tr:last-child td{border-bottom:none}
+  .pill{display:inline-block;padding:1px 9px;border-radius:999px;font-size:12px;font-weight:600;
+    border:1px solid transparent;white-space:nowrap}
+  .s-back{background:#eef1f4;color:#4b5a69;border-color:#dbe1e8}
+  .s-ready{background:#f1eafd;color:#5a34a8;border-color:#e2d5f8}
+  .s-prog{background:#e7f0fd;color:#0b5bb0;border-color:#cfe1fa}
+  .s-rev{background:#fff4e2;color:#9a5b06;border-color:#f7e3c3}
+  .s-done{background:#e6f4ea;color:#166a2f;border-color:#cfe9d6}
+  .s-crit{background:#fdecea;color:#a02a1c;border-color:#f3c9c3}
+  .bar{position:relative;height:9px;border-radius:999px;background:#e9edf1;overflow:hidden;min-width:70px}
+  .bar>i{position:absolute;inset:0 auto 0 0;display:block;border-radius:999px}
+  .bar>i.b-done{background:var(--done)} .bar>i.b-crit{background:var(--crit)}
+  .bar>i.b-warn{background:var(--warn)} .bar>i.b-def{background:var(--accent)}
+  .note{border-radius:8px;padding:11px 14px;margin:10px 0;
+    background:#f7f9fb;border:1px solid var(--line)}
+  .note.crit{background:#fdf3f2;border-color:#f0c9c4}
+  .note.warn{background:#fdf8ef;border-color:#f0dfc0}
+  .note.ok{background:#f1f8f3;border-color:#cfe9d6}
+  .note.info{background:#f2f7fd;border-color:#cfe1fa}
+  .note .t{font-weight:700;font-size:14px} .note .b{color:var(--muted);font-size:13.5px;margin-top:3px}
+  .note .src{color:var(--muted);font-size:12px;margin-top:6px;font-style:italic}
+  .legend{display:flex;flex-wrap:wrap;gap:14px;margin-top:10px;font-size:12.5px;color:var(--muted)}
+  .legend span{display:flex;align-items:center;gap:6px}
+  .sw{width:11px;height:11px;border-radius:3px;display:inline-block}
+  ul.actions{margin:8px 0 0;padding-left:20px} ul.actions li{margin:7px 0}
+  ul.actions li b{display:block} ul.actions li span{color:var(--muted);font-size:13.5px}
+  .meta{color:var(--muted);font-size:12.5px;margin-top:10px}
+  .foot{margin-top:34px;padding-top:14px;border-top:1px solid var(--line);color:var(--muted);font-size:12.5px}
+  svg{max-width:100%;height:auto;display:block}
+  @media print{
+    body{background:#fff}
+    .wrap{max-width:none;padding:0}
+    .card,.kpi,header.top,.note{break-inside:avoid}
+    h2{break-after:avoid}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="top">
+  <h1>{{PROJECT}} &middot; informe semanal</h1>
+  <div class="sub">{{POC_NAME}} &mdash; tablero <b>{{BOARD_NAME}}</b> (Kanban, sin sprints) &middot; fuente: {{SOURCE}}</div>
+  <div class="chips">
+    <span class="chip">Fecha del informe <b>{{REPORT_DATE}}</b></span>
+    <span class="chip">Deadline <b>{{DEADLINE}}</b></span>
+    <span class="chip">Quedan <b>{{DAYS_LEFT}} d</b> / <b>{{WEEKS_LEFT}} sem</b></span>
+    <span class="chip">Snapshot <b>{{GENERATED_AT}}</b></span>
+  </div>
+  <div class="note info" style="margin-top:16px">
+    <div class="t">Resumen ejecutivo</div>
+    <div class="b">{{{EXEC_SUMMARY}}}</div>
+  </div>
+</header>
+
+<h2>1. Indicadores clave</h2>
+<div class="grid">
+  <div class="kpi"><div class="k">Issues totales</div><div class="v">{{TOTAL}}</div><div class="d">{{EPICS}} épicas + {{WORK_TOTAL}} items de trabajo</div></div>
+  <div class="kpi done"><div class="k">Cerradas</div><div class="v">{{DONE}}</div><div class="d">{{PCT_DONE}}% del total &middot; {{PCT_WORK_DONE}}% del trabajo</div></div>
+  <div class="kpi"><div class="k">Abiertas</div><div class="v">{{OPEN}}</div><div class="d">{{BACKLOG}} en backlog, {{READY}} ready, {{INFLIGHT}} en curso (items de trabajo)</div></div>
+  <div class="kpi warn"><div class="k">Ritmo necesario</div><div class="v">{{PACE_REQ}}/sem</div><div class="d">para cerrar {{OPEN}} items en {{WEEKS_LEFT}} semanas</div></div>
+  <div class="kpi {{PACE_OBS_CLASS}}"><div class="k">Ritmo observado</div><div class="v">{{PACE_OBS}}</div><div class="d">{{PACE_OBS_NOTE}}</div></div>
+  <div class="kpi {{DEVIATION_CLASS}}"><div class="k">Desviación vs plan</div><div class="v">{{DEVIATION_PCT}}%</div><div class="d">esperado {{EXPECTED_PCT}}% a esta altura</div></div>
+</div>
+<div class="meta">Denominadores: <b>{{TOTAL}}</b> issues incluyen los {{EPICS}} contenedores de épica; <b>{{WORK_TOTAL}}</b> es el trabajo real (todo menos épicas). Ambas cifras se publican porque la diferencia ({{PCT_DONE}}% vs {{PCT_WORK_DONE}}%) se usa indistintamente y confunde. Lo mismo pasa con «en curso»: los <b>{{INFLIGHT}}</b> son items de trabajo y las <b>{{INFLIGHT_EPICS}}</b> restantes hasta las {{INFLIGHT_ALL}} celdas de la rejilla son contenedores de épica también en curso. Ninguna de las dos cifras está mal: miden poblaciones distintas.</div>
+
+<h2>2. Avance global por estado</h2>
+<div class="card">
+  <svg viewBox="{{GLOBALBAR_VIEWBOX}}" width="100%" role="img" aria-label="Distribución de issues por estado">
+    <defs><clipPath id="jwGlobalBar"><rect x="0" y="10" width="{{GLOBALBAR_W}}" height="26" rx="6"></rect></clipPath></defs>
+    <rect x="0" y="10" width="{{GLOBALBAR_W}}" height="26" rx="6" fill="#eef1f4"></rect>
+    <g clip-path="url(#jwGlobalBar)">
+      <!-- #each globalBar.segments -->
+      <rect x="{{x}}" y="10" width="{{w}}" height="26" fill="{{fill}}"><title>{{title}}</title></rect>
+      <!-- /each -->
+    </g>
+    <!-- #each globalBar.labels -->
+    <text x="{{x}}" y="56" text-anchor="{{anchor}}" font-size="11.5" fill="#5b6b7c">{{text}}</text>
+    <!-- /each -->
+  </svg>
+  <div class="legend">
+    <!-- #each legend -->
+    <span><i class="sw" style="background:{{fill}}"></i>{{text}}</span>
+    <!-- /each -->
+  </div>
+  <table style="margin-top:16px">
+    <thead><tr><th>Estado</th><th class="num">Issues</th><th class="num">%</th><th>Distribución</th></tr></thead>
+    <tbody>
+      <!-- #each statusRows -->
+      <tr>
+        <td><span class="pill {{pillClass}}">{{status}}</span></td>
+        <td class="num">{{count}}</td>
+        <td class="num">{{pct}}%</td>
+        <td><div class="bar"><i class="{{barClass}}" style="width:{{barPct}}%"></i></div></td>
+      </tr>
+      <!-- /each -->
+      <tr>
+        <td><b>Total</b></td><td class="num"><b>{{TOTAL}}</b></td><td class="num"><b>100%</b></td><td></td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<h3>Matriz tipo &times; estado</h3>
+<div class="card">
+  <table>
+    <thead><tr><th>Tipo</th><!-- #each matrix.statuses --><th class="num">{{this}}</th><!-- /each --><th class="num">Total</th><th class="num">% hecho</th></tr></thead>
+    <tbody>
+      <!-- #each matrix.rows -->
+      <tr>
+        <td><b>{{type}}</b></td>
+        <!-- #each cells -->
+        <td class="num">{{count}}</td>
+        <!-- /each -->
+        <td class="num"><b>{{total}}</b></td>
+        <td class="num">{{pct}}%</td>
+      </tr>
+      <!-- /each -->
+    </tbody>
+  </table>
+</div>
+
+<h2>3. Avance por épica</h2>
+<div class="card">
+  <table>
+    <thead><tr><th>Épica</th><th>Estado</th><th>Hito</th><th class="num">Items</th><th class="num">Hechos</th><th>Avance</th></tr></thead>
+    <tbody>
+      <!-- #each epicRows -->
+      <tr>
+        <td><b>{{key}}</b> &middot; {{name}}<div class="meta">{{byTypeText}}</div></td>
+        <td><span class="pill {{pillClass}}">{{status}}</span></td>
+        <td>{{milestone}}</td>
+        <td class="num">{{total}}</td>
+        <td class="num">{{done}}</td>
+        <td><div class="bar"><i class="{{barClass}}" style="width:{{barPct}}%"></i></div><div class="meta">{{pct}}%</div></td>
+      </tr>
+      <!-- /each -->
+    </tbody>
+  </table>
+  <div class="meta">Los items incluyen la propia épica como contenedor. Las Sub-task se resuelven en dos saltos (Sub-task &rarr; Task &rarr; Épica); consultar sólo los hijos directos devuelve un rollup falso.</div>
+</div>
+
+<h2>4. Plan por hito (<code>fixVersion</code>) y deadline</h2>
+<div class="card">
+  <table>
+    <thead><tr><th>Hito</th><th>Ventana</th><th>Release</th><th class="num">Items</th><th class="num">Hechos</th><th>Avance</th><th>Vs deadline {{DEADLINE}}</th></tr></thead>
+    <tbody>
+      <!-- #each milestoneRows -->
+      <tr>
+        <td><b>{{name}}</b><div class="meta">{{description}}</div></td>
+        <td>{{window}}</td>
+        <td>{{releaseDate}}</td>
+        <td class="num">{{total}}</td>
+        <td class="num">{{done}}</td>
+        <td><div class="bar"><i class="{{barClass}}" style="width:{{barPct}}%"></i></div><div class="meta">{{pct}}%</div></td>
+        <td><span class="pill {{vsClass}}">{{vsDeadline}}</span></td>
+      </tr>
+      <!-- /each -->
+    </tbody>
+  </table>
+  <div class="meta">{{MILESTONE_NOTE}}</div>
+  <!-- #each milestoneNotes -->
+  <div class="note {{cls}}"><div class="t">{{title}}</div><div class="b">{{body}}</div></div>
+  <!-- /each -->
+</div>
+
+<h2>5. Timeline: ventana de trabajo por hito</h2>
+<div class="card">
+  <svg viewBox="{{GANTT_VIEWBOX}}" width="100%" role="img" aria-label="Mini-gantt de hitos frente al deadline">
+    <rect x="0" y="0" width="{{GANTT_W}}" height="{{GANTT_H}}" fill="#ffffff"></rect>
+    <!-- #each gantt.axisLabels -->
+    <text x="{{x}}" y="{{y}}" text-anchor="middle" font-size="11" fill="#8a97a5">{{text}}</text>
+    <!-- /each -->
+    <!-- #each gantt.axisTicks -->
+    <line x1="{{x}}" y1="{{y1}}" x2="{{x}}" y2="{{y2}}" stroke="#dbe1e8" stroke-width="1"></line>
+    <!-- /each -->
+    <!-- #each gantt.guides -->
+    <line x1="{{x}}" y1="{{y1}}" x2="{{x}}" y2="{{y2}}" stroke="{{stroke}}" stroke-width="{{sw}}" stroke-dasharray="{{dash}}"></line>
+    <!-- /each -->
+    <!-- #each gantt.rows -->
+    <text x="{{nameX}}" y="{{nameY}}" text-anchor="end" font-size="12.5" font-weight="600" fill="#16202b">{{name}}</text>
+    <rect x="{{x}}" y="{{y}}" width="{{w}}" height="{{h}}" rx="7" fill="#e9edf1"></rect>
+    <rect x="{{x}}" y="{{y}}" width="{{fillW}}" height="{{h}}" rx="7" fill="{{fill}}"></rect>
+    <circle cx="{{markX}}" cy="{{markY}}" r="4" fill="{{markFill}}"></circle>
+    <text x="{{pctX}}" y="{{pctY}}" text-anchor="{{pctAnchor}}" font-size="11.5" fill="#5b6b7c">{{pctLabel}}</text>
+    <!-- /each -->
+    <!-- #each gantt.footLabels -->
+    <text x="{{x}}" y="{{y}}" text-anchor="{{anchor}}" font-size="11.5" font-weight="{{weight}}" fill="{{fill}}">{{text}}</text>
+    <!-- /each -->
+  </svg>
+  <div class="legend">
+    <span><i class="sw" style="background:#e9edf1"></i>Ventana planificada (startDate &rarr; release)</span>
+    <span><i class="sw" style="background:#1a7f37"></i>Hecho</span>
+    <span><i class="sw" style="background:#c0392b"></i>Deadline</span>
+    <span><i class="sw" style="background:#0b6bcb"></i>Hoy</span>
+  </div>
+  <div class="meta">{{GANTT_NOTE}}</div>
+</div>
+
+<h2>6. Avance por componente</h2>
+<div class="card">
+  <table>
+    <thead><tr><th>Componente</th><th class="num">Items</th><th class="num">Hechos</th><th class="num">En curso</th><th>Avance</th></tr></thead>
+    <tbody>
+      <!-- #each componentRows -->
+      <tr>
+        <td><b>{{name}}</b></td>
+        <td class="num">{{total}}</td>
+        <td class="num">{{done}}</td>
+        <td class="num">{{inFlight}}</td>
+        <td><div class="bar"><i class="{{barClass}}" style="width:{{barPct}}%"></i></div><div class="meta">{{pct}}%</div></td>
+      </tr>
+      <!-- /each -->
+    </tbody>
+  </table>
+  <div class="meta">{{COMPONENT_NOTE}}</div>
+</div>
+
+<h2>7. Fechas de vencimiento y atención inmediata</h2>
+<div class="card">
+  <!-- #if dueDates.summary.nextOpen -->
+  <div class="note crit">
+    <div class="t">Atención inmediata: {{dueDates.summary.nextOpen.key}} &mdash; {{dueDates.summary.nextOpen.stateLabel}}</div>
+    <div class="b">{{dueDates.summary.nextOpen.summary}} &middot; vence {{dueDates.summary.nextOpen.dueDate}} &middot; {{dueDates.summary.nextOpen.status}} &middot; {{dueDates.summary.nextOpen.assignee}}</div>
+  </div>
+  <!-- /if -->
+  <table>
+    <thead><tr><th>Issue</th><th>Tipo</th><th>Estado</th><th>Vence</th><th class="num">Δ días</th><th>Situación</th><th>Asignado</th></tr></thead>
+    <tbody>
+      <!-- #each dueRows -->
+      <tr>
+        <td><b>{{key}}</b><div class="meta">{{summary}}</div></td>
+        <td>{{type}}</td>
+        <td><span class="pill {{pillClass}}">{{status}}</span></td>
+        <td>{{dueDate}}</td>
+        <td class="num">{{delta}}</td>
+        <td><span class="pill {{stateClass}}">{{stateLabel}}</span></td>
+        <td>{{assignee}}</td>
+      </tr>
+      <!-- /each -->
+    </tbody>
+  </table>
+  <div class="meta">{{DUE_NOTE}}</div>
+</div>
+
+<h2>8. Tiempo de ciclo: siembra vs trabajo real</h2>
+<div class="card">
+  <div class="grid">
+    <div class="kpi"><div class="k">Cierres medidos</div><div class="v">{{CYCLE_MEASURED}}</div><div class="d">con <code>created</code> y <code>resolutiondate</code></div></div>
+    <div class="kpi crit"><div class="k">Siembra del tablero</div><div class="v">{{CYCLE_SEEDED}}</div><div class="d">cerrados &lt; {{CYCLE_WINDOW}} min tras crearse</div></div>
+    <div class="kpi done"><div class="k">Trabajo real</div><div class="v">{{CYCLE_WORKED}}</div><div class="d">{{CYCLE_WORKED_RANGE}}</div></div>
+    <div class="kpi"><div class="k">Cierre más rápido</div><div class="v">{{CYCLE_FASTEST}}</div><div class="d">{{CYCLE_FASTEST_KEY}}</div></div>
+  </div>
+  <div class="note warn" style="margin-top:16px">
+    <div class="t">Por qué no se publica un «ritmo observado» fiable</div>
+    <div class="b">{{CYCLE_NOTE}}</div>
+  </div>
+  <table style="margin-top:6px">
+    <thead><tr><th>Issue</th><th class="num">Minutos created &rarr; resuelto</th><th>Lectura</th></tr></thead>
+    <tbody>
+      <!-- #each cycleRows -->
+      <tr><td><b>{{key}}</b></td><td class="num">{{minutes}}</td><td>{{label}}</td></tr>
+      <!-- /each -->
+    </tbody>
+  </table>
+</div>
+
+<h2>9. Riesgos detectados</h2>
+<!-- #each riskNotes -->
+<div class="note {{cls}}"><div class="t">{{title}}</div><div class="b">{{body}}</div><!-- #if origin -->
+<div class="src">Fuente: {{origin}}</div><!-- /if --></div>
+<!-- /each -->
+
+<h2>10. Carga por persona</h2>
+<div class="card">
+  <table>
+    <thead><tr><th>Asignado</th><th class="num">Items</th><th class="num">Hechos</th><th class="num">Abiertos</th><th>Reparto</th></tr></thead>
+    <tbody>
+      <!-- #each assigneeRows -->
+      <tr>
+        <td><b>{{name}}</b></td>
+        <td class="num">{{total}}</td>
+        <td class="num">{{done}}</td>
+        <td class="num">{{open}}</td>
+        <td><div class="bar"><i class="{{barClass}}" style="width:{{barPct}}%"></i></div></td>
+      </tr>
+      <!-- /each -->
+    </tbody>
+  </table>
+  <div class="note warn" style="margin-top:14px">
+    <div class="t">Concentración del cierre</div>
+    <div class="b">{{CONCENTRATION_NOTE}}</div>
+  </div>
+</div>
+
+<h2>11. Qué queda por hacer</h2>
+<ul class="actions">
+  <!-- #each actionItems -->
+  <li><b>{{title}}</b><span>{{detail}}</span></li>
+  <!-- /each -->
+</ul>
+
+<h2>12. Nota metodológica</h2>
+<div class="card">
+  <ul class="actions">
+    <li><b>Fuente y alcance</b><span>{{METHOD_SOURCE}}</span></li>
+    <li><b>Cómo se cuenta</b><span>{{METHOD_COUNT}}</span></li>
+    <li><b>Qué NO se mide</b><span>{{METHOD_GAPS}}</span></li>
+    <li><b>Reproducibilidad</b><span>{{METHOD_REPRO}}</span></li>
+  </ul>
+</div>
+
+<div class="foot">
+  Generado el {{GENERATED_AT}} desde {{SOURCE}} &middot; fecha del informe {{REPORT_DATE}} &middot; deadline {{DEADLINE}}.<br>
+  Tablero: <a href="{{BOARD_URL}}">{{BOARD_URL}}</a><br>
+  Documento autocontenido: sin scripts, sin hojas de estilo ni tipografías externas, sin peticiones de red. Se puede abrir con <code>file://</code> o imprimir a PDF.
+</div>
+
+</div>
+</body>
+</html>

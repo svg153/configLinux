@@ -1,17 +1,34 @@
 ---
 name: jira
-description: Use when the user mentions Jira issues (e.g., "PROJ-123"), asks about tickets, wants to create/view/update issues, check sprint status, or manage their Jira workflow. Triggers on keywords like "jira", "issue", "ticket", "sprint", "backlog", or issue key patterns.
+description: Use when the user mentions Jira issues (e.g., "PROJ-123"), asks about tickets, wants to create/view/update issues, check sprint status, or manage their Jira workflow. Triggers on keywords like "jira", "issue", "ticket", "sprint", "backlog", or issue key patterns. Also covers the DC2C project of the Jira-GH-Hybrid POC.
 ---
 
 # Jira
 
 Natural language interaction with Jira. Supports multiple backends.
 
+## Local environment (this machine)
+
+| Fact | Value |
+| --- | --- |
+| `jira` CLI | `C:\Users\sergio.valverde\tools\jira-cli\bin\jira.exe` (v1.7.0, on user PATH) |
+| Config | `C:\Users\sergio.valverde\.config\.jira\.config.yml` |
+| Token | user env var `JIRA_API_TOKEN` (or `%USERPROFILE%\_netrc`) |
+| Setup script | `C:\Users\sergio.valverde\.copilot\scripts\setup-jira-cli.ps1` |
+| Default project | `DC2C` on `https://bbva-team-dc2c.atlassian.net` |
+
+**Board context for DC2C** (site, `cloudId`, board id, status ids, epics, custom fields, known
+pitfalls, ready-made recipes): [`references/dc2c-board.md`](./references/dc2c-board.md). Read it
+before querying DC2C — do not rediscover it.
+
+There is a second, official CLI (`acli`, Atlassian) that is **not** installed on this machine. It is
+only worth reaching for bulk/branded operations driven by JQL or filter id. Do not assume it exists.
+
 ## Backend Detection
 
 **Run this check first** to determine which backend to use:
 
-```
+```text
 1. Check if jira CLI is available:
    → Run: which jira
    → If found: USE CLI BACKEND
