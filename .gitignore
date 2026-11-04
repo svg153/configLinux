@@ -10,3 +10,7 @@
 .config/pulse/
 SCRIPTS/engram/node_modules/
 SCRIPTS/engram/logs/
+
+# Local-only agent skills: hold board/project context that must not be published.
+.ai/skills/custom-board/
+.ai/skills/generate-jira-weekly-report/
