@@ -1,3 +1,8 @@
+---
+name: docker-buildx-debugger
+description: Diagnose Docker BuildX issues in CI/CD environments. Use when BuildX builds fail with unknown-flag errors, when multi-platform builds work locally but fail in CI, or when there are network or driver-related build failures.
+---
+
 # Skill: Docker BuildX Debugger
 
 **Purpose**: Diagnose Docker BuildX issues in CI/CD environments

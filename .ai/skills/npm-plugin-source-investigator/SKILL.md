@@ -1,3 +1,8 @@
+---
+name: npm-plugin-source-investigator
+description: Investigate NPM package source code in node_modules to understand its behavior and find root causes. Use when plugin documentation is incomplete, when behavior in CI/CD is unexpected, or when you need to understand hardcoded defaults or limitations.
+---
+
 # Skill: NPM Plugin Source Investigator
 
 **Purpose**: Investigate NPM package source code to understand behavior and find root causes
